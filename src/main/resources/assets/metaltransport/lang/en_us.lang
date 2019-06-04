@@ -1,9 +1,11 @@
-
 itemGroup.metaltransport=MetalTransport
-
-metalchests.client.update.prefix=MetalTransport
-metalchests.client.update= has an update! Download 
 
 # Since no one seems to do this
 entity.MinecartRideable.name=Minecart
 
+item.metaltransport:metal_minecart.copper.name=Copper Minecart
+item.metaltransport:metal_minecart.iron.name=Iron Minecart
+item.metaltransport:metal_minecart.silver.name=Silver Minecart
+item.metaltransport:metal_minecart.gold.name=Gold Minecart
+item.metaltransport:metal_minecart.diamond.name=Diamond Minecart
+item.metaltransport:metal_minecart.obsidian.name=Obsidian Minecart

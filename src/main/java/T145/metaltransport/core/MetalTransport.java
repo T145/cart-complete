@@ -89,7 +89,7 @@ public class MetalTransport {
 	public static void metaltransport$registerSerializers(final RegistryEvent.Register<DataSerializerEntry> event) {
 		final IForgeRegistry<DataSerializerEntry> registry = event.getRegistry();
 
-		registry.register(new DataSerializerEntry(SerializersMT.CART_TYPE = new DataSerializer<CartType>() {
+		registry.register(SerializersMT.CART_TYPE = new DataSerializerEntry(new DataSerializer<CartType>() {
 
 			@Override
 			public void write(PacketBuffer buf, CartType value) {

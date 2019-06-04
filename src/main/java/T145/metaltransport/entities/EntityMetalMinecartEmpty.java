@@ -9,16 +9,18 @@ import net.minecraft.entity.item.EntityMinecartEmpty;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializer;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.world.World;
 
 public class EntityMetalMinecartEmpty extends EntityMinecartEmpty implements IMetalMinecart {
 
-	private static final DataParameter<CartType> CART_TYPE = EntityDataManager.createKey(EntityMetalMinecartEmpty.class, SerializersMT.CART_TYPE);
+	private static final DataSerializer<CartType> SERIAL_CART_TYPE = SerializersMT.<CartType>getSerializer(SerializersMT.CART_TYPE);
+	private static final DataParameter<CartType> CART_TYPE = EntityDataManager.createKey(EntityMetalMinecartEmpty.class, SERIAL_CART_TYPE);
 
 	public EntityMetalMinecartEmpty(World world, CartType type) {
 		super(world);
-		this.setCartType(type);
+		setCartType(type);
 	}
 
 	public EntityMetalMinecartEmpty(World world) {
@@ -27,7 +29,7 @@ public class EntityMetalMinecartEmpty extends EntityMinecartEmpty implements IMe
 
 	public EntityMetalMinecartEmpty(World world, double x, double y, double z, CartType type) {
 		super(world, x, y, z);
-		this.setCartType(type);
+		setCartType(type);
 	}
 
 	public EntityMetalMinecartEmpty(World world, double x, double y, double z) {
@@ -57,12 +59,12 @@ public class EntityMetalMinecartEmpty extends EntityMinecartEmpty implements IMe
 
 	@Override
 	public CartType getCartType() {
-		return this.dataManager.get(CART_TYPE);
+		return dataManager.get(CART_TYPE);
 	}
 
 	@Override
 	public void setCartType(CartType type) {
-		this.dataManager.set(CART_TYPE, type);
+		dataManager.set(CART_TYPE, type);
 	}
 
 	@Override
@@ -80,7 +82,7 @@ public class EntityMetalMinecartEmpty extends EntityMinecartEmpty implements IMe
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound tag) {
 		super.readEntityFromNBT(tag);
-		this.setCartType(CartType.valueOf(tag.getString(TAG_CART_TYPE)));
+		setCartType(CartType.valueOf(tag.getString(TAG_CART_TYPE)));
 	}
 
 	@Override

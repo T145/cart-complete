@@ -3,23 +3,32 @@ package T145.metaltransport.core;
 import java.io.IOException;
 
 import T145.metaltransport.api.EntitiesMT;
+import T145.metaltransport.api.ItemsMT;
 import T145.metaltransport.api.constants.CartType;
 import T145.metaltransport.api.constants.RegistryMT;
 import T145.metaltransport.client.render.entities.RenderMetalMinecartEmpty;
 import T145.metaltransport.entities.EntityMetalMinecartEmpty;
+import T145.metaltransport.items.ItemMetalMinecart;
+import net.minecraft.block.Block;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.item.Item;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializer;
+import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.StringUtils;
 import net.minecraft.util.datafix.DataFixer;
 import net.minecraft.util.datafix.FixTypes;
 import net.minecraft.util.datafix.walkers.ItemStackDataLists;
 import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -115,6 +124,8 @@ public class MetalTransport {
 	@SubscribeEvent
 	public static void metaltransport$registerItems(final RegistryEvent.Register<Item> event) {
 		final IForgeRegistry<Item> registry = event.getRegistry();
+
+		registry.register(ItemsMT.METAL_MINECART = new ItemMetalMinecart());
 	}
 
 	@SubscribeEvent
@@ -125,8 +136,57 @@ public class MetalTransport {
 	}
 
 	@SideOnly(Side.CLIENT)
+	public static ModelResourceLocation getCustomModel(Item item, String customDomain, StringBuilder variantPath) {
+		if (StringUtils.isNullOrEmpty(customDomain)) {
+			return new ModelResourceLocation(item.getRegistryName(), variantPath.toString());
+		} else {
+			return new ModelResourceLocation(String.format("%s:%s", RegistryMT.ID, customDomain), variantPath.toString());
+		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static void registerModel(Item item, String customDomain, int meta, String... variants) {
+		StringBuilder variantPath = new StringBuilder(variants[0]);
+
+		for (int i = 1; i < variants.length; ++i) {
+			variantPath.append(',').append(variants[i]);
+		}
+
+		ModelLoader.setCustomModelResourceLocation(item, meta, getCustomModel(item, customDomain, variantPath));
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static void registerModel(Block block, String customDomain, int meta, String... variants) {
+		registerModel(Item.getItemFromBlock(block), customDomain, meta, variants);
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static void registerModel(Item item, int meta, String... variants) {
+		registerModel(item, null, meta, variants);
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static void registerModel(Block block, int meta, String... variants) {
+		registerModel(block, null, meta, variants);
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static void registerTileRenderer(Class tileClass, TileEntitySpecialRenderer tileRenderer) {
+		ClientRegistry.bindTileEntitySpecialRenderer(tileClass, tileRenderer);
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static String getVariantName(IStringSerializable variant) {
+		return String.format("variant=%s", variant.getName());
+	}
+
+	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public static void metaltransport$registerModels(final ModelRegistryEvent event) {
+		for (CartType type : CartType.values()) {
+			registerModel(ItemsMT.METAL_MINECART, "item_minecart", type.ordinal(), String.format("item=%s", type.getName()));
+		}
+
 		RenderingRegistry.registerEntityRenderingHandler(EntityMetalMinecartEmpty.class, manager -> new RenderMetalMinecartEmpty(manager));
 	}
 }

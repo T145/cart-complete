@@ -27,7 +27,7 @@ public class RegistryMT {
 		public ItemStack createIcon() {
 			return new ItemStack(Items.MINECART);
 		}
-	}.setBackgroundImageName("item_search.png");
+	};
 
 	public static boolean inDevMode() {
 		return VERSION.contentEquals("@VERSION@");
@@ -38,4 +38,5 @@ public class RegistryMT {
 	}
 
 	public static final String KEY_METAL_MINECART = "metal_minecart";
+	public static final ResourceLocation RESOURCE_METAL_MINECART = getResource(KEY_METAL_MINECART);
 }

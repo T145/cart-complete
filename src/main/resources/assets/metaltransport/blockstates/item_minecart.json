@@ -2,41 +2,38 @@
     "forge_marker": 1,
     "defaults": {
         "model": "builtin/generated",
-        "transform": "forge:default-item",
-        "textures": {
-            "layer0": "metalchests:items/minecarts/base_iron"
-        }
+        "transform": "forge:default-item"
     },
     "variants": {
         "item": {
-            "copper_chest": {
+            "copper": {
                 "textures": {
-                    "layer1": "metalchests:items/minecarts/top_chest_copper"
+                    "layer0": "metaltransport:items/minecarts/base_copper"
                 }
             },
-            "iron_chest": {
+            "iron": {
                 "textures": {
-                    "layer1": "metalchests:items/minecarts/top_chest_iron"
+                    "layer0": "metaltransport:items/minecarts/base_iron"
                 }
             },
-            "silver_chest": {
+            "silver": {
                 "textures": {
-                    "layer1": "metalchests:items/minecarts/top_chest_silver"
+                    "layer0": "metaltransport:items/minecarts/base_silver"
                 }
             },
-            "gold_chest": {
+            "gold": {
                 "textures": {
-                    "layer1": "metalchests:items/minecarts/top_chest_gold"
+                    "layer0": "metaltransport:items/minecarts/base_gold"
                 }
             },
-            "diamond_chest": {
+            "diamond": {
                 "textures": {
-                    "layer1": "metalchests:items/minecarts/top_chest_diamond"
+                    "layer0": "metaltransport:items/minecarts/base_diamond"
                 }
             },
-            "obsidian_chest": {
+            "obsidian": {
                 "textures": {
-                    "layer1": "metalchests:items/minecarts/top_chest_obsidian"
+                    "layer0": "metaltransport:items/minecarts/base_obsidian"
                 }
             }
         }

@@ -1,4 +1,4 @@
-<p align="center"><img src="https://i.imgur.com/Vsj2cT2.png"/></p>
+<p align="center"><img src="https://github.com/T145/metaltransport/blob/master/src/main/resources/assets/metaltransport/logo.png"/></p>
 
 ***
 

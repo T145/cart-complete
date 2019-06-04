@@ -1,0 +1,10 @@
+{
+    "homepage": "https://minecraft.curseforge.com/projects/metaltransport",
+    "1.12.2": {
+        "origin": "https://github.com/T145/metaltransport"
+    },
+    "promos": {
+        "1.12.2-latest": "origin",
+        "1.12.2-recommended": "origin"
+    }
+}

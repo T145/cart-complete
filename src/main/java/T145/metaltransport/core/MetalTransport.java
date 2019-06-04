@@ -4,31 +4,25 @@ import java.io.IOException;
 
 import T145.metaltransport.api.EntitiesMT;
 import T145.metaltransport.api.ItemsMT;
+import T145.metaltransport.api.SerializersMT;
 import T145.metaltransport.api.constants.CartType;
 import T145.metaltransport.api.constants.RegistryMT;
 import T145.metaltransport.client.render.entities.RenderMetalMinecartEmpty;
 import T145.metaltransport.entities.EntityMetalMinecartEmpty;
 import T145.metaltransport.items.ItemMetalMinecart;
-import net.minecraft.block.Block;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import T145.tbone.core.TBone;
+import T145.tbone.dispenser.BehaviorDispenseMinecart;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.item.Item;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializer;
-import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.StringUtils;
 import net.minecraft.util.datafix.DataFixer;
-import net.minecraft.util.datafix.FixTypes;
-import net.minecraft.util.datafix.walkers.ItemStackDataLists;
 import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -47,9 +41,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.DataSerializerEntry;
 import net.minecraftforge.registries.IForgeRegistry;
 
-@Mod(modid = RegistryMT.ID, name = RegistryMT.NAME, version = RegistryMT.VERSION, updateJSON = RegistryMT.UPDATE_JSON, dependencies = "required-after:metalchests")
+@Mod(modid = RegistryMT.ID, name = RegistryMT.NAME, version = RegistryMT.VERSION, updateJSON = RegistryMT.UPDATE_JSON, dependencies = "required-after:tbone")
 @EventBusSubscriber(modid = RegistryMT.ID)
 public class MetalTransport {
+
+	public MetalTransport() {
+		TBone.registerMod(RegistryMT.ID, RegistryMT.NAME);
+	}
 
 	@Instance(RegistryMT.ID)
 	public static MetalTransport instance;
@@ -69,10 +67,6 @@ public class MetalTransport {
 		meta.version = RegistryMT.VERSION;
 	}
 
-	private void registerInventoryEntityFixes(DataFixer fixer, Class entityClass) {
-		fixer.registerWalker(FixTypes.ENTITY, new ItemStackDataLists(entityClass, new String[] { "Items" }));
-	}
-
 	@EventHandler
 	public void metaltransport$init(final FMLInitializationEvent event) {
 		DataFixer fixer = FMLCommonHandler.instance().getDataFixer();
@@ -81,7 +75,7 @@ public class MetalTransport {
 
 	@EventHandler
 	public void metaltransport$postInit(final FMLPostInitializationEvent event) {
-		// TODO: Add some things here
+		BehaviorDispenseMinecart.register(ItemsMT.METAL_MINECART, ItemMetalMinecart.DISPENSER_BEHAVIOR);
 	}
 
 	@SubscribeEvent
@@ -91,34 +85,32 @@ public class MetalTransport {
 		}
 	}
 
-	public static final DataSerializer<CartType> CART_TYPE = new DataSerializer<CartType>() {
-
-		@Override
-		public void write(PacketBuffer buf, CartType value) {
-			buf.writeEnumValue(value);
-		}
-
-		@Override
-		public CartType read(PacketBuffer buf) throws IOException {
-			return buf.readEnumValue(CartType.class);
-		}
-
-		@Override
-		public DataParameter<CartType> createKey(int id) {
-			return new DataParameter<CartType>(id, this);
-		}
-
-		@Override
-		public CartType copyValue(CartType value) {
-			return value;
-		}
-	};
-
 	@SubscribeEvent
-	public static void metalchests$registerSerializers(final RegistryEvent.Register<DataSerializerEntry> event) {
+	public static void metaltransport$registerSerializers(final RegistryEvent.Register<DataSerializerEntry> event) {
 		final IForgeRegistry<DataSerializerEntry> registry = event.getRegistry();
 
-		registry.register(new DataSerializerEntry(CART_TYPE).setRegistryName(RegistryMT.ID, "cart_type"));
+		registry.register(new DataSerializerEntry(SerializersMT.CART_TYPE = new DataSerializer<CartType>() {
+
+			@Override
+			public void write(PacketBuffer buf, CartType value) {
+				buf.writeEnumValue(value);
+			}
+
+			@Override
+			public CartType read(PacketBuffer buf) throws IOException {
+				return buf.readEnumValue(CartType.class);
+			}
+
+			@Override
+			public DataParameter<CartType> createKey(int id) {
+				return new DataParameter<CartType>(id, this);
+			}
+
+			@Override
+			public CartType copyValue(CartType value) {
+				return value;
+			}
+		}).setRegistryName(RegistryMT.ID, "cart_type"));
 	}
 
 	@SubscribeEvent
@@ -136,55 +128,10 @@ public class MetalTransport {
 	}
 
 	@SideOnly(Side.CLIENT)
-	public static ModelResourceLocation getCustomModel(Item item, String customDomain, StringBuilder variantPath) {
-		if (StringUtils.isNullOrEmpty(customDomain)) {
-			return new ModelResourceLocation(item.getRegistryName(), variantPath.toString());
-		} else {
-			return new ModelResourceLocation(String.format("%s:%s", RegistryMT.ID, customDomain), variantPath.toString());
-		}
-	}
-
-	@SideOnly(Side.CLIENT)
-	public static void registerModel(Item item, String customDomain, int meta, String... variants) {
-		StringBuilder variantPath = new StringBuilder(variants[0]);
-
-		for (int i = 1; i < variants.length; ++i) {
-			variantPath.append(',').append(variants[i]);
-		}
-
-		ModelLoader.setCustomModelResourceLocation(item, meta, getCustomModel(item, customDomain, variantPath));
-	}
-
-	@SideOnly(Side.CLIENT)
-	public static void registerModel(Block block, String customDomain, int meta, String... variants) {
-		registerModel(Item.getItemFromBlock(block), customDomain, meta, variants);
-	}
-
-	@SideOnly(Side.CLIENT)
-	public static void registerModel(Item item, int meta, String... variants) {
-		registerModel(item, null, meta, variants);
-	}
-
-	@SideOnly(Side.CLIENT)
-	public static void registerModel(Block block, int meta, String... variants) {
-		registerModel(block, null, meta, variants);
-	}
-
-	@SideOnly(Side.CLIENT)
-	public static void registerTileRenderer(Class tileClass, TileEntitySpecialRenderer tileRenderer) {
-		ClientRegistry.bindTileEntitySpecialRenderer(tileClass, tileRenderer);
-	}
-
-	@SideOnly(Side.CLIENT)
-	public static String getVariantName(IStringSerializable variant) {
-		return String.format("variant=%s", variant.getName());
-	}
-
-	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public static void metaltransport$registerModels(final ModelRegistryEvent event) {
 		for (CartType type : CartType.values()) {
-			registerModel(ItemsMT.METAL_MINECART, "item_minecart", type.ordinal(), String.format("item=%s", type.getName()));
+			TBone.registerModel(RegistryMT.ID, ItemsMT.METAL_MINECART, "item_minecart", type.ordinal(), String.format("item=%s", type.getName()));
 		}
 
 		RenderingRegistry.registerEntityRenderingHandler(EntityMetalMinecartEmpty.class, manager -> new RenderMetalMinecartEmpty(manager));

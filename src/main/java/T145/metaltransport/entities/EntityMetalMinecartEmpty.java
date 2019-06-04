@@ -1,10 +1,12 @@
 package T145.metaltransport.entities;
 
+import T145.metaltransport.api.ItemsMT;
+import T145.metaltransport.api.SerializersMT;
 import T145.metaltransport.api.carts.IMetalMinecart;
 import T145.metaltransport.api.constants.CartType;
-import T145.metaltransport.core.MetalTransport;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.item.EntityMinecartEmpty;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -12,7 +14,7 @@ import net.minecraft.world.World;
 
 public class EntityMetalMinecartEmpty extends EntityMinecartEmpty implements IMetalMinecart {
 
-	private static final DataParameter<CartType> CART_TYPE = EntityDataManager.createKey(EntityMetalMinecartEmpty.class, MetalTransport.CART_TYPE);
+	private static final DataParameter<CartType> CART_TYPE = EntityDataManager.createKey(EntityMetalMinecartEmpty.class, SerializersMT.CART_TYPE);
 
 	public EntityMetalMinecartEmpty(World world, CartType type) {
 		super(world);
@@ -81,8 +83,8 @@ public class EntityMetalMinecartEmpty extends EntityMinecartEmpty implements IMe
 		this.setCartType(CartType.valueOf(tag.getString(TAG_CART_TYPE)));
 	}
 
-	//	@Override
-	//	public ItemStack getCartItem() {
-	//		return new ItemStack(ItemsMC.MINECART_METAL_CHEST, 1, getChestType().ordinal());
-	//	}
+	@Override
+	public ItemStack getCartItem() {
+		return new ItemStack(ItemsMT.METAL_MINECART, 1, getCartType().ordinal());
+	}
 }

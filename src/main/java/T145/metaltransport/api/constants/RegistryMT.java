@@ -39,5 +39,8 @@ public class RegistryMT {
 
 	public static final String KEY_METAL_MINECART = "metal_minecart";
 	public static final ResourceLocation RESOURCE_METAL_MINECART = getResource(KEY_METAL_MINECART);
+	public static final String KEY_RIDING_BLOCK = "riding_block";
+	public static final ResourceLocation RESOURCE_RIDING_BLOCK = getResource(KEY_RIDING_BLOCK);
+
 	public static final String KEY_CART_TYPE = "cart_type";
 }

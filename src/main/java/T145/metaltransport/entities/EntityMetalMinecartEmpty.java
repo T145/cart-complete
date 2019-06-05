@@ -4,6 +4,7 @@ import T145.metaltransport.api.ItemsMT;
 import T145.metaltransport.api.SerializersMT;
 import T145.metaltransport.api.carts.IMetalMinecart;
 import T145.metaltransport.api.constants.CartType;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.item.EntityMinecartEmpty;
 import net.minecraft.item.ItemStack;
@@ -88,5 +89,14 @@ public class EntityMetalMinecartEmpty extends EntityMinecartEmpty implements IMe
 	@Override
 	public ItemStack getCartItem() {
 		return new ItemStack(ItemsMT.METAL_MINECART, 1, getCartType().ordinal());
+	}
+
+	@Override
+	public String getName() {
+		if (hasCustomName()) {
+			return getCustomNameTag();
+		} else {
+			return I18n.format(String.format("item.metaltransport:metal_minecart.%s.name", getCartType().getName()));
+		}
 	}
 }

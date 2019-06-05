@@ -11,4 +11,7 @@ public class EntitiesMT {
 
 	@ObjectHolder(RegistryMT.KEY_METAL_MINECART)
 	public static EntityEntry METAL_MINECART;
+
+	@ObjectHolder(RegistryMT.KEY_RIDING_BLOCK)
+	public static EntityEntry RIDING_BLOCK;
 }

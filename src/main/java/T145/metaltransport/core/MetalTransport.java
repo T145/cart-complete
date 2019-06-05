@@ -14,6 +14,7 @@ import T145.metaltransport.entities.EntityRidingBlock;
 import T145.metaltransport.items.ItemMetalMinecart;
 import T145.tbone.core.TBone;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
+import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
@@ -143,7 +144,7 @@ public class MetalTransport {
 		for (CartType type : CartType.values()) {
 			TBone.registerModel(RegistryMT.ID, ItemsMT.METAL_MINECART, "item_minecart", type.ordinal(), String.format("item=%s", type.getName()));
 		}
-		
+
 		RenderingRegistry.registerEntityRenderingHandler(EntityMetalMinecartEmpty.class, manager -> new RenderMetalMinecartEmpty(manager));
 		RenderingRegistry.registerEntityRenderingHandler(EntityRidingBlock.class, manager -> new RenderRidingBlock(manager));
 	}
@@ -168,7 +169,8 @@ public class MetalTransport {
 
 			if (!stack.isEmpty()) {
 				World world = event.getWorld();
-				EntityRidingBlock passenger = new EntityRidingBlock(world, stack);
+				EntityRidingBlock passenger = new EntityRidingBlock(world);
+				passenger.setInternalBlockState(Block.getBlockFromItem(stack.getItem()).getDefaultState());
 				passenger.setPosition(target.posX, target.posY, target.posZ);
 				passenger.rotationYaw = target.rotationYaw;
 

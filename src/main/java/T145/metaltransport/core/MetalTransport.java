@@ -17,7 +17,6 @@ import T145.tbone.dispenser.BehaviorDispenseMinecart;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
@@ -144,17 +143,13 @@ public class MetalTransport {
 		for (CartType type : CartType.values()) {
 			TBone.registerModel(RegistryMT.ID, ItemsMT.METAL_MINECART, "item_minecart", type.ordinal(), String.format("item=%s", type.getName()));
 		}
-
+		
 		RenderingRegistry.registerEntityRenderingHandler(EntityMetalMinecartEmpty.class, manager -> new RenderMetalMinecartEmpty(manager));
 		RenderingRegistry.registerEntityRenderingHandler(EntityRidingBlock.class, manager -> new RenderRidingBlock(manager));
 	}
 
 	private static boolean isValidEntity(Entity entity) {
-		return entity instanceof EntityMinecart;
-	}
-
-	private static boolean isValidStack(ItemStack stack) {
-		return stack.getItem() == Item.getItemFromBlock(Blocks.FURNACE);
+		return true;
 	}
 
 	@SubscribeEvent
@@ -166,20 +161,22 @@ public class MetalTransport {
 			EnumHand hand = EnumHand.MAIN_HAND;
 			ItemStack stack = player.getHeldItemMainhand();
 
-			if (!isValidStack(stack)) {
+			if (stack.isEmpty()) {
 				stack = player.getHeldItemOffhand();
 				hand = EnumHand.OFF_HAND;
 			}
 
-			if (isValidStack(stack)) {
+			if (!stack.isEmpty()) {
 				World world = event.getWorld();
 				EntityRidingBlock passenger = new EntityRidingBlock(world, stack);
 				passenger.setPosition(target.posX, target.posY, target.posZ);
 				passenger.rotationYaw = target.rotationYaw;
 
 				if (!event.getWorld().isRemote) {
-					if (!player.isCreative())
+					if (!player.isCreative()) {
 						stack.shrink(1);
+					}
+
 					world.spawnEntity(passenger);
 					passenger.startRiding(target);
 				}

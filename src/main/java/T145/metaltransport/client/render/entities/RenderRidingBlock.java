@@ -8,6 +8,9 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityMinecart;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -23,24 +26,27 @@ public class RenderRidingBlock extends Render<EntityRidingBlock> {
 	public void doRender(@Nonnull EntityRidingBlock rider, double x, double y, double z, float entityYaw, float partialTicks) {
 		super.doRender(rider, x, y, z, entityYaw, partialTicks);
 
-		if (!rider.isRiding() || rider.getDisplayStack().isEmpty()) {
+		Entity mount = rider.getRidingEntity();
+
+		if (!rider.isRiding() || mount == null) {
 			return;
 		}
 
-		//float rot = 180F - entityYaw;
+		ItemStack displayStack = rider.getDisplayStack();
 
-		GlStateManager.pushMatrix();
-		GlStateManager.translate(x, y, z);
-		//GlStateManager.rotate(90F, 0F, 1F, 0F);
-		GlStateManager.translate(0F, 0.7F, -0.15F);
+		if (displayStack.isEmpty()) {
+			return;
+		}
 
-		//if (boat.getPassengers().size() == 1)
-		//GlStateManager.translate(0F, 0F, 0.6F);
-
-		GlStateManager.scale(1.75F, 1.75F, 1.75F);
-
-		Minecraft.getMinecraft().getRenderItem().renderItem(rider.getDisplayStack(), ItemCameraTransforms.TransformType.FIXED);
-		GlStateManager.popMatrix();
+		if (mount instanceof EntityMinecart) {
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(x, y, z);
+			GlStateManager.rotate(90F - entityYaw, 0F, 1F, 0F);
+			GlStateManager.translate(0F, 0.655F, 0F);
+			GlStateManager.scale(1.5F, 1.484F, 1.5F);
+			Minecraft.getMinecraft().getRenderItem().renderItem(displayStack, ItemCameraTransforms.TransformType.FIXED);
+			GlStateManager.popMatrix();
+		}
 	}
 
 	@Override

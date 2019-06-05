@@ -1,5 +1,7 @@
 package T145.metaltransport.entities;
 
+import T145.metaltransport.api.constants.RegistryMT;
+import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -23,6 +25,14 @@ public class EntityRidingBlock extends Entity {
 	}
 
 	public void setDisplayStack(ItemStack stack) {
+		try {
+			if (Block.getBlockFromItem(stack.getItem()) == null) {
+				throw new NullPointerException(" [EntityRidingBlock] ItemStack must have a block in its contents, not an item!");
+			}
+		} catch (NullPointerException err) {
+			RegistryMT.LOG.catching(err);
+		}
+
 		if (stack.getCount() > 1) {
 			ItemStack newStack = stack.copy();
 			newStack.setCount(1);

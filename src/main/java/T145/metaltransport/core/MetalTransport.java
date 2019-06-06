@@ -7,9 +7,8 @@ import T145.metaltransport.api.ItemsMT;
 import T145.metaltransport.api.SerializersMT;
 import T145.metaltransport.api.constants.CartType;
 import T145.metaltransport.api.constants.RegistryMT;
-import T145.metaltransport.client.render.entities.RenderMetalMinecartEmpty;
-import T145.metaltransport.entities.EntityMetalMinecartBlock;
-import T145.metaltransport.entities.EntityMetalMinecartEmpty;
+import T145.metaltransport.client.render.entities.RenderMetalMinecart;
+import T145.metaltransport.entities.EntityMetalMinecart;
 import T145.metaltransport.items.ItemMetalMinecart;
 import T145.tbone.core.TBone;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
@@ -81,7 +80,7 @@ public class MetalTransport {
 	@EventHandler
 	public void metaltransport$init(final FMLInitializationEvent event) {
 		DataFixer fixer = FMLCommonHandler.instance().getDataFixer();
-		EntityMinecart.registerFixesMinecart(fixer, EntityMetalMinecartEmpty.class);
+		EntityMinecart.registerFixesMinecart(fixer, EntityMetalMinecart.class);
 	}
 
 	@EventHandler
@@ -139,11 +138,7 @@ public class MetalTransport {
 		registry.register(EntitiesMT.METAL_MINECART = EntityEntryBuilder.create()
 				.id(RegistryMT.KEY_METAL_MINECART, 0)
 				.name(RegistryMT.KEY_METAL_MINECART)
-				.entity(EntityMetalMinecartEmpty.class).tracker(80, 3, true).build());
-		registry.register(EntitiesMT.METAL_MINECART_BLOCK = EntityEntryBuilder.create()
-				.id(RegistryMT.KEY_METAL_MINECART_BLOCK, 1)
-				.name(RegistryMT.KEY_METAL_MINECART_BLOCK)
-				.entity(EntityMetalMinecartBlock.class).tracker(80, 3, true).build());
+				.entity(EntityMetalMinecart.class).tracker(80, 3, true).build());
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -153,8 +148,7 @@ public class MetalTransport {
 			TBone.registerModel(RegistryMT.ID, ItemsMT.METAL_MINECART, "item_minecart", type.ordinal(),	String.format("item=%s", type.getName()));
 		}
 
-		RenderingRegistry.registerEntityRenderingHandler(EntityMetalMinecartEmpty.class, manager -> new RenderMetalMinecartEmpty(manager));
-		RenderingRegistry.registerEntityRenderingHandler(EntityMetalMinecartBlock.class, manager -> new RenderMetalMinecartEmpty(manager));
+		RenderingRegistry.registerEntityRenderingHandler(EntityMetalMinecart.class, manager -> new RenderMetalMinecart(manager));
 	}
 
 	private static boolean isSolidBlock(ItemStack stack) {
@@ -178,7 +172,7 @@ public class MetalTransport {
 
 			if (isSolidBlock(stack)) {
 				World world = event.getWorld();
-				EntityMetalMinecartBlock cart = new EntityMetalMinecartBlock((EntityMinecartEmpty) target);
+				EntityMetalMinecart cart = new EntityMetalMinecart((EntityMinecartEmpty) target);
 				cart.setDisplayTile(stack);
 
 				if (!world.isRemote) {

@@ -2,7 +2,7 @@ package T145.metaltransport.items;
 
 import T145.metaltransport.api.constants.CartType;
 import T145.metaltransport.api.constants.RegistryMT;
-import T145.metaltransport.entities.EntityMetalMinecartEmpty;
+import T145.metaltransport.entities.EntityMetalMinecart;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
 import T145.tbone.items.TItem;
 import net.minecraft.entity.item.EntityMinecart;
@@ -21,7 +21,7 @@ public class ItemMetalMinecart extends TItem {
 
 		@Override
 		public EntityMinecart getMinecartEntity(World world, double x, double y, double z, ItemStack stack) {
-			return new EntityMetalMinecartEmpty(world, x, y, z).setCartType(CartType.byMetadata(stack.getItemDamage()));
+			return new EntityMetalMinecart(world, x, y, z).setCartType(CartType.byMetadata(stack.getItemDamage()));
 		}
 	};
 

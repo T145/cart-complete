@@ -4,34 +4,41 @@ import T145.metaltransport.api.ItemsMT;
 import T145.metaltransport.api.SerializersMT;
 import T145.metaltransport.api.carts.IMetalMinecart;
 import T145.metaltransport.api.constants.CartType;
+import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.item.EntityMinecartEmpty;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 
-public class EntityMetalMinecartEmpty extends EntityMinecartEmpty implements IMetalMinecart {
+public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMinecart {
 
-	private static final DataParameter<CartType> CART_TYPE = EntityDataManager.createKey(EntityMetalMinecartEmpty.class, SerializersMT.CART_TYPE);
+	private static final DataParameter<CartType> CART_TYPE = EntityDataManager.createKey(EntityMetalMinecart.class, SerializersMT.CART_TYPE);
 
-	public EntityMetalMinecartEmpty(World world) {
+	public EntityMetalMinecart(World world) {
 		super(world);
 	}
 
-	public EntityMetalMinecartEmpty(World world, double x, double y, double z) {
+	public EntityMetalMinecart(World world, double x, double y, double z) {
 		super(world, x, y, z);
 	}
 
-	public EntityMetalMinecartEmpty(EntityMinecart cart) {
+	public EntityMetalMinecart(EntityMinecart cart) {
 		this(cart.getEntityWorld(), cart.prevPosX, cart.prevPosY, cart.prevPosZ);
 
-		if (cart instanceof EntityMetalMinecartEmpty) {
-			this.setCartType(((EntityMetalMinecartEmpty) cart).getCartType());
+		if (cart instanceof EntityMetalMinecart) {
+			this.setCartType(((EntityMetalMinecart) cart).getCartType());
 		} else if (cart instanceof EntityMinecartEmpty) {
 			this.setCartType(CartType.IRON);
+		} else if (cart.hasDisplayTile()) {
+			this.setDisplayTile(cart.getDisplayTile());
 		}
 
 		this.posX = cart.posX;
@@ -42,6 +49,18 @@ public class EntityMetalMinecartEmpty extends EntityMinecartEmpty implements IMe
 		this.motionZ = cart.motionZ;
 		this.rotationPitch = cart.rotationPitch;
 		this.rotationYaw = cart.rotationYaw;
+	}
+
+	public void setDisplayTile(Block block) {
+		this.setDisplayTile(block.getDefaultState());
+	}
+
+	public void setDisplayTile(Item item) {
+		this.setDisplayTile(Block.getBlockFromItem(item));
+	}
+
+	public void setDisplayTile(ItemStack stack) {
+		this.setDisplayTile(stack.getItem());
 	}
 
 	@Override
@@ -79,11 +98,53 @@ public class EntityMetalMinecartEmpty extends EntityMinecartEmpty implements IMe
 	}
 
 	@Override
+	public boolean canBeRidden() {
+		return !this.hasDisplayTile();
+	}
+
+	@Override
 	public String getName() {
 		if (hasCustomName()) {
 			return getCustomNameTag();
 		} else {
 			return I18n.format(String.format("item.metaltransport:metal_minecart.%s.name", getCartType().getName()));
 		}
+	}
+
+	protected void dropDisplayTile() {
+		entityDropItem(new ItemStack(this.getDisplayTile().getBlock()), 0.0F);
+	}
+
+	@Override
+	public void killMinecart(DamageSource source) {
+		super.killMinecart(source);
+
+		if (this.hasDisplayTile() && world.getGameRules().getBoolean("doEntityDrops")) {
+			this.dropDisplayTile();
+		}
+	}
+
+	@Override
+	public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
+		if (super.processInitialInteract(player, hand) || this.isBeingRidden()) {
+			return true;
+		}
+
+		if (player.isSneaking()) {
+			if (this.hasDisplayTile()) {
+				this.dropDisplayTile();
+				this.setDisplayTile(getDefaultDisplayTile());
+				this.setHasDisplayTile(false);
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		if (!this.world.isRemote) {
+			player.startRiding(this);
+		}
+
+		return true;
 	}
 }

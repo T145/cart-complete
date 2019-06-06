@@ -11,7 +11,8 @@ public class SerializersMT {
 	private SerializersMT() {}
 
 	@ObjectHolder(RegistryMT.KEY_CART_TYPE)
-	public static DataSerializerEntry CART_TYPE;
+	public static DataSerializerEntry ENTRY_CART_TYPE;
+	public static DataSerializer CART_TYPE;
 
 	public static <T> DataSerializer<T> getSerializer(DataSerializerEntry entry) {
 		return (DataSerializer<T>) entry.getSerializer();

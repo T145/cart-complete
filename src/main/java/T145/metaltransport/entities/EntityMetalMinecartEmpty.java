@@ -10,34 +10,23 @@ import net.minecraft.entity.item.EntityMinecartEmpty;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializer;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.world.World;
 
 public class EntityMetalMinecartEmpty extends EntityMinecartEmpty implements IMetalMinecart {
 
-	private static final DataSerializer<CartType> SERIAL_CART_TYPE = SerializersMT.<CartType>getSerializer(SerializersMT.CART_TYPE);
-	private static final DataParameter<CartType> CART_TYPE = EntityDataManager.createKey(EntityMetalMinecartEmpty.class, SERIAL_CART_TYPE);
-
-	public EntityMetalMinecartEmpty(World world, CartType type) {
-		super(world);
-		setCartType(type);
-	}
+	private static final DataParameter<CartType> CART_TYPE = EntityDataManager.createKey(EntityMetalMinecartEmpty.class, SerializersMT.CART_TYPE);
 
 	public EntityMetalMinecartEmpty(World world) {
 		super(world);
-	}
-
-	public EntityMetalMinecartEmpty(World world, double x, double y, double z, CartType type) {
-		super(world, x, y, z);
-		setCartType(type);
 	}
 
 	public EntityMetalMinecartEmpty(World world, double x, double y, double z) {
 		super(world, x, y, z);
 	}
 
-	private void setCartData(EntityMinecart cart) {
+	public EntityMetalMinecartEmpty(EntityMinecart cart) {
+		this(cart.getEntityWorld(), cart.prevPosX, cart.prevPosY, cart.prevPosZ);
 		this.posX = cart.posX;
 		this.posY = cart.posY;
 		this.posZ = cart.posZ;
@@ -48,24 +37,15 @@ public class EntityMetalMinecartEmpty extends EntityMinecartEmpty implements IMe
 		this.rotationYaw = cart.rotationYaw;
 	}
 
-	public EntityMetalMinecartEmpty(EntityMinecart cart, CartType type) {
-		this(cart.getEntityWorld(), cart.prevPosX, cart.prevPosY, cart.prevPosZ, type);
-		setCartData(cart);
-	}
-
-	public EntityMetalMinecartEmpty(EntityMinecart cart) {
-		this(cart.getEntityWorld(), cart.prevPosX, cart.prevPosY, cart.prevPosZ);
-		setCartData(cart);
-	}
-
 	@Override
 	public CartType getCartType() {
 		return dataManager.get(CART_TYPE);
 	}
 
 	@Override
-	public void setCartType(CartType type) {
+	public <T extends EntityMinecart> T setCartType(CartType type) {
 		dataManager.set(CART_TYPE, type);
+		return (T) this;
 	}
 
 	@Override

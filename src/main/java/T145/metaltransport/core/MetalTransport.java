@@ -8,25 +8,18 @@ import T145.metaltransport.api.SerializersMT;
 import T145.metaltransport.api.constants.CartType;
 import T145.metaltransport.api.constants.RegistryMT;
 import T145.metaltransport.client.render.entities.RenderMetalMinecartEmpty;
-import T145.metaltransport.client.render.entities.RenderRidingBlock;
 import T145.metaltransport.entities.EntityMetalMinecartEmpty;
-import T145.metaltransport.entities.EntityRidingBlock;
 import T145.metaltransport.items.ItemMetalMinecart;
 import T145.tbone.core.TBone;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
-import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializer;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.datafix.DataFixer;
-import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
@@ -99,7 +92,7 @@ public class MetalTransport {
 	public static void metaltransport$registerSerializers(final RegistryEvent.Register<DataSerializerEntry> event) {
 		final IForgeRegistry<DataSerializerEntry> registry = event.getRegistry();
 
-		registry.register(SerializersMT.CART_TYPE = new DataSerializerEntry(new DataSerializer<CartType>() {
+		registry.register(SerializersMT.ENTRY_CART_TYPE = new DataSerializerEntry(SerializersMT.CART_TYPE = new DataSerializer<CartType>() {
 
 			@Override
 			public void write(PacketBuffer buf, CartType value) {
@@ -135,7 +128,6 @@ public class MetalTransport {
 		final IForgeRegistry<EntityEntry> registry = event.getRegistry();
 
 		registry.register(EntitiesMT.METAL_MINECART = EntityEntryBuilder.create().id(RegistryMT.KEY_METAL_MINECART, 0).name(RegistryMT.KEY_METAL_MINECART).entity(EntityMetalMinecartEmpty.class).tracker(80, 3, true).build());
-		registry.register(EntitiesMT.RIDING_BLOCK = EntityEntryBuilder.create().id(RegistryMT.KEY_RIDING_BLOCK, 1).name(RegistryMT.KEY_RIDING_BLOCK).entity(EntityRidingBlock.class).tracker(80, 3, true).build());
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -146,47 +138,11 @@ public class MetalTransport {
 		}
 
 		RenderingRegistry.registerEntityRenderingHandler(EntityMetalMinecartEmpty.class, manager -> new RenderMetalMinecartEmpty(manager));
-		RenderingRegistry.registerEntityRenderingHandler(EntityRidingBlock.class, manager -> new RenderRidingBlock(manager));
-	}
-
-	private static boolean isValidEntity(Entity entity) {
-		return true;
 	}
 
 	@SubscribeEvent
 	public static void metaltransport$playerInteract(PlayerInteractEvent.EntityInteractSpecific event) {
 		Entity target = event.getTarget();
 		EntityPlayer player = event.getEntityPlayer();
-
-		if (isValidEntity(target) && target.getPassengers().isEmpty()) {
-			EnumHand hand = EnumHand.MAIN_HAND;
-			ItemStack stack = player.getHeldItemMainhand();
-
-			if (stack.isEmpty()) {
-				stack = player.getHeldItemOffhand();
-				hand = EnumHand.OFF_HAND;
-			}
-
-			if (!stack.isEmpty()) {
-				World world = event.getWorld();
-				EntityRidingBlock passenger = new EntityRidingBlock(world);
-				passenger.setInternalBlockState(Block.getBlockFromItem(stack.getItem()).getDefaultState());
-				passenger.setPosition(target.posX, target.posY, target.posZ);
-				passenger.rotationYaw = target.rotationYaw;
-
-				if (!event.getWorld().isRemote) {
-					if (!player.isCreative()) {
-						stack.shrink(1);
-					}
-
-					world.spawnEntity(passenger);
-					passenger.startRiding(target);
-				}
-
-				player.swingArm(hand);
-				event.setCancellationResult(EnumActionResult.SUCCESS);
-				event.setCanceled(true);
-			}
-		}
 	}
 }

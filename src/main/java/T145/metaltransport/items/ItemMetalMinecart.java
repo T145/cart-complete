@@ -23,7 +23,7 @@ public class ItemMetalMinecart extends TItem {
 
 		@Override
 		public EntityMinecart getMinecartEntity(World world, double x, double y, double z, ItemStack stack) {
-			return new EntityMetalMinecartEmpty(world, x, y, z, CartType.byMetadata(stack.getItemDamage()));
+			return new EntityMetalMinecartEmpty(world, x, y, z).setCartType(CartType.byMetadata(stack.getItemDamage()));
 		}
 	};
 

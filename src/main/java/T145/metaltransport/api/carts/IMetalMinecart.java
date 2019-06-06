@@ -1,6 +1,7 @@
 package T145.metaltransport.api.carts;
 
 import T145.metaltransport.api.constants.CartType;
+import net.minecraft.entity.item.EntityMinecart;
 
 public interface IMetalMinecart {
 
@@ -8,5 +9,5 @@ public interface IMetalMinecart {
 
 	CartType getCartType();
 
-	void setCartType(CartType type);
+	<T extends EntityMinecart> T setCartType(CartType type);
 }

@@ -4,7 +4,7 @@ import T145.metaltransport.api.constants.CartType;
 import T145.metaltransport.api.constants.RegistryMT;
 import T145.metaltransport.entities.EntityMetalMinecartEmpty;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
-import T145.tbone.items.ItemMod;
+import T145.tbone.items.TItem;
 import net.minecraft.block.BlockRailBase;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityMinecart;
@@ -17,7 +17,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class ItemMetalMinecart extends ItemMod {
+public class ItemMetalMinecart extends TItem {
 
 	public static final BehaviorDispenseMinecart DISPENSER_BEHAVIOR = new BehaviorDispenseMinecart() {
 

@@ -27,6 +27,13 @@ public class EntityMetalMinecartEmpty extends EntityMinecartEmpty implements IMe
 
 	public EntityMetalMinecartEmpty(EntityMinecart cart) {
 		this(cart.getEntityWorld(), cart.prevPosX, cart.prevPosY, cart.prevPosZ);
+
+		if (cart instanceof EntityMetalMinecartEmpty) {
+			this.setCartType(((EntityMetalMinecartEmpty) cart).getCartType());
+		} else if (cart instanceof EntityMinecartEmpty) {
+			this.setCartType(CartType.IRON);
+		}
+
 		this.posX = cart.posX;
 		this.posY = cart.posY;
 		this.posZ = cart.posZ;

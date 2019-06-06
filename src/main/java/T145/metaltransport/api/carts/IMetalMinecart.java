@@ -9,5 +9,5 @@ public interface IMetalMinecart {
 
 	CartType getCartType();
 
-	<T extends EntityMinecart> T setCartType(CartType type);
+	EntityMinecart setCartType(CartType type);
 }

@@ -43,9 +43,9 @@ public class EntityMetalMinecartEmpty extends EntityMinecartEmpty implements IMe
 	}
 
 	@Override
-	public <T extends EntityMinecart> T setCartType(CartType type) {
+	public EntityMinecart setCartType(CartType type) {
 		dataManager.set(CART_TYPE, type);
-		return (T) this;
+		return this;
 	}
 
 	@Override

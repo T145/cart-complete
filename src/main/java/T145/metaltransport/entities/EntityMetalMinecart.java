@@ -62,7 +62,7 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 
 	public EntityMetalMinecart setDisplayBlock(Block block) {
 		if (block instanceof IMinecartBlock) {
-			return this.setDisplayState(((IMinecartBlock) block).getDisplayState(this));
+			return this.setDisplayState(((IMinecartBlock) block).getDisplayState(this, this.getDisplayData()));
 		} else {
 			// add any special vanilla block exceptions here
 			return this.setDisplayState(block.getDefaultState());

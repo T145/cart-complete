@@ -19,6 +19,8 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 
 public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMinecart {
@@ -39,8 +41,6 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 
 		if (cart instanceof EntityMetalMinecart) {
 			this.setCartType(((EntityMetalMinecart) cart).getCartType());
-		} else if (cart instanceof EntityMinecartEmpty) {
-			this.setCartType(CartType.IRON);
 		} else if (cart.hasDisplayTile()) {
 			this.setDisplayTile(cart.getDisplayTile());
 		}
@@ -142,6 +142,18 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		} else {
 			return I18n.format(String.format("item.metaltransport:metal_minecart.%s.name", getCartType().getName()));
 		}
+	}
+
+	@Override
+	public ITextComponent getDisplayName() {
+		TextComponentString name = (TextComponentString) super.getDisplayName();
+
+		if (this.hasDisplayTile()) {
+			TextComponentString blockName = new TextComponentString(this.getDisplayData().getDisplayName());
+			return name.appendText(" With ").appendSibling(blockName);
+		}
+
+		return name;
 	}
 
 	protected void dropDisplayStack() {

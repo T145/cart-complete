@@ -19,6 +19,7 @@ public class RegistryMT {
 	public static final String VERSION = "@VERSION@";
 	public static final String UPDATE_JSON = "https://raw.githubusercontent.com/T145/metaltransport/master/update.json";
 	public static final Logger LOG = LogManager.getLogger(ID);
+	public static final ResourceLocation RECIPE_GROUP = new ResourceLocation(ID);
 
 	public static final CreativeTabs TAB = new CreativeTabs(ID) {
 

@@ -20,6 +20,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializer;
@@ -44,6 +45,7 @@ import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
@@ -150,6 +152,11 @@ public class MetalTransport {
 		}
 
 		RenderingRegistry.registerEntityRenderingHandler(EntityMetalMinecart.class, manager -> new RenderMetalMinecart(manager));
+	}
+
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	public static void metalchests$registerRecipes(RegistryEvent.Register<IRecipe> event) {
+		CartType.registerRecipes();
 	}
 
 	private static boolean isSolidBlock(ItemStack stack) {

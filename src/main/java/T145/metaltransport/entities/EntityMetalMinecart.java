@@ -112,7 +112,9 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	}
 
 	protected void dropDisplayTile() {
-		entityDropItem(new ItemStack(this.getDisplayTile().getBlock()), 0.0F);
+		if (!world.isRemote) {
+			entityDropItem(new ItemStack(this.getDisplayTile().getBlock()), 0.0F);
+		}
 	}
 
 	@Override

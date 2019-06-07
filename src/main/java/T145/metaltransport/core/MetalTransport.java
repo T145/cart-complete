@@ -31,6 +31,7 @@ import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.entity.minecart.MinecartInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
@@ -154,6 +155,16 @@ public class MetalTransport {
 	private static boolean isSolidBlock(ItemStack stack) {
 		Block block = Block.getBlockFromItem(stack.getItem());
 		return block != Blocks.AIR /* && block is relatively normal && in whitelist || not in blacklist */;
+	}
+
+	@SubscribeEvent
+	public static void metaltransport$minecartInteract(MinecartInteractEvent event) {
+		EntityMinecart cart = event.getMinecart();
+		EntityPlayer player = event.getPlayer();
+
+		if (cart instanceof EntityMetalMinecart && cart.hasDisplayTile() && !player.isSneaking()) {
+			event.setCanceled(true);
+		}
 	}
 
 	@SubscribeEvent

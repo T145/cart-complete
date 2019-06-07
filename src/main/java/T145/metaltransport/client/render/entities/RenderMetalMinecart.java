@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.entity.RenderMinecart;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -29,7 +30,7 @@ public class RenderMetalMinecart extends RenderMinecart<EntityMetalMinecart> {
 	protected void renderCartContents(EntityMetalMinecart cart, float partialTicks, IBlockState state) {
 		ItemStack data = cart.getDisplayData();
 
-		if (data.getItem() instanceof ItemBlock) {
+		if (data.getItem() instanceof ItemBlock && cart.getDisplayTile().getBlock().getRenderLayer() != BlockRenderLayer.TRANSLUCENT) {
 			super.renderCartContents(cart, partialTicks, state);
 			return;
 		}

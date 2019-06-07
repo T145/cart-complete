@@ -74,13 +74,18 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	}
 
 	public EntityMetalMinecart setDisplayStack(ItemStack stack) {
-		if (stack.hasTagCompound()) {
+		if (stack.getCount() > 1) {
+			ItemStack copyStack = stack.copy();
+			copyStack.setCount(1);
+			this.dataManager.set(DISPLAY_DATA, copyStack);
+		} else {
 			this.dataManager.set(DISPLAY_DATA, stack);
 		}
+
 		return this.setDisplayItem(stack.getItem());
 	}
 
-	private ItemStack getDisplayData() {
+	public ItemStack getDisplayData() {
 		return this.dataManager.get(DISPLAY_DATA);
 	}
 

@@ -28,9 +28,9 @@ public class RenderMetalMinecart extends RenderMinecart<EntityMetalMinecart> {
 
 	@Override
 	protected void renderCartContents(EntityMetalMinecart cart, float partialTicks, IBlockState state) {
-		ItemStack data = cart.getDisplayData();
+		ItemStack stack = cart.getDisplayStack();
 
-		if (data.getItem() instanceof ItemBlock && cart.getDisplayTile().getBlock().getRenderLayer() != BlockRenderLayer.TRANSLUCENT) {
+		if (stack.getItem() instanceof ItemBlock && cart.getDisplayTile().getBlock().getRenderLayer() != BlockRenderLayer.TRANSLUCENT) {
 			super.renderCartContents(cart, partialTicks, state);
 			return;
 		}
@@ -38,7 +38,7 @@ public class RenderMetalMinecart extends RenderMinecart<EntityMetalMinecart> {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(0.5, 0.5, -0.5);
 		GlStateManager.scale(2, 2, 2);
-		Minecraft.getMinecraft().getRenderItem().renderItem(data, ItemCameraTransforms.TransformType.FIXED);
+		Minecraft.getMinecraft().getRenderItem().renderItem(stack, ItemCameraTransforms.TransformType.FIXED);
 		GlStateManager.popMatrix();
 		// coloring handled by the normal minecart renderer
 	}

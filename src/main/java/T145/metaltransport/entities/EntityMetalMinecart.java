@@ -147,7 +147,7 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	protected void dropDisplayStack() {
 		if (!this.world.isRemote) {
 			ItemStack data = this.getDisplayData();
-			entityDropItem(data.isEmpty() ? new ItemStack(this.getDisplayTile().getBlock()) : data, 0.0F);
+			entityDropItem(data.isEmpty() ? new ItemStack(this.getDisplayTile().getBlock()) : data.copy(), 0.0F);
 		}
 	}
 

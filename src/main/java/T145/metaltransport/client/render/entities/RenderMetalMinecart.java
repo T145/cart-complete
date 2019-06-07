@@ -7,6 +7,8 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.entity.RenderMinecart;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -25,11 +27,18 @@ public class RenderMetalMinecart extends RenderMinecart<EntityMetalMinecart> {
 
 	@Override
 	protected void renderCartContents(EntityMetalMinecart cart, float partialTicks, IBlockState state) {
+		ItemStack data = cart.getDisplayData();
+
+		if (data.getItem() instanceof ItemBlock) {
+			super.renderCartContents(cart, partialTicks, state);
+			return;
+		}
+
 		GlStateManager.pushMatrix();
-		GlStateManager.color(1, 1, 1, 1);
 		GlStateManager.translate(0.5, 0.5, -0.5);
 		GlStateManager.scale(2, 2, 2);
-		Minecraft.getMinecraft().getRenderItem().renderItem(cart.getDisplayData(), ItemCameraTransforms.TransformType.FIXED);
+		Minecraft.getMinecraft().getRenderItem().renderItem(data, ItemCameraTransforms.TransformType.FIXED);
 		GlStateManager.popMatrix();
+		// coloring handled by the normal minecart renderer
 	}
 }

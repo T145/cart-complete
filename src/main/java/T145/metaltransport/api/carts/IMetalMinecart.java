@@ -6,6 +6,7 @@ import net.minecraft.entity.item.EntityMinecart;
 public interface IMetalMinecart {
 
 	public static final String TAG_CART_TYPE = "CartType";
+	public static final String TAG_DISPLAY_DATA = "DisplayData";
 
 	CartType getCartType();
 

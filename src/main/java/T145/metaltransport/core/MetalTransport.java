@@ -183,8 +183,7 @@ public class MetalTransport {
 
 			if (isSolidBlock(stack)) {
 				World world = event.getWorld();
-				EntityMetalMinecart cart = new EntityMetalMinecart((EntityMinecartEmpty) target);
-				cart.setDisplayTile(stack);
+				EntityMetalMinecart cart = new EntityMetalMinecart((EntityMinecartEmpty) target).setDisplayStack(stack);
 
 				if (!world.isRemote) {
 					if (!player.isCreative()) {

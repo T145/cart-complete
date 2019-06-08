@@ -1,7 +1,13 @@
 package T145.metaltransport.entities;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.google.common.base.Optional;
+
 import T145.metaltransport.api.ItemsMT;
 import T145.metaltransport.api.SerializersMT;
+import T145.metaltransport.api.carts.CartAction;
 import T145.metaltransport.api.carts.IMetalMinecart;
 import T145.metaltransport.api.carts.IMinecartBlock;
 import T145.metaltransport.api.constants.CartType;
@@ -27,6 +33,19 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 
 	private static final DataParameter<CartType> CART_TYPE = EntityDataManager.createKey(EntityMetalMinecart.class, SerializersMT.CART_TYPE);
 	private static final DataParameter<ItemStack> DISPLAY = EntityDataManager.createKey(EntityMetalMinecart.class, DataSerializers.ITEM_STACK);
+	private static final DataParameter<Optional<CartAction>> ACTION = EntityDataManager.createKey(EntityMetalMinecart.class, SerializersMT.CART_ACTION);
+	private static final Map<String, EntityMinecart.Type> MINECART_TYPES = new HashMap() {{
+		//put("minecraft:air", EntityMinecart.Type.RIDEABLE);
+		put("minecraft:chest", EntityMinecart.Type.CHEST);
+		put("minecraft:trapped_chest", EntityMinecart.Type.CHEST);
+		put("minecraft:ender_chest", EntityMinecart.Type.CHEST);
+		put("minecraft:furnace", EntityMinecart.Type.FURNACE);
+		put("minecraft:lit_furnace", EntityMinecart.Type.FURNACE);
+		put("minecraft:tnt", EntityMinecart.Type.TNT);
+		put("minecraft:mob_spawner", EntityMinecart.Type.SPAWNER);
+		put("minecraft:hopper", EntityMinecart.Type.HOPPER);
+		put("minecraft:command_block", EntityMinecart.Type.COMMAND_BLOCK);
+	}};
 
 	public EntityMetalMinecart(World world) {
 		super(world);
@@ -53,6 +72,19 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		this.motionZ = cart.motionZ;
 		this.rotationPitch = cart.rotationPitch;
 		this.rotationYaw = cart.rotationYaw;
+	}
+
+	protected Optional<CartAction> getAction() {
+		return this.dataManager.get(ACTION);
+	}
+
+	protected void setAction(Optional<CartAction> action) {
+		this.dataManager.set(ACTION, action);
+	}
+
+	@Override
+	public void setDisplayTile(IBlockState state) {
+		super.setDisplayTile(state);
 	}
 
 	public EntityMetalMinecart setDisplayState(IBlockState state) {
@@ -87,7 +119,6 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		}
 
 		this.dataManager.set(DISPLAY, copyStack);
-
 		return this.setDisplayItem(stack.getItem());
 	}
 
@@ -102,11 +133,33 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		return this;
 	}
 
+	protected String getDisplayBlockName() {
+		Optional<CartAction> action = this.getAction();
+
+		// TODO: Come up w/ a better technique of getting the block name when "hasMultipleBlocks"
+
+		if (!action.isPresent() || action.get().hasMultipleBlocks()) {
+			return this.getDisplayTile().getBlock().getRegistryName().toString();
+		}
+		return action.get().getString("BlockName");
+	}
+
+	@Override
+	public EntityMinecart.Type getType() {
+		String blockName = this.getDisplayBlockName();
+
+		if (MINECART_TYPES.containsKey(blockName)) {
+			return MINECART_TYPES.get(blockName);
+		}
+		return super.getType();
+	}
+
 	@Override
 	protected void entityInit() {
 		super.entityInit();
 		this.dataManager.register(CART_TYPE, CartType.IRON);
 		this.dataManager.register(DISPLAY, ItemStack.EMPTY);
+		this.dataManager.register(ACTION, Optional.absent());
 	}
 
 	@Override
@@ -116,6 +169,11 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		NBTTagCompound stackTag = new NBTTagCompound();
 		this.getDisplayStack().writeToNBT(stackTag);
 		tag.setTag(TAG_DISPLAY, stackTag);
+
+		Optional<CartAction> action = this.getAction();
+		if (action.isPresent()) {
+			tag.setTag(TAG_ACTION, action.get().serialize());
+		}
 	}
 
 	@Override
@@ -125,6 +183,10 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		NBTTagCompound stackTag = tag.getCompoundTag(TAG_DISPLAY);
 		ItemStack stack = new ItemStack(stackTag);
 		this.dataManager.set(DISPLAY, stack);
+
+		if (tag.hasKey(TAG_ACTION)) {
+			this.setAction(Optional.of((CartAction) tag.getCompoundTag(TAG_ACTION)));
+		} // else leave it as absent
 	}
 
 	@Override
@@ -162,15 +224,26 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		if (!this.world.isRemote) {
 			ItemStack data = this.getDisplayStack();
 			entityDropItem(data.isEmpty() ? new ItemStack(this.getDisplayTile().getBlock()) : data.copy(), 0.0F);
+			this.dataManager.set(DISPLAY, ItemStack.EMPTY);
 		}
 	}
 
 	@Override
 	public void killMinecart(DamageSource source) {
-		super.killMinecart(source);
+		this.setDead();
 
-		if (this.hasDisplayTile() && world.getGameRules().getBoolean("doEntityDrops")) {
-			this.dropDisplayStack();
+		if (this.world.getGameRules().getBoolean("doEntityDrops")) {
+			ItemStack itemstack = this.getCartItem();
+
+			if (this.hasCustomName()) {
+				itemstack.setStackDisplayName(this.getCustomNameTag());
+			}
+
+			this.entityDropItem(itemstack, 0.0F);
+
+			if (this.hasDisplayTile()) {
+				this.dropDisplayStack();
+			}
 		}
 	}
 

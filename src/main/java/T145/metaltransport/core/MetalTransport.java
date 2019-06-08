@@ -2,9 +2,12 @@ package T145.metaltransport.core;
 
 import java.io.IOException;
 
+import com.google.common.base.Optional;
+
 import T145.metaltransport.api.EntitiesMT;
 import T145.metaltransport.api.ItemsMT;
 import T145.metaltransport.api.SerializersMT;
+import T145.metaltransport.api.carts.CartAction;
 import T145.metaltransport.api.constants.CartType;
 import T145.metaltransport.api.constants.RegistryMT;
 import T145.metaltransport.client.render.entities.RenderMetalMinecart;
@@ -124,7 +127,43 @@ public class MetalTransport {
 					public CartType copyValue(CartType value) {
 						return value;
 					}
+
 				}).setRegistryName(RegistryMT.ID, RegistryMT.KEY_CART_TYPE));
+
+		registry.register(SerializersMT.ENTRY_CART_ACTION = new DataSerializerEntry(
+				SerializersMT.CART_ACTION = new DataSerializer<Optional<CartAction>>() {
+
+					@Override
+					public void write(PacketBuffer buf, Optional<CartAction> value) {
+						boolean present = value.isPresent();
+
+						buf.writeBoolean(present);
+
+						if (present) {
+							buf.writeCompoundTag(value.get().serialize());
+						}
+					}
+
+					@Override
+					public Optional<CartAction> read(PacketBuffer buf) throws IOException {
+						if (buf.readBoolean()) {
+							return Optional.of(((CartAction) buf.readCompoundTag()).deserialize());
+						} else {
+							return Optional.absent();
+						}
+					}
+
+					@Override
+					public DataParameter<Optional<CartAction>> createKey(int id) {
+						return new DataParameter<Optional<CartAction>>(id, this);
+					}
+
+					@Override
+					public Optional<CartAction> copyValue(Optional<CartAction> value) {
+						return value;
+					}
+
+				}).setRegistryName(RegistryMT.ID, RegistryMT.KEY_CART_ACTION));
 	}
 
 	@SubscribeEvent

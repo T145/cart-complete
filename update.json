@@ -2,10 +2,11 @@
     "homepage": "https://minecraft.curseforge.com/projects/metaltransport",
     "1.12.2": {
         "origin": "https://github.com/T145/metaltransport",
-        "v1.0.0+mc1.12.2": "https://github.com/T145/metaltransport/releases/tag/v1.0.0"
+        "v1.0.0+mc1.12.2": "https://github.com/T145/metaltransport/releases/tag/v1.0.0",
+        "v1.2.0+mc1.12.2": "https://github.com/T145/metaltransport/releases/tag/v1.2.0"
     },
     "promos": {
-        "1.12.2-latest": "v1.0.0+mc1.12.2",
-        "1.12.2-recommended": "v1.0.0+mc1.12.2"
+        "1.12.2-latest": "v1.2.0+mc1.12.2",
+        "1.12.2-recommended": "v1.2.0+mc1.12.2"
     }
 }

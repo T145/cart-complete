@@ -84,6 +84,12 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 
 	@Override
 	public void setDisplayTile(IBlockState state) {
+		ItemStack stack = this.getDisplayStack();
+
+		if (!stack.isEmpty()) {
+			state = state.getBlock().getStateFromMeta(stack.getItemDamage());
+		}
+
 		super.setDisplayTile(state);
 	}
 
@@ -213,8 +219,7 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		TextComponentString name = (TextComponentString) super.getDisplayName();
 
 		if (this.hasDisplayTile()) {
-			TextComponentString blockName = new TextComponentString(this.getDisplayStack().getDisplayName());
-			return name.appendText(" With ").appendSibling(blockName);
+			return name.appendText(" With ").appendText(this.getDisplayStack().getDisplayName());
 		}
 
 		return name;
@@ -223,8 +228,8 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	protected void dropDisplayStack() {
 		if (!this.world.isRemote) {
 			ItemStack data = this.getDisplayStack();
-			entityDropItem(data.isEmpty() ? new ItemStack(this.getDisplayTile().getBlock()) : data.copy(), 0.0F);
 			this.dataManager.set(DISPLAY, ItemStack.EMPTY);
+			entityDropItem(data.isEmpty() ? new ItemStack(this.getDisplayTile().getBlock()) : data.copy(), 0.0F);
 		}
 	}
 

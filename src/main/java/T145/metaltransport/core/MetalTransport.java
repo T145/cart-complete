@@ -198,9 +198,12 @@ public class MetalTransport {
 		CartType.registerRecipes();
 	}
 
-	private static boolean isSolidBlock(ItemStack stack) {
-		Block block = Block.getBlockFromItem(stack.getItem());
-		return block != Blocks.AIR /* && block is relatively normal && in whitelist || not in blacklist */;
+	public static Block getBlockFromStack(ItemStack stack) {
+		return Block.getBlockFromItem(stack.getItem());
+	}
+
+	public static boolean isSolidBlock(ItemStack stack) {
+		return getBlockFromStack(stack) != Blocks.AIR /* && block is relatively normal && in whitelist || not in blacklist */;
 	}
 
 	@SubscribeEvent

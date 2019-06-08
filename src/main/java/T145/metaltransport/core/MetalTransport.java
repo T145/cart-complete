@@ -8,10 +8,12 @@ import T145.metaltransport.api.EntitiesMT;
 import T145.metaltransport.api.ItemsMT;
 import T145.metaltransport.api.SerializersMT;
 import T145.metaltransport.api.carts.CartAction;
+import T145.metaltransport.api.carts.CartActionRegistry;
 import T145.metaltransport.api.constants.CartType;
 import T145.metaltransport.api.constants.RegistryMT;
 import T145.metaltransport.client.render.entities.RenderMetalMinecart;
 import T145.metaltransport.entities.EntityMetalMinecart;
+import T145.metaltransport.entities.actions.CartActionFurnace;
 import T145.metaltransport.items.ItemMetalMinecart;
 import T145.tbone.core.TBone;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
@@ -92,6 +94,7 @@ public class MetalTransport {
 	@EventHandler
 	public void metaltransport$postInit(final FMLPostInitializationEvent event) {
 		BehaviorDispenseMinecart.register(ItemsMT.METAL_MINECART, ItemMetalMinecart.DISPENSER_BEHAVIOR);
+		CartActionRegistry.register(new CartActionFurnace());
 	}
 
 	@SubscribeEvent

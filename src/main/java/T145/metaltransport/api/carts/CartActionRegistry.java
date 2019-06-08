@@ -13,6 +13,12 @@ public class CartActionRegistry {
 		ACTIONS.put(blockName, action);
 	}
 
+	public static void register(CartAction action) {
+		for (String name : action.getBlockNames()) {
+			register(name, action);
+		}
+	}
+
 	public static CartAction get(String blockName) {
 		return ACTIONS.get(blockName);
 	}

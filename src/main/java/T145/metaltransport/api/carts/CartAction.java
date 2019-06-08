@@ -1,10 +1,14 @@
 package T145.metaltransport.api.carts;
 
+import java.util.HashSet;
+
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
+import scala.actors.threadpool.Arrays;
 
 public abstract class CartAction extends NBTTagCompound {
 
+	private final HashSet<String> nameSet;
 	protected final String[] blockNames;
 
 	public CartAction(Block[] blocks) {
@@ -21,6 +25,8 @@ public abstract class CartAction extends NBTTagCompound {
 		} else {
 			this.setString("BlockName", this.blockNames[0]);
 		}
+
+		nameSet = new HashSet<>(Arrays.asList(blockNames));
 	}
 
 	public CartAction(Block block) {
@@ -29,6 +35,10 @@ public abstract class CartAction extends NBTTagCompound {
 
 	public String[] getBlockNames() {
 		return blockNames;
+	}
+
+	public boolean hasName(String blockName) {
+		return nameSet.contains(blockName);
 	}
 
 	public boolean hasMultipleBlocks() {

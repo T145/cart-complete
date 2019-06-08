@@ -102,6 +102,17 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	}
 
 	public EntityMetalMinecart setDisplayState(IBlockState state) {
+		Optional<ICartAction> action = this.getAction();
+		String blockName = state.getBlock().getRegistryName().toString();
+
+		RegistryMT.LOG.info(blockName);
+
+		if (CartActionRegistry.contains(blockName)) {
+			action = Optional.of(CartActionRegistry.get(blockName));
+			RegistryMT.LOG.info("Setting cart action: " + action);
+			this.setAction(action);
+		}
+
 		this.setDisplayTile(state);
 		return this;
 	}
@@ -184,10 +195,11 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		this.getDisplayStack().writeToNBT(stackTag);
 		tag.setTag(TAG_DISPLAY, stackTag);
 
-		Optional<ICartAction> action = getAction();
+		boolean present = this.getAction().isPresent();
+		tag.setBoolean("HasAction", present);
 
-		if (action.isPresent()) {
-			tag.setTag(TAG_ACTION, action.get().serialize());
+		if (present) {
+			tag.setTag(TAG_ACTION, this.getAction().get().serialize());
 		}
 	}
 
@@ -195,19 +207,16 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	protected void readEntityFromNBT(NBTTagCompound tag) {
 		super.readEntityFromNBT(tag);
 		setCartType(CartType.valueOf(tag.getString(TAG_CART_TYPE)));
-		NBTTagCompound stackTag = tag.getCompoundTag(TAG_DISPLAY);
-		ItemStack stack = new ItemStack(stackTag);
-		this.dataManager.set(DISPLAY, stack);
+		this.dataManager.set(DISPLAY, new ItemStack(tag.getCompoundTag(TAG_DISPLAY)));
 
-		if (this.getAction().isPresent()) {
+		if (tag.getBoolean("HasAction")) {
 			NBTTagCompound actionTag = tag.getCompoundTag(TAG_ACTION);
 			NBTTagList names = actionTag.getTagList("BlockNames", Constants.NBT.TAG_STRING);
 			String blockName = names.getStringTagAt(0);
 
-			RegistryMT.LOG.info(blockName);
 			if (CartActionRegistry.contains(blockName)) {
 				ICartAction action = CartActionRegistry.get(blockName);
-				action.deserialize(tag);
+				action.deserialize(actionTag);
 				this.setAction(Optional.of(action));
 			}
 		}
@@ -274,25 +283,10 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		if (this.hasDisplayTile()) {
 			Optional<ICartAction> action = this.getAction();
 
-			RegistryMT.LOG.info(!action.isPresent());
-			RegistryMT.LOG.info(hasDisplayTile());
-
-			if (!action.isPresent() && hasDisplayTile()) {
-				String blockName = this.getDisplayTile().getBlock().getRegistryName().toString();
-
-				RegistryMT.LOG.info(blockName);
-				if (CartActionRegistry.contains(blockName)) {
-					RegistryMT.LOG.info("Setting action!");
-					this.setAction(action = Optional.of(CartActionRegistry.get(blockName)));
-				}
-			}
-
 			if (action.isPresent()) {
 				RegistryMT.LOG.info("Performing action!");
 				return action.get().activate(this, player, hand);
 			}
-
-			return true;
 		} else if (!this.world.isRemote) {
 			player.startRiding(this);
 		}

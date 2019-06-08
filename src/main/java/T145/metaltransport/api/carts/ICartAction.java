@@ -6,6 +6,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface ICartAction {
 
@@ -22,6 +25,12 @@ public interface ICartAction {
 	NBTTagCompound serialize();
 
 	void deserialize(NBTTagCompound tag);
+
+	/**
+	 * Handler for {@link World#setEntityState}
+	 */
+	@SideOnly(Side.CLIENT)
+	public void handleStatusUpdate(EntityMinecart cart, byte id);
 
 	void tick(EntityMinecart cart);
 

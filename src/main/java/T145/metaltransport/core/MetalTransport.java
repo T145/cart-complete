@@ -16,6 +16,7 @@ import T145.metaltransport.entities.EntityMetalMinecart;
 import T145.metaltransport.entities.actions.CartActionAnvil;
 import T145.metaltransport.entities.actions.CartActionEnderChest;
 import T145.metaltransport.entities.actions.CartActionFurnace;
+import T145.metaltransport.entities.actions.CartActionMobSpawner;
 import T145.metaltransport.entities.actions.CartActionWorkbench;
 import T145.metaltransport.items.ItemMetalMinecart;
 import T145.tbone.core.TBone;
@@ -102,6 +103,7 @@ public class MetalTransport {
 		CartActionRegistry.register(new CartActionAnvil());
 		CartActionRegistry.register(new CartActionFurnace());
 		CartActionRegistry.register(new CartActionEnderChest());
+		CartActionRegistry.register(new CartActionMobSpawner());
 		CartActionRegistry.register(new CartActionWorkbench());
 	}
 

@@ -14,6 +14,8 @@ import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import scala.actors.threadpool.Arrays;
 
 public class CartAction implements ICartAction {
@@ -97,4 +99,8 @@ public class CartAction implements ICartAction {
 	public boolean activate(EntityMinecart cart, EntityPlayer player, EnumHand hand) {
 		return true;
 	}
+
+	@SideOnly(Side.CLIENT)
+	@Override
+	public void handleStatusUpdate(EntityMinecart cart, byte id) {}
 }

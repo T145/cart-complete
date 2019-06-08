@@ -5,6 +5,7 @@ import T145.metaltransport.api.constants.RegistryMT;
 import T145.metaltransport.entities.EntityMetalMinecart;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
 import T145.tbone.items.TItem;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -26,7 +27,7 @@ public class ItemMetalMinecart extends TItem {
 	};
 
 	public ItemMetalMinecart() {
-		super(RegistryMT.RESOURCE_METAL_MINECART, CartType.values(), RegistryMT.TAB);
+		super(RegistryMT.RESOURCE_METAL_MINECART, CartType.values(), CreativeTabs.TRANSPORTATION);
 		this.setMaxStackSize(Items.MINECART.getItemStackLimit());
 	}
 

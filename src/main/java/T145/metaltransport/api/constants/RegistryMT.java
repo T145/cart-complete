@@ -3,12 +3,7 @@ package T145.metaltransport.api.constants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class RegistryMT {
 
@@ -20,15 +15,6 @@ public class RegistryMT {
 	public static final String UPDATE_JSON = "https://raw.githubusercontent.com/T145/metaltransport/master/update.json";
 	public static final Logger LOG = LogManager.getLogger(ID);
 	public static final ResourceLocation RECIPE_GROUP = new ResourceLocation(ID);
-
-	public static final CreativeTabs TAB = new CreativeTabs(ID) {
-
-		@SideOnly(Side.CLIENT)
-		@Override
-		public ItemStack createIcon() {
-			return new ItemStack(Items.MINECART);
-		}
-	};
 
 	public static boolean inDevMode() {
 		return VERSION.contentEquals("@VERSION@");
@@ -44,5 +30,5 @@ public class RegistryMT {
 	public static final ResourceLocation RESOURCE_METAL_MINECART_BLOCK = getResource(KEY_METAL_MINECART_BLOCK);
 
 	public static final String KEY_CART_TYPE = "cart_type";
-	public static final String KEY_CART_ACTION = "optional_compound_tag";
+	public static final String KEY_CART_ACTION = "cart_action";
 }

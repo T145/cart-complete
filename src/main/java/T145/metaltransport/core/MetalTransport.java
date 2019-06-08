@@ -7,8 +7,8 @@ import com.google.common.base.Optional;
 import T145.metaltransport.api.EntitiesMT;
 import T145.metaltransport.api.ItemsMT;
 import T145.metaltransport.api.SerializersMT;
-import T145.metaltransport.api.carts.CartAction;
 import T145.metaltransport.api.carts.CartActionRegistry;
+import T145.metaltransport.api.carts.ICartAction;
 import T145.metaltransport.api.constants.CartType;
 import T145.metaltransport.api.constants.RegistryMT;
 import T145.metaltransport.client.render.entities.RenderMetalMinecart;
@@ -26,6 +26,8 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializer;
@@ -36,8 +38,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.event.entity.minecart.MinecartInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
@@ -134,10 +136,10 @@ public class MetalTransport {
 				}).setRegistryName(RegistryMT.ID, RegistryMT.KEY_CART_TYPE));
 
 		registry.register(SerializersMT.ENTRY_CART_ACTION = new DataSerializerEntry(
-				SerializersMT.CART_ACTION = new DataSerializer<Optional<CartAction>>() {
+				SerializersMT.CART_ACTION = new DataSerializer<Optional<ICartAction>>() {
 
 					@Override
-					public void write(PacketBuffer buf, Optional<CartAction> value) {
+					public void write(PacketBuffer buf, Optional<ICartAction> value) {
 						boolean present = value.isPresent();
 
 						buf.writeBoolean(present);
@@ -148,21 +150,28 @@ public class MetalTransport {
 					}
 
 					@Override
-					public Optional<CartAction> read(PacketBuffer buf) throws IOException {
+					public Optional<ICartAction> read(PacketBuffer buf) throws IOException {
 						if (buf.readBoolean()) {
-							return Optional.of(((CartAction) buf.readCompoundTag()).deserialize());
-						} else {
-							return Optional.absent();
+							NBTTagCompound tag = buf.readCompoundTag();
+							NBTTagList names = tag.getTagList("BlockNames", Constants.NBT.TAG_STRING);
+							String blockName = names.getStringTagAt(0);
+
+							if (CartActionRegistry.contains(blockName)) {
+								ICartAction action = CartActionRegistry.get(blockName);
+								action.deserialize(tag);
+								return Optional.of(action);
+							}
 						}
+						return Optional.absent();
 					}
 
 					@Override
-					public DataParameter<Optional<CartAction>> createKey(int id) {
-						return new DataParameter<Optional<CartAction>>(id, this);
+					public DataParameter<Optional<ICartAction>> createKey(int id) {
+						return new DataParameter<Optional<ICartAction>>(id, this);
 					}
 
 					@Override
-					public Optional<CartAction> copyValue(Optional<CartAction> value) {
+					public Optional<ICartAction> copyValue(Optional<ICartAction> value) {
 						return value;
 					}
 
@@ -207,16 +216,6 @@ public class MetalTransport {
 
 	public static boolean isSolidBlock(ItemStack stack) {
 		return getBlockFromStack(stack) != Blocks.AIR /* && block is relatively normal && in whitelist || not in blacklist */;
-	}
-
-	@SubscribeEvent
-	public static void metaltransport$minecartInteract(MinecartInteractEvent event) {
-		EntityMinecart cart = event.getMinecart();
-		EntityPlayer player = event.getPlayer();
-
-		if (cart instanceof EntityMetalMinecart && cart.hasDisplayTile() && !player.isSneaking()) {
-			event.setCanceled(true);
-		}
 	}
 
 	@SubscribeEvent

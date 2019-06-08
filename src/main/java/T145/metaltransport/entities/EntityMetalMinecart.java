@@ -7,10 +7,12 @@ import com.google.common.base.Optional;
 
 import T145.metaltransport.api.ItemsMT;
 import T145.metaltransport.api.SerializersMT;
-import T145.metaltransport.api.carts.CartAction;
+import T145.metaltransport.api.carts.CartActionRegistry;
+import T145.metaltransport.api.carts.ICartAction;
 import T145.metaltransport.api.carts.IMetalMinecart;
 import T145.metaltransport.api.carts.IMinecartBlock;
 import T145.metaltransport.api.constants.CartType;
+import T145.metaltransport.api.constants.RegistryMT;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
@@ -20,20 +22,25 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.event.entity.minecart.MinecartInteractEvent;
 
 public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMinecart {
 
 	private static final DataParameter<CartType> CART_TYPE = EntityDataManager.createKey(EntityMetalMinecart.class, SerializersMT.CART_TYPE);
 	private static final DataParameter<ItemStack> DISPLAY = EntityDataManager.createKey(EntityMetalMinecart.class, DataSerializers.ITEM_STACK);
-	private static final DataParameter<Optional<CartAction>> ACTION = EntityDataManager.createKey(EntityMetalMinecart.class, SerializersMT.CART_ACTION);
+	private static final DataParameter<Optional<ICartAction>> ACTION = EntityDataManager.createKey(EntityMetalMinecart.class, SerializersMT.CART_ACTION);
 	private static final Map<String, EntityMinecart.Type> MINECART_TYPES = new HashMap() {{
 		//put("minecraft:air", EntityMinecart.Type.RIDEABLE);
 		put("minecraft:chest", EntityMinecart.Type.CHEST);
@@ -74,20 +81,21 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		this.rotationYaw = cart.rotationYaw;
 	}
 
-	protected Optional<CartAction> getAction() {
+	public Optional<ICartAction> getAction() {
 		return this.dataManager.get(ACTION);
 	}
 
-	protected void setAction(Optional<CartAction> action) {
+	public void setAction(Optional<ICartAction> action) {
 		this.dataManager.set(ACTION, action);
 	}
 
 	@Override
 	public void setDisplayTile(IBlockState state) {
 		ItemStack stack = this.getDisplayStack();
+		Block block = state.getBlock();
 
 		if (!stack.isEmpty()) {
-			state = state.getBlock().getStateFromMeta(stack.getItemDamage());
+			state = block.getStateFromMeta(stack.getItemDamage());
 		}
 
 		super.setDisplayTile(state);
@@ -140,14 +148,14 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	}
 
 	protected String getDisplayBlockName() {
-		Optional<CartAction> action = this.getAction();
+		Optional<ICartAction> action = this.getAction();
 
-		// TODO: Come up w/ a better technique of getting the block name when "hasMultipleBlocks"
-
-		if (!action.isPresent() || action.get().hasMultipleBlocks()) {
+		if (!action.isPresent() || action.get().hasNames()) {
 			return this.getDisplayTile().getBlock().getRegistryName().toString();
 		}
-		return action.get().getString("BlockName");
+
+		// TODO: Implement "getActiveName" for the default return
+		return action.get().getBlockNames()[0];
 	}
 
 	@Override
@@ -176,7 +184,8 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		this.getDisplayStack().writeToNBT(stackTag);
 		tag.setTag(TAG_DISPLAY, stackTag);
 
-		Optional<CartAction> action = this.getAction();
+		Optional<ICartAction> action = getAction();
+
 		if (action.isPresent()) {
 			tag.setTag(TAG_ACTION, action.get().serialize());
 		}
@@ -190,9 +199,105 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		ItemStack stack = new ItemStack(stackTag);
 		this.dataManager.set(DISPLAY, stack);
 
-		if (tag.hasKey(TAG_ACTION)) {
-			this.setAction(Optional.of((CartAction) tag.getCompoundTag(TAG_ACTION)));
-		} // else leave it as absent
+		if (this.getAction().isPresent()) {
+			NBTTagCompound actionTag = tag.getCompoundTag(TAG_ACTION);
+			NBTTagList names = actionTag.getTagList("BlockNames", Constants.NBT.TAG_STRING);
+			String blockName = names.getStringTagAt(0);
+
+			RegistryMT.LOG.info(blockName);
+			if (CartActionRegistry.contains(blockName)) {
+				ICartAction action = CartActionRegistry.get(blockName);
+				action.deserialize(tag);
+				this.setAction(Optional.of(action));
+			}
+		}
+	}
+
+	@Override
+	public void onUpdate() {
+		super.onUpdate();
+
+		Optional<ICartAction> action = this.getAction();
+
+		if (action.isPresent()) {
+			action.get().tick(this);
+		}
+	}
+
+	@Override
+	protected double getMaximumSpeed() {
+		Optional<ICartAction> action = this.getAction();
+
+		if (action.isPresent()) {
+			return action.get().getMaxCartSpeed();
+		}
+
+		return super.getMaximumSpeed();
+	}
+
+	@Override
+	protected void moveAlongTrack(BlockPos pos, IBlockState state) {
+		super.moveAlongTrack(pos, state);
+
+		Optional<ICartAction> action = this.getAction();
+
+		if (action.isPresent()) {
+			action.get().moveAlongTrack(this, pos, state);
+		}
+	}
+
+	@Override
+	protected void applyDrag() {
+		Optional<ICartAction> action = this.getAction();
+
+		if (action.isPresent()) {
+			action.get().applyDrag(this);
+		}
+
+		super.applyDrag();
+	}
+
+	@Override
+	public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
+		if (MinecraftForge.EVENT_BUS.post(new MinecartInteractEvent(this, player, hand)) || this.isBeingRidden()) {
+			return true;
+		}
+
+		if (player.isSneaking()) {
+			if (this.hasDisplayTile()) {
+				this.dropDisplayStack();
+				return true;
+			}
+			return false;
+		}
+
+		if (this.hasDisplayTile()) {
+			Optional<ICartAction> action = this.getAction();
+
+			RegistryMT.LOG.info(!action.isPresent());
+			RegistryMT.LOG.info(hasDisplayTile());
+
+			if (!action.isPresent() && hasDisplayTile()) {
+				String blockName = this.getDisplayTile().getBlock().getRegistryName().toString();
+
+				RegistryMT.LOG.info(blockName);
+				if (CartActionRegistry.contains(blockName)) {
+					RegistryMT.LOG.info("Setting action!");
+					this.setAction(action = Optional.of(CartActionRegistry.get(blockName)));
+				}
+			}
+
+			if (action.isPresent()) {
+				RegistryMT.LOG.info("Performing action!");
+				return action.get().activate(this, player, hand);
+			}
+
+			return true;
+		} else if (!this.world.isRemote) {
+			player.startRiding(this);
+		}
+
+		return true;
 	}
 
 	@Override
@@ -225,11 +330,29 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		return name;
 	}
 
-	protected void dropDisplayStack() {
-		if (!this.world.isRemote) {
-			ItemStack data = this.getDisplayStack();
+	public ItemStack removeDisplayStack() {
+		ItemStack stack = this.getDisplayStack();
+
+		if (stack.isEmpty()) {
+			IBlockState state = this.getDisplayTile();
+			Block block = state.getBlock();
+			stack = new ItemStack(block, 1, block.getMetaFromState(state));
+		}
+
+		if (this.isEntityAlive()) {
+			this.setDisplayTile(getDefaultDisplayTile());
+			this.setHasDisplayTile(false);
 			this.dataManager.set(DISPLAY, ItemStack.EMPTY);
-			entityDropItem(data.isEmpty() ? new ItemStack(this.getDisplayTile().getBlock()) : data.copy(), 0.0F);
+			this.setAction(Optional.absent());
+			// natively synchronizes w/ the client, so no packets needed
+		}
+
+		return stack.copy();
+	}
+
+	public void dropDisplayStack() {
+		if (!this.world.isRemote) {
+			entityDropItem(removeDisplayStack(), 0.0F);
 		}
 	}
 
@@ -250,29 +373,5 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 				this.dropDisplayStack();
 			}
 		}
-	}
-
-	@Override
-	public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
-		if (super.processInitialInteract(player, hand) || this.isBeingRidden()) {
-			return true;
-		}
-
-		if (player.isSneaking()) {
-			if (this.hasDisplayTile()) {
-				this.dropDisplayStack();
-				this.setDisplayTile(getDefaultDisplayTile());
-				this.setHasDisplayTile(false);
-				return true;
-			} else {
-				return false;
-			}
-		}
-
-		if (!this.world.isRemote) {
-			player.startRiding(this);
-		}
-
-		return true;
 	}
 }

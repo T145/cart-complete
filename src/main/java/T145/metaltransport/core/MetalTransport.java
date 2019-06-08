@@ -15,6 +15,7 @@ import T145.metaltransport.client.render.entities.RenderMetalMinecart;
 import T145.metaltransport.entities.EntityMetalMinecart;
 import T145.metaltransport.entities.actions.CartActionEnderChest;
 import T145.metaltransport.entities.actions.CartActionFurnace;
+import T145.metaltransport.entities.actions.CartActionWorkbench;
 import T145.metaltransport.items.ItemMetalMinecart;
 import T145.tbone.core.TBone;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
@@ -99,6 +100,7 @@ public class MetalTransport {
 		BehaviorDispenseMinecart.register(ItemsMT.METAL_MINECART, ItemMetalMinecart.DISPENSER_BEHAVIOR);
 		CartActionRegistry.register(new CartActionFurnace());
 		CartActionRegistry.register(new CartActionEnderChest());
+		CartActionRegistry.register(new CartActionWorkbench());
 	}
 
 	@SubscribeEvent

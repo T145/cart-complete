@@ -1,7 +1,7 @@
 package T145.metaltransport.entities.actions;
 
 import T145.metaltransport.api.carts.CartAction;
-import net.minecraft.block.BlockWorkbench;
+import T145.metaltransport.containers.CraftingTableInterface;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -20,9 +20,8 @@ public class CartActionWorkbench extends CartAction {
 		World world = cart.world;
 
 		if (!world.isRemote) {
-			player.displayGui(new BlockWorkbench.InterfaceCraftingTable(cart.world, cart.getPosition()));
+			player.displayGui(new CraftingTableInterface(world, cart.getPosition()));
 			player.addStat(StatList.CRAFTING_TABLE_INTERACTION);
-			return true;
 		}
 
 		return true;

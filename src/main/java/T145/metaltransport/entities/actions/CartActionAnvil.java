@@ -1,7 +1,7 @@
 package T145.metaltransport.entities.actions;
 
 import T145.metaltransport.api.carts.CartAction;
-import net.minecraft.block.BlockAnvil;
+import T145.metaltransport.containers.AnvilInterface;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -19,7 +19,7 @@ public class CartActionAnvil extends CartAction {
 		World world = cart.world;
 
 		if (!world.isRemote) {
-			player.displayGui(new BlockAnvil.Anvil(world, cart.getPosition()));
+			player.displayGui(new AnvilInterface(world, cart.getPosition()));
 		}
 
 		return true;

@@ -7,12 +7,11 @@ import com.google.common.base.Optional;
 
 import T145.metaltransport.api.ItemsMT;
 import T145.metaltransport.api.SerializersMT;
-import T145.metaltransport.api.carts.CartActionRegistry;
-import T145.metaltransport.api.carts.ICartAction;
+import T145.metaltransport.api.carts.CartBehaviorRegistry;
+import T145.metaltransport.api.carts.ICartBehavior;
 import T145.metaltransport.api.carts.IMetalMinecart;
 import T145.metaltransport.api.carts.IMinecartBlock;
 import T145.metaltransport.api.constants.CartType;
-import T145.metaltransport.api.constants.RegistryMT;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
@@ -40,9 +39,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMinecart {
 
-	private static final DataParameter<CartType> CART_TYPE = EntityDataManager.createKey(EntityMetalMinecart.class, SerializersMT.CART_TYPE);
 	private static final DataParameter<ItemStack> DISPLAY = EntityDataManager.createKey(EntityMetalMinecart.class, DataSerializers.ITEM_STACK);
-	private static final DataParameter<Optional<ICartAction>> ACTION = EntityDataManager.createKey(EntityMetalMinecart.class, SerializersMT.CART_ACTION);
+	private static final DataParameter<Optional<ICartBehavior>> BEHAVIOR = EntityDataManager.createKey(EntityMetalMinecart.class, SerializersMT.CART_BEHAVIOR);
+	private static final DataParameter<CartType> CART_TYPE = EntityDataManager.createKey(EntityMetalMinecart.class, SerializersMT.CART_TYPE);
+
 	private static final Map<String, EntityMinecart.Type> MINECART_TYPES = new HashMap() {{
 		//put("minecraft:air", EntityMinecart.Type.RIDEABLE);
 		put("minecraft:chest", EntityMinecart.Type.CHEST);
@@ -83,14 +83,6 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		this.rotationYaw = cart.rotationYaw;
 	}
 
-	public Optional<ICartAction> getAction() {
-		return this.dataManager.get(ACTION);
-	}
-
-	public void setAction(Optional<ICartAction> action) {
-		this.dataManager.set(ACTION, action);
-	}
-
 	@Override
 	public void setDisplayTile(IBlockState state) {
 		ItemStack stack = this.getDisplayStack();
@@ -104,15 +96,12 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	}
 
 	public EntityMetalMinecart setDisplayState(IBlockState state) {
-		Optional<ICartAction> action = this.getAction();
+		Optional<ICartBehavior> behavior = this.getBehavior();
 		String blockName = state.getBlock().getRegistryName().toString();
 
-		RegistryMT.LOG.info(blockName);
-
-		if (CartActionRegistry.contains(blockName)) {
-			action = Optional.of(CartActionRegistry.get(blockName));
-			RegistryMT.LOG.info("Setting cart action: " + action);
-			this.setAction(action);
+		if (CartBehaviorRegistry.contains(blockName)) {
+			behavior = Optional.of(CartBehaviorRegistry.get(blockName));
+			this.setBehavior(behavior);
 		}
 
 		this.setDisplayTile(state);
@@ -150,6 +139,16 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	}
 
 	@Override
+	public Optional<ICartBehavior> getBehavior() {
+		return this.dataManager.get(BEHAVIOR);
+	}
+
+	@Override
+	public void setBehavior(Optional<ICartBehavior> behavior) {
+		this.dataManager.set(BEHAVIOR, behavior);
+	}
+
+	@Override
 	public CartType getCartType() {
 		return dataManager.get(CART_TYPE);
 	}
@@ -161,14 +160,14 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	}
 
 	protected String getDisplayBlockName() {
-		Optional<ICartAction> action = this.getAction();
+		Optional<ICartBehavior> behavior = this.getBehavior();
 
-		if (!action.isPresent() || action.get().hasNames()) {
+		if (!behavior.isPresent() || behavior.get().hasNames()) {
 			return this.getDisplayTile().getBlock().getRegistryName().toString();
 		}
 
 		// TODO: Implement "getActiveName" for the default return
-		return action.get().getBlockNames()[0];
+		return behavior.get().getBlockNames()[0];
 	}
 
 	@Override
@@ -186,7 +185,7 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		super.entityInit();
 		this.dataManager.register(CART_TYPE, CartType.IRON);
 		this.dataManager.register(DISPLAY, ItemStack.EMPTY);
-		this.dataManager.register(ACTION, Optional.absent());
+		this.dataManager.register(BEHAVIOR, Optional.absent());
 	}
 
 	@Override
@@ -197,11 +196,11 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		this.getDisplayStack().writeToNBT(stackTag);
 		tag.setTag(TAG_DISPLAY, stackTag);
 
-		boolean present = this.getAction().isPresent();
-		tag.setBoolean("HasAction", present);
+		boolean present = this.getBehavior().isPresent();
+		tag.setBoolean("HasBehavior", present);
 
 		if (present) {
-			tag.setTag(TAG_ACTION, this.getAction().get().serialize());
+			tag.setTag(TAG_BEHAVIOR, this.getBehavior().get().serialize());
 		}
 	}
 
@@ -211,15 +210,15 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		setCartType(CartType.valueOf(tag.getString(TAG_CART_TYPE)));
 		this.dataManager.set(DISPLAY, new ItemStack(tag.getCompoundTag(TAG_DISPLAY)));
 
-		if (tag.getBoolean("HasAction")) {
-			NBTTagCompound actionTag = tag.getCompoundTag(TAG_ACTION);
-			NBTTagList names = actionTag.getTagList("BlockNames", Constants.NBT.TAG_STRING);
+		if (tag.getBoolean("HasBehavior")) {
+			NBTTagCompound behaviorTag = tag.getCompoundTag(TAG_BEHAVIOR);
+			NBTTagList names = behaviorTag.getTagList("BlockNames", Constants.NBT.TAG_STRING);
 			String blockName = names.getStringTagAt(0);
 
-			if (CartActionRegistry.contains(blockName)) {
-				ICartAction action = CartActionRegistry.get(blockName);
-				action.deserialize(actionTag);
-				this.setAction(Optional.of(action));
+			if (CartBehaviorRegistry.contains(blockName)) {
+				ICartBehavior behavior = CartBehaviorRegistry.get(blockName);
+				behavior.deserialize(behaviorTag);
+				this.setBehavior(Optional.of(behavior));
 			}
 		}
 	}
@@ -227,12 +226,10 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void handleStatusUpdate(byte id) {
-		//super.handleStatusUpdate(id);
+		Optional<ICartBehavior> behavior = this.getBehavior();
 
-		Optional<ICartAction> action = this.getAction();
-
-		if (action.isPresent()) {
-			action.get().handleStatusUpdate(this, id);
+		if (behavior.isPresent()) {
+			behavior.get().handleStatusUpdate(this, id);
 		}
 	}
 
@@ -240,19 +237,19 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	public void onUpdate() {
 		super.onUpdate();
 
-		Optional<ICartAction> action = this.getAction();
+		Optional<ICartBehavior> behavior = this.getBehavior();
 
-		if (action.isPresent()) {
-			action.get().tick(this);
+		if (behavior.isPresent()) {
+			behavior.get().tick(this);
 		}
 	}
 
 	@Override
 	protected double getMaximumSpeed() {
-		Optional<ICartAction> action = this.getAction();
+		Optional<ICartBehavior> behavior = this.getBehavior();
 
-		if (action.isPresent()) {
-			return action.get().getMaxCartSpeed();
+		if (behavior.isPresent()) {
+			return behavior.get().getMaxCartSpeed();
 		}
 
 		return super.getMaximumSpeed();
@@ -262,19 +259,19 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	protected void moveAlongTrack(BlockPos pos, IBlockState state) {
 		super.moveAlongTrack(pos, state);
 
-		Optional<ICartAction> action = this.getAction();
+		Optional<ICartBehavior> behavior = this.getBehavior();
 
-		if (action.isPresent()) {
-			action.get().moveAlongTrack(this, pos, state);
+		if (behavior.isPresent()) {
+			behavior.get().moveAlongTrack(this, pos, state);
 		}
 	}
 
 	@Override
 	protected void applyDrag() {
-		Optional<ICartAction> action = this.getAction();
+		Optional<ICartBehavior> behavior = this.getBehavior();
 
-		if (action.isPresent()) {
-			action.get().applyDrag(this);
+		if (behavior.isPresent()) {
+			behavior.get().applyDrag(this);
 		}
 
 		super.applyDrag();
@@ -295,11 +292,10 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		}
 
 		if (this.hasDisplayTile()) {
-			Optional<ICartAction> action = this.getAction();
+			Optional<ICartBehavior> behavior = this.getBehavior();
 
-			if (action.isPresent()) {
-				RegistryMT.LOG.info("Performing action!");
-				return action.get().activate(this, player, hand);
+			if (behavior.isPresent()) {
+				return behavior.get().activate(this, player, hand);
 			}
 		} else if (!this.world.isRemote) {
 			player.startRiding(this);
@@ -351,7 +347,7 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 			this.setDisplayTile(getDefaultDisplayTile());
 			this.setHasDisplayTile(false);
 			this.dataManager.set(DISPLAY, ItemStack.EMPTY);
-			this.setAction(Optional.absent());
+			this.setBehavior(Optional.absent());
 			// natively synchronizes w/ the client, so no packets needed
 		}
 

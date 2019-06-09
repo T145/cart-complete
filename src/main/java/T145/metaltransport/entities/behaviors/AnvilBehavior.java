@@ -1,6 +1,6 @@
-package T145.metaltransport.entities.actions;
+package T145.metaltransport.entities.behaviors;
 
-import T145.metaltransport.api.carts.CartAction;
+import T145.metaltransport.api.carts.CartBehavior;
 import T145.metaltransport.containers.AnvilInterface;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
@@ -8,9 +8,9 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 
-public class CartActionAnvil extends CartAction {
+public class AnvilBehavior extends CartBehavior {
 
-	public CartActionAnvil() {
+	public AnvilBehavior() {
 		super(Blocks.ANVIL);
 	}
 

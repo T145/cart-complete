@@ -1,6 +1,6 @@
-package T145.metaltransport.entities.actions;
+package T145.metaltransport.entities.behaviors;
 
-import T145.metaltransport.api.carts.CartAction;
+import T145.metaltransport.api.carts.CartBehavior;
 import T145.metaltransport.api.constants.RegistryMT;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFurnace;
@@ -18,7 +18,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
-public class CartActionFurnace extends CartAction {
+public class FurnaceBehavior extends CartBehavior {
 
 	private boolean powered;
 	private boolean prevPowered;
@@ -26,7 +26,7 @@ public class CartActionFurnace extends CartAction {
 	public double pushX;
 	public double pushZ;
 
-	public CartActionFurnace() {
+	public FurnaceBehavior() {
 		super(new Block[] { Blocks.FURNACE, Blocks.LIT_FURNACE });
 	}
 

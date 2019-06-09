@@ -1,6 +1,6 @@
-package T145.metaltransport.entities.actions;
+package T145.metaltransport.entities.behaviors;
 
-import T145.metaltransport.api.carts.CartAction;
+import T145.metaltransport.api.carts.CartBehavior;
 import T145.metaltransport.containers.CraftingTableInterface;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
@@ -9,9 +9,9 @@ import net.minecraft.stats.StatList;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 
-public class CartActionWorkbench extends CartAction {
+public class CraftingTableBehavior extends CartBehavior {
 
-	public CartActionWorkbench() {
+	public CraftingTableBehavior() {
 		super(Blocks.CRAFTING_TABLE);
 	}
 

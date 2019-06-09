@@ -18,17 +18,17 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import scala.actors.threadpool.Arrays;
 
-public class CartAction implements ICartAction {
+public class CartBehavior implements ICartBehavior {
 
 	private HashSet<String> nameSet;
 	protected String[] blockNames;
 
-	public CartAction() {
+	public CartBehavior() {
 		this.blockNames = new String[10];
 		this.nameSet = new HashSet<>();
 	}
 
-	public CartAction(Block[] blocks) {
+	public CartBehavior(Block[] blocks) {
 		this.blockNames = new String[blocks.length];
 
 		for (short i = 0; i < blocks.length; ++i) {
@@ -38,7 +38,7 @@ public class CartAction implements ICartAction {
 		this.nameSet = new HashSet<>(Arrays.asList(blockNames));
 	}
 
-	public CartAction(Block block) {
+	public CartBehavior(Block block) {
 		this(new Block[] { block });
 	}
 

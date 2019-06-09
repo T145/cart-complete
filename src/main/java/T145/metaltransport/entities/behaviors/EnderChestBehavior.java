@@ -1,6 +1,6 @@
-package T145.metaltransport.entities.actions;
+package T145.metaltransport.entities.behaviors;
 
-import T145.metaltransport.api.carts.CartAction;
+import T145.metaltransport.api.carts.CartBehavior;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -9,9 +9,9 @@ import net.minecraft.stats.StatList;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 
-public class CartActionEnderChest extends CartAction {
+public class EnderChestBehavior extends CartBehavior {
 
-	public CartActionEnderChest() {
+	public EnderChestBehavior() {
 		super(Blocks.ENDER_CHEST);
 	}
 

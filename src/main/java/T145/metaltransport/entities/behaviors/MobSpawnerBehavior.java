@@ -1,8 +1,8 @@
-package T145.metaltransport.entities.actions;
+package T145.metaltransport.entities.behaviors;
 
 import com.google.common.base.Optional;
 
-import T145.metaltransport.api.carts.CartAction;
+import T145.metaltransport.api.carts.CartBehavior;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.init.Blocks;
@@ -13,7 +13,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class CartActionMobSpawner extends CartAction {
+public class MobSpawnerBehavior extends CartBehavior {
 
 	/** 
 	 * Dynamic programming technique so we don't need to create the logic over & over.
@@ -49,7 +49,7 @@ public class CartActionMobSpawner extends CartAction {
 		return this.mobSpawnerLogic.get();
 	}
 
-	public CartActionMobSpawner() {
+	public MobSpawnerBehavior() {
 		super(Blocks.MOB_SPAWNER);
 	}
 

@@ -10,7 +10,7 @@ import T145.metaltransport.api.SerializersMT;
 import T145.metaltransport.api.carts.CartBehaviorRegistry;
 import T145.metaltransport.api.carts.ICartBehavior;
 import T145.metaltransport.api.carts.IMetalMinecart;
-import T145.metaltransport.api.carts.IMinecartBlock;
+import T145.metaltransport.api.carts.IMetalMinecartBlock;
 import T145.metaltransport.api.constants.CartType;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -95,32 +95,6 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		super.setDisplayTile(state);
 	}
 
-	public EntityMetalMinecart setDisplayState(IBlockState state) {
-		Optional<ICartBehavior> behavior = this.getBehavior();
-		String blockName = state.getBlock().getRegistryName().toString();
-
-		if (CartBehaviorRegistry.contains(blockName)) {
-			behavior = Optional.of(CartBehaviorRegistry.get(blockName));
-			this.setBehavior(behavior);
-		}
-
-		this.setDisplayTile(state);
-		return this;
-	}
-
-	public EntityMetalMinecart setDisplayBlock(Block block) {
-		if (block instanceof IMinecartBlock) {
-			return this.setDisplayState(((IMinecartBlock) block).getDisplayState(this, this.getDisplayStack()));
-		} else {
-			// add any special vanilla block exceptions here
-			return this.setDisplayState(block.getDefaultState());
-		}
-	}
-
-	public EntityMetalMinecart setDisplayItem(Item item) {
-		return this.setDisplayBlock(Block.getBlockFromItem(item));
-	}
-
 	@Override
 	public ItemStack getDisplayStack() {
 		return this.dataManager.get(DISPLAY);
@@ -135,7 +109,33 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		}
 
 		this.dataManager.set(DISPLAY, copyStack);
-		return this.setDisplayItem(stack.getItem());
+		return this.setDisplayItem(stack.getItem(), stack.getItemDamage());
+	}
+
+	protected EntityMetalMinecart setDisplayItem(Item item, int meta) {
+		return this.setDisplayBlock(Block.getBlockFromItem(item), meta);
+	}
+
+	protected EntityMetalMinecart setDisplayBlock(Block block, int meta) {
+		if (block instanceof IMetalMinecartBlock) {
+			IMetalMinecartBlock cartBlock = (IMetalMinecartBlock) block;
+			return this.setDisplayState(cartBlock.getDisplayState(this, meta), meta);
+		}
+
+		return this.setDisplayState(block.getDefaultState(), meta);
+	}
+
+	protected EntityMetalMinecart setDisplayState(IBlockState state, int meta) {
+		Optional<ICartBehavior> behavior = this.getBehavior();
+		String blockName = state.getBlock().getRegistryName().toString();
+
+		if (CartBehaviorRegistry.contains(blockName)) {
+			behavior = Optional.of(CartBehaviorRegistry.get(blockName));
+			this.setBehavior(behavior);
+		}
+
+		this.setDisplayTile(state);
+		return this;
 	}
 
 	@Override

@@ -32,7 +32,7 @@ public interface ICartBehavior {
 
 	void tick(EntityMinecart cart);
 
-	void notifyDataManagerChange(EntityMinecart cart, DataParameter<?> key);
+	void tickDataManager(EntityMinecart cart, DataParameter<?> key);
 
 	void activate(EntityMinecart cart, EntityPlayer player, EnumHand hand);
 

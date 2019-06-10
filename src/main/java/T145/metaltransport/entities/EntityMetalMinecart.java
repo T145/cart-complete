@@ -396,7 +396,7 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		Optional<ICartBehavior> behavior = this.getBehavior();
 
 		if (behavior.isPresent()) {
-			behavior.get().notifyDataManagerChange(this, key);
+			behavior.get().tickDataManager(this, key);
 		}
 	}
 

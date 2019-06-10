@@ -92,10 +92,16 @@ public class CartBehavior implements ICartBehavior {
 	public void tick(EntityMinecart cart) {}
 
 	@Override
+	public void tickDataManager(EntityMinecart cart, DataParameter<?> key) {}
+
+	@Override
 	public void activate(EntityMinecart cart, EntityPlayer player, EnumHand hand) {}
 
 	@Override
 	public void attackCartFrom(EntityMinecart cart, DamageSource source, float amount) {}
+
+	@Override
+	public void killMinecart(EntityMinecart cart, DamageSource source) {}
 
 	@Override
 	public void fall(EntityMinecart cart, float distance, float damageMultiplier) {}
@@ -111,18 +117,12 @@ public class CartBehavior implements ICartBehavior {
 	@Override
 	public void applyDrag(EntityMinecart cart) {}
 
+	@Override
+	public boolean ignoreItemEntityData(EntityMinecart cart) {
+		return false; // default entity value
+	}
+
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void handleStatusUpdate(EntityMinecart cart, byte id) {}
-
-	@Override
-	public void notifyDataManagerChange(EntityMinecart cart, DataParameter<?> key) {}
-
-	@Override
-	public boolean ignoreItemEntityData(EntityMinecart cart) {
-		return false; // default value for entities is false
-	}
-
-	@Override
-	public void killMinecart(EntityMinecart cart, DamageSource source) {}
 }

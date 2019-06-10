@@ -18,6 +18,7 @@ import T145.metaltransport.entities.behaviors.CraftingTableBehavior;
 import T145.metaltransport.entities.behaviors.EnderChestBehavior;
 import T145.metaltransport.entities.behaviors.FurnaceBehavior;
 import T145.metaltransport.entities.behaviors.MobSpawnerBehavior;
+import T145.metaltransport.entities.behaviors.TNTBehavior;
 import T145.metaltransport.items.ItemMetalMinecart;
 import T145.tbone.core.TBone;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
@@ -105,6 +106,7 @@ public class MetalTransport {
 		CartBehaviorRegistry.register(new EnderChestBehavior());
 		CartBehaviorRegistry.register(new MobSpawnerBehavior());
 		CartBehaviorRegistry.register(new CraftingTableBehavior());
+		CartBehaviorRegistry.register(new TNTBehavior());
 	}
 
 	@SubscribeEvent

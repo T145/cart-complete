@@ -49,12 +49,13 @@ public class FurnaceBehavior extends CartBehavior {
 	}
 
 	@Override
-	public void deserialize(NBTTagCompound tag) {
+	public FurnaceBehavior deserialize(NBTTagCompound tag) {
 		super.deserialize(tag);
 		this.setPowered(powered);
 		this.pushX = tag.getDouble("PushX");
 		this.pushZ = tag.getDouble("PushZ");
 		this.fuel = tag.getShort("Fuel");
+		return this;
 	}
 
 	@Override

@@ -38,10 +38,11 @@ public class TNTBehavior extends CartBehavior {
 	}
 
 	@Override
-	public void deserialize(NBTTagCompound tag) {
+	public TNTBehavior deserialize(NBTTagCompound tag) {
 		if (tag.hasKey("TNTFuse", 99)) {
 			this.cartFuse = tag.getInteger("TNTFuse");
 		}
+		return this;
 	}
 
 	public double getHorizontalMotion(EntityMinecart cart) {

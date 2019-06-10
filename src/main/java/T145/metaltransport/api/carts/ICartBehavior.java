@@ -26,7 +26,7 @@ public interface ICartBehavior {
 
 	NBTTagCompound serialize();
 
-	void deserialize(NBTTagCompound tag);
+	ICartBehavior deserialize(NBTTagCompound tag);
 
 	double getMaxCartSpeed();
 

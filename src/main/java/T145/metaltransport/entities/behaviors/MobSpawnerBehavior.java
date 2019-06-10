@@ -1,6 +1,6 @@
 package T145.metaltransport.entities.behaviors;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import T145.metaltransport.api.carts.CartBehavior;
 import net.minecraft.entity.Entity;
@@ -15,38 +15,31 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class MobSpawnerBehavior extends CartBehavior {
 
-	/** 
-	 * Dynamic programming technique so we don't need to create the logic over & over.
-	 * May end up using AccessTransformers to grab EntityMinecartMobSpawner#mobSpawnerLogic.
-	 */
-	private Optional<MobSpawnerBaseLogic> mobSpawnerLogic = Optional.absent();
+	private Optional<MobSpawnerBaseLogic> logic = Optional.empty();
 
-	public MobSpawnerBaseLogic getSpawnerLogic(EntityMinecart cart) {
-		if (!this.mobSpawnerLogic.isPresent()) {
-			this.mobSpawnerLogic = Optional.of(new MobSpawnerBaseLogic() {
+	protected MobSpawnerBaseLogic getLogic(EntityMinecart cart) {
+		return this.logic.orElse(new MobSpawnerBaseLogic() {
 
-				@Override
-				public void broadcastEvent(int id) {
-					cart.world.setEntityState(cart, (byte) id);
-				}
+			@Override
+			public void broadcastEvent(int id) {
+				cart.world.setEntityState(cart, (byte) id);
+			}
 
-				@Override
-				public World getSpawnerWorld() {
-					return cart.world;
-				}
+			@Override
+			public World getSpawnerWorld() {
+				return cart.world;
+			}
 
-				@Override
-				public BlockPos getSpawnerPosition() {
-					return cart.getPosition();
-				}
+			@Override
+			public BlockPos getSpawnerPosition() {
+				return cart.getPosition();
+			}
 
-				@Override
-				public Entity getSpawnerEntity() {
-					return cart;
-				}
-			});
-		}
-		return this.mobSpawnerLogic.get();
+			@Override
+			public Entity getSpawnerEntity() {
+				return cart;
+			}
+		});
 	}
 
 	public MobSpawnerBehavior() {
@@ -56,29 +49,24 @@ public class MobSpawnerBehavior extends CartBehavior {
 	@Override
 	public NBTTagCompound serialize() {
 		NBTTagCompound tag = super.serialize();
-
-		if (this.mobSpawnerLogic.isPresent()) {
-			this.mobSpawnerLogic.get().writeToNBT(tag);
-		}
-
+		this.logic.ifPresent(logic -> logic.writeToNBT(tag));
 		return tag;
 	}
 
 	@Override
-	public void deserialize(NBTTagCompound tag) {
-		if (this.mobSpawnerLogic.isPresent()) {
-			this.mobSpawnerLogic.get().readFromNBT(tag);
-		}
+	public MobSpawnerBehavior deserialize(NBTTagCompound tag) {
+		this.logic.ifPresent(logic -> logic.readFromNBT(tag));
+		return this;
 	}
 
 	@Override
 	public void tick(EntityMinecart cart) {
-		this.getSpawnerLogic(cart).updateSpawner();
+		this.getLogic(cart).updateSpawner();
 	}
 
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void handleStatusUpdate(EntityMinecart cart, byte id) {
-		this.getSpawnerLogic(cart).setDelayToMin(id);
+		this.getLogic(cart).setDelayToMin(id);
 	}
 }

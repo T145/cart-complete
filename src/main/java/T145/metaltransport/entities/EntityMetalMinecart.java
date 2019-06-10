@@ -2,8 +2,7 @@ package T145.metaltransport.entities;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import T145.metaltransport.api.ItemsMT;
 import T145.metaltransport.api.SerializersMT;
@@ -44,7 +43,6 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	private static final DataParameter<CartType> CART_TYPE = EntityDataManager.createKey(EntityMetalMinecart.class, SerializersMT.CART_TYPE);
 
 	private static final Map<String, EntityMinecart.Type> MINECART_TYPES = new HashMap() {{
-		//put("minecraft:air", EntityMinecart.Type.RIDEABLE);
 		put("minecraft:chest", EntityMinecart.Type.CHEST);
 		put("minecraft:trapped_chest", EntityMinecart.Type.CHEST);
 		put("minecraft:ender_chest", EntityMinecart.Type.CHEST);
@@ -126,14 +124,8 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	}
 
 	protected EntityMetalMinecart setDisplayState(IBlockState state, int meta) {
-		Optional<ICartBehavior> behavior = this.getBehavior();
 		String blockName = state.getBlock().getRegistryName().toString();
-
-		if (CartBehaviorRegistry.contains(blockName)) {
-			behavior = Optional.of(CartBehaviorRegistry.get(blockName));
-			this.setBehavior(behavior);
-		}
-
+		this.setBehavior(Optional.ofNullable(CartBehaviorRegistry.get(blockName)));
 		this.setDisplayTile(state);
 		return this;
 	}
@@ -159,23 +151,11 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		return this;
 	}
 
-	protected String getDisplayBlockName() {
-		Optional<ICartBehavior> behavior = this.getBehavior();
-
-		if (!behavior.isPresent() || behavior.get().hasNames()) {
-			return this.getDisplayTile().getBlock().getRegistryName().toString();
-		}
-
-		// TODO: Implement "getActiveName" for the default return
-		return behavior.get().getBlockNames()[0];
-	}
-
 	@Override
 	public EntityMinecart.Type getType() {
-		String blockName = this.getDisplayBlockName();
-
-		if (MINECART_TYPES.containsKey(blockName)) {
-			return MINECART_TYPES.get(blockName);
+		Optional<ICartBehavior> behavior = this.getBehavior();
+		if (behavior.isPresent()) {
+			return MINECART_TYPES.get(behavior.get().getBlockNames()[0]);
 		}
 		return super.getType();
 	}
@@ -185,7 +165,7 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		super.entityInit();
 		this.dataManager.register(CART_TYPE, CartType.IRON);
 		this.dataManager.register(DISPLAY, ItemStack.EMPTY);
-		this.dataManager.register(BEHAVIOR, Optional.absent());
+		this.dataManager.register(BEHAVIOR, Optional.empty());
 	}
 
 	@Override
@@ -195,13 +175,10 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		NBTTagCompound stackTag = new NBTTagCompound();
 		this.getDisplayStack().writeToNBT(stackTag);
 		tag.setTag(TAG_DISPLAY, stackTag);
-
-		boolean present = this.getBehavior().isPresent();
-		tag.setBoolean("HasBehavior", present);
-
-		if (present) {
+		this.getBehavior().ifPresent(behavior -> {
+			tag.setByte("HasBehavior", (byte) 1);
 			tag.setTag(TAG_BEHAVIOR, this.getBehavior().get().serialize());
-		}
+		});
 	}
 
 	@Override
@@ -210,70 +187,43 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		setCartType(CartType.valueOf(tag.getString(TAG_CART_TYPE)));
 		this.dataManager.set(DISPLAY, new ItemStack(tag.getCompoundTag(TAG_DISPLAY)));
 
-		if (tag.getBoolean("HasBehavior")) {
+		if (tag.hasKey("HasBehavior")) {
 			NBTTagCompound behaviorTag = tag.getCompoundTag(TAG_BEHAVIOR);
 			NBTTagList names = behaviorTag.getTagList("BlockNames", Constants.NBT.TAG_STRING);
-			String blockName = names.getStringTagAt(0);
 
-			if (CartBehaviorRegistry.contains(blockName)) {
-				ICartBehavior behavior = CartBehaviorRegistry.get(blockName);
-				behavior.deserialize(behaviorTag);
-				this.setBehavior(Optional.of(behavior));
-			}
+			Optional.ofNullable(CartBehaviorRegistry.get(names.getStringTagAt(0))).ifPresent(behavior -> {
+				this.setBehavior(Optional.of(behavior.deserialize(behaviorTag)));
+			});
 		}
 	}
 
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void handleStatusUpdate(byte id) {
-		Optional<ICartBehavior> behavior = this.getBehavior();
-
-		if (behavior.isPresent()) {
-			behavior.get().handleStatusUpdate(this, id);
-		}
+		this.getBehavior().ifPresent(behavior -> behavior.handleStatusUpdate(this, id));
 	}
 
 	@Override
 	public void onUpdate() {
 		super.onUpdate();
-
-		Optional<ICartBehavior> behavior = this.getBehavior();
-
-		if (behavior.isPresent()) {
-			behavior.get().tick(this);
-		}
+		this.getBehavior().ifPresent(behavior -> behavior.tick(this));
 	}
 
 	@Override
 	protected double getMaximumSpeed() {
-		Optional<ICartBehavior> behavior = this.getBehavior();
-
-		if (behavior.isPresent()) {
-			return behavior.get().getMaxCartSpeed();
-		}
-
+		this.getBehavior().ifPresent(behavior -> behavior.getMaxCartSpeed());
 		return super.getMaximumSpeed();
 	}
 
 	@Override
-	protected void moveAlongTrack(BlockPos pos, IBlockState state) {
-		super.moveAlongTrack(pos, state);
-
-		Optional<ICartBehavior> behavior = this.getBehavior();
-
-		if (behavior.isPresent()) {
-			behavior.get().moveAlongTrack(this, pos, state);
-		}
+	protected void moveAlongTrack(BlockPos pos, IBlockState rail) {
+		super.moveAlongTrack(pos, rail);
+		this.getBehavior().ifPresent(behavior -> behavior.moveAlongTrack(this, pos, rail));
 	}
 
 	@Override
 	protected void applyDrag() {
-		Optional<ICartBehavior> behavior = this.getBehavior();
-
-		if (behavior.isPresent()) {
-			behavior.get().applyDrag(this);
-		}
-
+		this.getBehavior().ifPresent(behavior -> behavior.applyDrag(this));
 		super.applyDrag();
 	}
 
@@ -291,11 +241,7 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		}
 
 		if (this.hasDisplayTile()) {
-			Optional<ICartBehavior> behavior = this.getBehavior();
-
-			if (behavior.isPresent()) {
-				behavior.get().activate(this, player, hand);
-			}
+			this.getBehavior().ifPresent(behavior -> behavior.activate(this, player, hand));
 		} else if (!this.world.isRemote) {
 			player.startRiding(this);
 		}
@@ -346,7 +292,7 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 			this.setDisplayTile(getDefaultDisplayTile());
 			this.setHasDisplayTile(false);
 			this.dataManager.set(DISPLAY, ItemStack.EMPTY);
-			this.setBehavior(Optional.absent());
+			this.setBehavior(Optional.empty());
 			// natively synchronizes w/ the client, so no packets needed
 		}
 
@@ -364,50 +310,37 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		this.setDead();
 
 		if (this.world.getGameRules().getBoolean("doEntityDrops")) {
-			ItemStack itemstack = this.getCartItem();
+			ItemStack stack = this.getCartItem();
 
 			if (this.hasCustomName()) {
-				itemstack.setStackDisplayName(this.getCustomNameTag());
+				stack.setStackDisplayName(this.getCustomNameTag());
 			}
 
-			this.entityDropItem(itemstack, 0.0F);
+			this.entityDropItem(stack, 0.0F);
 
 			if (this.hasDisplayTile()) {
 				this.dropDisplayStack();
 			}
 		}
+
+		this.getBehavior().ifPresent(behavior -> behavior.killMinecart(this, source));
 	}
 
 	@Override
 	public boolean attackEntityFrom(DamageSource source, float amount) {
-		Optional<ICartBehavior> behavior = this.getBehavior();
-
-		if (behavior.isPresent()) {
-			behavior.get().attackCartFrom(this, source, amount);
-		}
-
+		this.getBehavior().ifPresent(behavior -> behavior.attackCartFrom(this, source, amount));
 		return super.attackEntityFrom(source, amount);
 	}
 
 	@Override
 	public void notifyDataManagerChange(DataParameter<?> key) {
 		// super method is empty
-
-		Optional<ICartBehavior> behavior = this.getBehavior();
-
-		if (behavior.isPresent()) {
-			behavior.get().tickDataManager(this, key);
-		}
+		this.getBehavior().ifPresent(behavior -> behavior.tickDataManager(this, key));
 	}
 
 	@Override
 	public void fall(float distance, float damageMultiplier) {
-		Optional<ICartBehavior> behavior = this.getBehavior();
-
-		if (behavior.isPresent()) {
-			behavior.get().fall(this, distance, damageMultiplier);
-		}
-
+		this.getBehavior().ifPresent(behavior -> behavior.fall(this, distance, damageMultiplier));
 		super.fall(distance, damageMultiplier);
 	}
 

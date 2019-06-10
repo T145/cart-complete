@@ -1,5 +1,6 @@
 package T145.metaltransport.api.carts;
 
+import java.util.Arrays;
 import java.util.HashSet;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
@@ -18,7 +19,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import scala.actors.threadpool.Arrays;
 
 public class CartBehavior implements ICartBehavior {
 
@@ -26,7 +26,7 @@ public class CartBehavior implements ICartBehavior {
 	protected String[] blockNames;
 
 	public CartBehavior() {
-		this.blockNames = new String[10];
+		this.blockNames = new String[1];
 		this.nameSet = new HashSet<>();
 	}
 
@@ -72,7 +72,7 @@ public class CartBehavior implements ICartBehavior {
 
 	@OverridingMethodsMustInvokeSuper
 	@Override
-	public void deserialize(NBTTagCompound tag) {
+	public ICartBehavior deserialize(NBTTagCompound tag) {
 		blockNames = new String[tag.getInteger("Size")];
 		NBTTagList names = tag.getTagList("BlockNames", Constants.NBT.TAG_STRING);
 
@@ -81,6 +81,7 @@ public class CartBehavior implements ICartBehavior {
 		}
 
 		this.nameSet = new HashSet<>(Arrays.asList(blockNames));
+		return this;
 	}
 
 	@Override

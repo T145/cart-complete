@@ -1,6 +1,6 @@
 package T145.metaltransport.api.carts;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import T145.metaltransport.api.constants.CartType;
 import net.minecraft.entity.item.EntityMinecart;

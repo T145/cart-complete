@@ -1,8 +1,7 @@
 package T145.metaltransport.core;
 
 import java.io.IOException;
-
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import T145.metaltransport.api.EntitiesMT;
 import T145.metaltransport.api.ItemsMT;
@@ -182,15 +181,11 @@ public class MetalTransport {
 						if (buf.readBoolean()) {
 							NBTTagCompound tag = buf.readCompoundTag();
 							NBTTagList names = tag.getTagList("BlockNames", Constants.NBT.TAG_STRING);
-							String blockName = names.getStringTagAt(0);
-
-							if (CartBehaviorRegistry.contains(blockName)) {
-								ICartBehavior action = CartBehaviorRegistry.get(blockName);
-								action.deserialize(tag);
-								return Optional.of(action);
-							}
+							Optional<ICartBehavior> behavior = Optional.ofNullable(CartBehaviorRegistry.get(names.getStringTagAt(0)));
+							behavior.ifPresent(val -> val.deserialize(tag));
+							return behavior;
 						}
-						return Optional.absent();
+						return Optional.empty();
 					}
 
 					@Override

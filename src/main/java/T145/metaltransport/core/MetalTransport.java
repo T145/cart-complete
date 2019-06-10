@@ -14,7 +14,6 @@ import T145.metaltransport.api.constants.RegistryMT;
 import T145.metaltransport.client.render.entities.RenderMetalMinecart;
 import T145.metaltransport.entities.EntityMetalMinecart;
 import T145.metaltransport.entities.behaviors.AnvilBehavior;
-import T145.metaltransport.entities.behaviors.CommandBlockBehavior;
 import T145.metaltransport.entities.behaviors.CraftingTableBehavior;
 import T145.metaltransport.entities.behaviors.EnderChestBehavior;
 import T145.metaltransport.entities.behaviors.FurnaceBehavior;
@@ -37,9 +36,15 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityCommandBlock;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.datafix.DataFixer;
+import net.minecraft.util.datafix.FixTypes;
+import net.minecraft.util.datafix.IDataFixer;
+import net.minecraft.util.datafix.IDataWalker;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.common.config.Config;
@@ -97,6 +102,18 @@ public class MetalTransport {
 	public void metaltransport$init(final FMLInitializationEvent event) {
 		DataFixer fixer = FMLCommonHandler.instance().getDataFixer();
 		EntityMinecart.registerFixesMinecart(fixer, EntityMetalMinecart.class);
+		fixer.registerWalker(FixTypes.ENTITY, new IDataWalker() {
+
+			@Override
+			public NBTTagCompound process(IDataFixer fixer, NBTTagCompound tag, int version) {
+				if (TileEntity.getKey(TileEntityCommandBlock.class).equals(new ResourceLocation(tag.getString("id")))) {
+					tag.setString("id", "Control");
+					fixer.process(FixTypes.BLOCK_ENTITY, tag, version);
+					tag.setString("id", RegistryMT.KEY_METAL_MINECART);
+				}
+				return tag;
+			}
+		});
 	}
 
 	@EventHandler
@@ -108,7 +125,6 @@ public class MetalTransport {
 		CartBehaviorRegistry.register(new MobSpawnerBehavior());
 		CartBehaviorRegistry.register(new CraftingTableBehavior());
 		CartBehaviorRegistry.register(new TNTBehavior());
-		CartBehaviorRegistry.register(new CommandBlockBehavior());
 	}
 
 	@SubscribeEvent

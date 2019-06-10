@@ -16,16 +16,13 @@ public class EnderChestBehavior extends CartBehavior {
 	}
 
 	@Override
-	public boolean activate(EntityMinecart cart, EntityPlayer player, EnumHand hand) {
+	public void activate(EntityMinecart cart, EntityPlayer player, EnumHand hand) {
 		World world = cart.world;
 		InventoryEnderChest enderInv = player.getInventoryEnderChest();
 
 		if (enderInv != null && !world.isRemote) {
 			player.displayGUIChest(enderInv);
 			player.addStat(StatList.ENDERCHEST_OPENED);
-			return true;
 		}
-
-		return true;
 	}
 }

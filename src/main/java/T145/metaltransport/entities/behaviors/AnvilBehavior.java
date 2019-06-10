@@ -15,13 +15,11 @@ public class AnvilBehavior extends CartBehavior {
 	}
 
 	@Override
-	public boolean activate(EntityMinecart cart, EntityPlayer player, EnumHand hand) {
+	public void activate(EntityMinecart cart, EntityPlayer player, EnumHand hand) {
 		World world = cart.world;
 
 		if (!world.isRemote) {
 			player.displayGui(new AnvilInterface(world, cart.getPosition()));
 		}
-
-		return true;
 	}
 }

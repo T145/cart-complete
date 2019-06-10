@@ -1,7 +1,6 @@
 package T145.metaltransport.entities.behaviors;
 
 import T145.metaltransport.api.carts.CartBehavior;
-import T145.metaltransport.api.constants.RegistryMT;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFurnace;
 import net.minecraft.block.state.IBlockState;
@@ -116,22 +115,21 @@ public class FurnaceBehavior extends CartBehavior {
 			this.pushX /= d0;
 			this.pushZ /= d0;
 			double d1 = 1.0D;
-			cart.motionX *= 0.800000011920929D;
+			cart.motionX *= 0.8D;
 			cart.motionY *= 0.0D;
-			cart.motionZ *= 0.800000011920929D;
+			cart.motionZ *= 0.8D;
 			cart.motionX += this.pushX * 1.0D;
 			cart.motionZ += this.pushZ * 1.0D;
 		} else {
-			cart.motionX *= 0.9800000190734863D;
+			cart.motionX *= 0.98D;
 			cart.motionY *= 0.0D;
-			cart.motionZ *= 0.9800000190734863D;
+			cart.motionZ *= 0.98D;
 		}
 	}
 
 	@Override
-	public boolean activate(EntityMinecart cart, EntityPlayer player, EnumHand hand) {
+	public void activate(EntityMinecart cart, EntityPlayer player, EnumHand hand) {
 		ItemStack stack = player.getHeldItem(hand);
-		RegistryMT.LOG.info("Activating!");
 
 		// TODO: Add compatibility w/ all fuels, not just coal
 		// The EntityMinecartFurnace only supports coal too, this is copy-pasted
@@ -146,6 +144,5 @@ public class FurnaceBehavior extends CartBehavior {
 
 		this.pushX = cart.posX - player.posX;
 		this.pushZ = cart.posZ - player.posZ;
-		return true;
 	}
 }

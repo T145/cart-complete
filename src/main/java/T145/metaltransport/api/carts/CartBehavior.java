@@ -11,6 +11,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
@@ -90,17 +92,37 @@ public class CartBehavior implements ICartBehavior {
 	public void tick(EntityMinecart cart) {}
 
 	@Override
+	public void activate(EntityMinecart cart, EntityPlayer player, EnumHand hand) {}
+
+	@Override
+	public void attackCartFrom(EntityMinecart cart, DamageSource source, float amount) {}
+
+	@Override
+	public void fall(EntityMinecart cart, float distance, float damageMultiplier) {}
+
+	@Override
+	public boolean onActivatorRailPass(EntityMinecart cart, int x, int y, int z, boolean receivingPower) {
+		return true;
+	}
+
+	@Override
 	public void moveAlongTrack(EntityMinecart cart, BlockPos pos, IBlockState rail) {}
 
 	@Override
 	public void applyDrag(EntityMinecart cart) {}
 
-	@Override
-	public boolean activate(EntityMinecart cart, EntityPlayer player, EnumHand hand) {
-		return true;
-	}
-
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void handleStatusUpdate(EntityMinecart cart, byte id) {}
+
+	@Override
+	public void notifyDataManagerChange(EntityMinecart cart, DataParameter<?> key) {}
+
+	@Override
+	public boolean ignoreItemEntityData(EntityMinecart cart) {
+		return false; // default value for entities is false
+	}
+
+	@Override
+	public void killMinecart(EntityMinecart cart, DamageSource source) {}
 }

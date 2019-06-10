@@ -16,14 +16,12 @@ public class CraftingTableBehavior extends CartBehavior {
 	}
 
 	@Override
-	public boolean activate(EntityMinecart cart, EntityPlayer player, EnumHand hand) {
+	public void activate(EntityMinecart cart, EntityPlayer player, EnumHand hand) {
 		World world = cart.world;
 
 		if (!world.isRemote) {
 			player.displayGui(new CraftingTableInterface(world, cart.getPosition()));
 			player.addStat(StatList.CRAFTING_TABLE_INTERACTION);
 		}
-
-		return true;
 	}
 }

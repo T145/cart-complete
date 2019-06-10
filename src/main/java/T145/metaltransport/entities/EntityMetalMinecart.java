@@ -286,16 +286,15 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		if (player.isSneaking()) {
 			if (this.hasDisplayTile()) {
 				this.dropDisplayStack();
-				return true;
 			}
-			return false;
+			return true;
 		}
 
 		if (this.hasDisplayTile()) {
 			Optional<ICartBehavior> behavior = this.getBehavior();
 
 			if (behavior.isPresent()) {
-				return behavior.get().activate(this, player, hand);
+				behavior.get().activate(this, player, hand);
 			}
 		} else if (!this.world.isRemote) {
 			player.startRiding(this);
@@ -377,5 +376,49 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 				this.dropDisplayStack();
 			}
 		}
+	}
+
+	@Override
+	public boolean attackEntityFrom(DamageSource source, float amount) {
+		Optional<ICartBehavior> behavior = this.getBehavior();
+
+		if (behavior.isPresent()) {
+			behavior.get().attackCartFrom(this, source, amount);
+		}
+
+		return super.attackEntityFrom(source, amount);
+	}
+
+	@Override
+	public void notifyDataManagerChange(DataParameter<?> key) {
+		// super method is empty
+
+		Optional<ICartBehavior> behavior = this.getBehavior();
+
+		if (behavior.isPresent()) {
+			behavior.get().notifyDataManagerChange(this, key);
+		}
+	}
+
+	@Override
+	public void fall(float distance, float damageMultiplier) {
+		Optional<ICartBehavior> behavior = this.getBehavior();
+
+		if (behavior.isPresent()) {
+			behavior.get().fall(this, distance, damageMultiplier);
+		}
+
+		super.fall(distance, damageMultiplier);
+	}
+
+	@Override
+	public void onActivatorRailPass(int x, int y, int z, boolean receivingPower) {
+		Optional<ICartBehavior> behavior = this.getBehavior();
+
+		if (behavior.isPresent() && !behavior.get().onActivatorRailPass(this, x, y, z, receivingPower)) {
+			return; // bypass the super call iff onActivatorRailPass() returns false
+		}
+
+		super.onActivatorRailPass(x, y, z, receivingPower);
 	}
 }

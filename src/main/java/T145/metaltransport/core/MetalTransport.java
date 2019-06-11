@@ -10,13 +10,13 @@ import T145.metaltransport.api.carts.CartBehaviorRegistry;
 import T145.metaltransport.api.carts.ICartBehavior;
 import T145.metaltransport.api.constants.CartType;
 import T145.metaltransport.api.constants.RegistryMT;
+import T145.metaltransport.client.gui.GuiHandler;
 import T145.metaltransport.client.render.entities.RenderMetalMinecart;
 import T145.metaltransport.entities.EntityMetalMinecart;
-import T145.metaltransport.entities.behaviors.AnvilBehavior;
-import T145.metaltransport.entities.behaviors.CraftingTableBehavior;
 import T145.metaltransport.entities.behaviors.EnderChestBehavior;
 import T145.metaltransport.entities.behaviors.FurnaceBehavior;
 import T145.metaltransport.entities.behaviors.MobSpawnerBehavior;
+import T145.metaltransport.entities.behaviors.SimpleGuiBehavior;
 import T145.metaltransport.entities.behaviors.TNTBehavior;
 import T145.metaltransport.items.ItemMetalMinecart;
 import T145.tbone.core.TBone;
@@ -35,15 +35,9 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityCommandBlock;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.datafix.DataFixer;
-import net.minecraft.util.datafix.FixTypes;
-import net.minecraft.util.datafix.IDataFixer;
-import net.minecraft.util.datafix.IDataWalker;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.common.config.Config;
@@ -64,6 +58,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 import net.minecraftforge.fml.relauncher.Side;
@@ -99,30 +94,18 @@ public class MetalTransport {
 
 	@EventHandler
 	public void metaltransport$init(final FMLInitializationEvent event) {
+		NetworkRegistry.INSTANCE.registerGuiHandler(instance, new GuiHandler());
 		DataFixer fixer = FMLCommonHandler.instance().getDataFixer();
 		EntityMinecart.registerFixesMinecart(fixer, EntityMetalMinecart.class);
-		fixer.registerWalker(FixTypes.ENTITY, new IDataWalker() {
-
-			@Override
-			public NBTTagCompound process(IDataFixer fixer, NBTTagCompound tag, int version) {
-				if (TileEntity.getKey(TileEntityCommandBlock.class).equals(new ResourceLocation(tag.getString("id")))) {
-					tag.setString("id", "Control");
-					fixer.process(FixTypes.BLOCK_ENTITY, tag, version);
-					tag.setString("id", RegistryMT.KEY_METAL_MINECART);
-				}
-				return tag;
-			}
-		});
 	}
 
 	@EventHandler
 	public void metaltransport$postInit(final FMLPostInitializationEvent event) {
 		BehaviorDispenseMinecart.register(ItemsMT.METAL_MINECART, ItemMetalMinecart.DISPENSER_BEHAVIOR);
-		CartBehaviorRegistry.register(new AnvilBehavior());
+		CartBehaviorRegistry.register(new SimpleGuiBehavior());
 		CartBehaviorRegistry.register(new FurnaceBehavior());
 		CartBehaviorRegistry.register(new EnderChestBehavior());
 		CartBehaviorRegistry.register(new MobSpawnerBehavior());
-		CartBehaviorRegistry.register(new CraftingTableBehavior());
 		CartBehaviorRegistry.register(new TNTBehavior());
 	}
 

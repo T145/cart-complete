@@ -42,7 +42,7 @@ public interface ICartBehavior {
 
 	void fall(EntityMinecart cart, float distance, float damageMultiplier);
 
-	boolean onActivatorRailPass(EntityMinecart cart, int x, int y, int z, boolean receivingPower);
+	void onActivatorRailPass(EntityMinecart cart, int x, int y, int z, boolean receivingPower);
 
 	void moveAlongTrack(EntityMinecart cart, BlockPos pos, IBlockState rail);
 

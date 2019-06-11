@@ -346,12 +346,10 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 
 	@Override
 	public void onActivatorRailPass(int x, int y, int z, boolean receivingPower) {
-		Optional<ICartBehavior> behavior = this.getBehavior();
-
-		if (behavior.isPresent() && !behavior.get().onActivatorRailPass(this, x, y, z, receivingPower)) {
-			return; // bypass the super call iff onActivatorRailPass() returns false
+		if (this.hasDisplayTile()) {
+			this.getBehavior().ifPresent(behavior -> behavior.onActivatorRailPass(this, x, y, z, receivingPower));
+		} else {
+			super.onActivatorRailPass(x, y, z, receivingPower);
 		}
-
-		super.onActivatorRailPass(x, y, z, receivingPower);
 	}
 }

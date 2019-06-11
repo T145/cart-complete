@@ -108,9 +108,7 @@ public class CartBehavior implements ICartBehavior {
 	public void fall(EntityMinecart cart, float distance, float damageMultiplier) {}
 
 	@Override
-	public boolean onActivatorRailPass(EntityMinecart cart, int x, int y, int z, boolean receivingPower) {
-		return true;
-	}
+	public void onActivatorRailPass(EntityMinecart cart, int x, int y, int z, boolean receivingPower) {}
 
 	@Override
 	public void moveAlongTrack(EntityMinecart cart, BlockPos pos, IBlockState rail) {}

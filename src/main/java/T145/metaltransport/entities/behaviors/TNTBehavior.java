@@ -133,11 +133,10 @@ public class TNTBehavior extends CartBehavior {
 	}
 
 	@Override
-	public boolean onActivatorRailPass(EntityMinecart cart, int x, int y, int z, boolean receivingPower) {
+	public void onActivatorRailPass(EntityMinecart cart, int x, int y, int z, boolean receivingPower) {
 		if (receivingPower && this.cartFuse < 0) {
 			this.ignite(cart);
 		}
-		return false;
 	}
 
 	@SideOnly(Side.CLIENT)

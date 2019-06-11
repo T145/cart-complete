@@ -102,7 +102,10 @@ public class CartBehavior implements ICartBehavior {
 	public void attackCartFrom(EntityMinecart cart, DamageSource source, float amount) {}
 
 	@Override
-	public void killMinecart(EntityMinecart cart, DamageSource source) {}
+	public void killMinecart(EntityMinecart cart, DamageSource source, boolean dropItems) {}
+
+	@Override
+	public void onDeath(EntityMinecart cart) {}
 
 	@Override
 	public void fall(EntityMinecart cart, float distance, float damageMultiplier) {}

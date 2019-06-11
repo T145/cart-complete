@@ -81,7 +81,7 @@ public class TNTBehavior extends CartBehavior {
 	}
 
 	@Override
-	public void killMinecart(EntityMinecart cart, DamageSource source) {
+	public void killMinecart(EntityMinecart cart, DamageSource source, boolean dropItems) {
 		World world = cart.world;
 		double motion = this.getHorizontalMotion(cart);
 

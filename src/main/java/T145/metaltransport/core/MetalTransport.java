@@ -15,6 +15,7 @@ import T145.metaltransport.client.render.entities.RenderMetalMinecart;
 import T145.metaltransport.entities.EntityMetalMinecart;
 import T145.metaltransport.entities.behaviors.EnderChestBehavior;
 import T145.metaltransport.entities.behaviors.FurnaceBehavior;
+import T145.metaltransport.entities.behaviors.JukeboxBehavior;
 import T145.metaltransport.entities.behaviors.LampBehavior;
 import T145.metaltransport.entities.behaviors.MobSpawnerBehavior;
 import T145.metaltransport.entities.behaviors.SimpleGuiBehavior;
@@ -109,6 +110,7 @@ public class MetalTransport {
 		CartBehaviorRegistry.register(new MobSpawnerBehavior());
 		CartBehaviorRegistry.register(new TNTBehavior());
 		CartBehaviorRegistry.register(new LampBehavior());
+		CartBehaviorRegistry.register(new JukeboxBehavior());
 	}
 
 	@SubscribeEvent

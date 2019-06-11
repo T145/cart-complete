@@ -306,10 +306,18 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	}
 
 	@Override
+	public void setDead() {
+		super.setDead();
+		this.getBehavior().ifPresent(behavior -> behavior.onDeath(this));
+	}
+
+	@Override
 	public void killMinecart(DamageSource source) {
 		this.setDead();
 
-		if (this.world.getGameRules().getBoolean("doEntityDrops")) {
+		boolean dropItems = this.world.getGameRules().getBoolean("doEntityDrops");
+
+		if (dropItems) {
 			ItemStack stack = this.getCartItem();
 
 			if (this.hasCustomName()) {
@@ -323,7 +331,7 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 			}
 		}
 
-		this.getBehavior().ifPresent(behavior -> behavior.killMinecart(this, source));
+		this.getBehavior().ifPresent(behavior -> behavior.killMinecart(this, source, dropItems));
 	}
 
 	@Override

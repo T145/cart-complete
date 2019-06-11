@@ -38,7 +38,9 @@ public interface ICartBehavior {
 
 	void attackCartFrom(EntityMinecart cart, DamageSource source, float amount);
 
-	void killMinecart(EntityMinecart cart, DamageSource source);
+	void killMinecart(EntityMinecart cart, DamageSource source, boolean dropItems);
+
+	void onDeath(EntityMinecart cart);
 
 	void fall(EntityMinecart cart, float distance, float damageMultiplier);
 

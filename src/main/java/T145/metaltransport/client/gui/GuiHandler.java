@@ -64,7 +64,7 @@ public class GuiHandler implements IGuiHandler {
 			}
 
 			if (block instanceof BlockEnchantmentTable) {
-				return new GuiEnchantment(player.inventory, world, cart);
+				return new GuiEnchantment(player.inventory, world, new EnchantmentTableNameable());
 			}
 		}
 

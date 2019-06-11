@@ -63,6 +63,10 @@ processResources {
 
 jar {
 	from 'LICENSE'
+
+    manifest {
+        attributes 'FMLAT': 'metaltransport_at.cfg'
+    }
 }
 
 task setupEclipseWorkspace(type: Download, dependsOn: setupDecompWorkspace) {

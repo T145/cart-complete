@@ -1,14 +1,8 @@
 package T145.metaltransport.client.gui;
 
-import java.util.Optional;
-
-import T145.metaltransport.api.carts.ICartBehavior;
-import T145.metaltransport.containers.CartChestContainer;
 import T145.metaltransport.entities.EntityMetalMinecart;
-import T145.tbone.api.IInventoryHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAnvil;
-import net.minecraft.block.BlockChest;
 import net.minecraft.block.BlockEnchantmentTable;
 import net.minecraft.block.BlockWorkbench;
 import net.minecraft.block.state.IBlockState;
@@ -48,18 +42,6 @@ public class GuiHandler implements IGuiHandler {
 			EntityMetalMinecart cart = (EntityMetalMinecart) entity;
 			IBlockState state = cart.getDisplayTile();
 			Block block = state.getBlock();
-
-			if (block instanceof BlockChest) {
-				Optional<ICartBehavior> optBehavior = cart.getBehavior();
-				if (optBehavior.isPresent()) {
-					ICartBehavior behavior = optBehavior.get();
-
-					if (behavior instanceof IInventoryHandler) {
-						IInventoryHandler handler = (IInventoryHandler) behavior;
-						return new CartChestContainer(handler, player);
-					}
-				}
-			}
 
 			if (block instanceof BlockWorkbench) {
 				return new ContainerWorkbench(player.inventory, world, cart.getPosition()) {
@@ -169,18 +151,6 @@ public class GuiHandler implements IGuiHandler {
 			EntityMetalMinecart cart = (EntityMetalMinecart) entity;
 			IBlockState state = cart.getDisplayTile();
 			Block block = state.getBlock();
-
-			if (block instanceof BlockChest) {
-				Optional<ICartBehavior> optBehavior = cart.getBehavior();
-				if (optBehavior.isPresent()) {
-					ICartBehavior behavior = optBehavior.get();
-
-					if (behavior instanceof IInventoryHandler) {
-						IInventoryHandler handler = (IInventoryHandler) behavior;
-						return new CartChestGui(handler, player);
-					}
-				}
-			}
 
 			if (block instanceof BlockWorkbench) {
 				return new GuiCrafting(player.inventory, world, cart.getPosition());

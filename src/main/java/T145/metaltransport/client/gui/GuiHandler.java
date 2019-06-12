@@ -16,7 +16,6 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerEnchantment;
 import net.minecraft.inventory.ContainerRepair;
 import net.minecraft.inventory.ContainerWorkbench;
-import net.minecraft.inventory.InventoryCraftResult;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
@@ -27,13 +26,22 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class GuiHandler implements IGuiHandler {
 
+	/*
+	 * TODO:
+	 * Come up w/ a mapped system to directly fetch containers & GUIs,
+	 * similar to how Cart Behaviors are handled.
+	 * 
+	 * - T145
+	 */
+
 	@Override
 	public Container getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
 		Entity entity = world.getEntityByID(ID);
 
 		if (entity instanceof EntityMetalMinecart) {
 			EntityMetalMinecart cart = (EntityMetalMinecart) entity;
-			Block block = cart.getDisplayTile().getBlock();
+			IBlockState state = cart.getDisplayTile();
+			Block block = state.getBlock();
 
 			if (block instanceof BlockWorkbench) {
 				return new ContainerWorkbench(player.inventory, world, cart.getPosition()) {
@@ -48,9 +56,15 @@ public class GuiHandler implements IGuiHandler {
 			if (block instanceof BlockAnvil) {
 				return new ContainerRepair(player.inventory, world, cart.getPosition(), player) {
 
+					protected Slot setSlotInContainer(int index, Slot slot) {
+						slot.slotNumber = this.inventorySlots.size();
+						this.inventorySlots.set(index, slot);
+						this.inventoryItemStacks.set(index, ItemStack.EMPTY);
+						return slot;
+					}
+
 					{
-						this.outputSlot = new InventoryCraftResult();
-						this.addSlotToContainer(new Slot(this.outputSlot, 2, 134, 47) {
+						this.setSlotInContainer(2, new Slot(this.outputSlot, 2, 134, 47) {
 
 							@Override
 							public boolean isItemValid(ItemStack stack) {
@@ -73,11 +87,11 @@ public class GuiHandler implements IGuiHandler {
 								inputSlots.setInventorySlotContents(0, ItemStack.EMPTY);
 
 								if (materialCost > 0) {
-									ItemStack itemstack = inputSlots.getStackInSlot(1);
+									ItemStack slotStack = inputSlots.getStackInSlot(1);
 
-									if (!itemstack.isEmpty() && itemstack.getCount() > materialCost) {
-										itemstack.shrink(materialCost);
-										inputSlots.setInventorySlotContents(1, itemstack);
+									if (!slotStack.isEmpty() && slotStack.getCount() > materialCost) {
+										slotStack.shrink(materialCost);
+										inputSlots.setInventorySlotContents(1, slotStack);
 									} else {
 										inputSlots.setInventorySlotContents(1, ItemStack.EMPTY);
 									}
@@ -86,7 +100,6 @@ public class GuiHandler implements IGuiHandler {
 								}
 
 								maximumCost = 0;
-								IBlockState state = cart.getDisplayTile();
 
 								if (!thePlayer.capabilities.isCreativeMode && !world.isRemote && thePlayer.getRNG().nextFloat() < breakChance) {
 									int l = state.getValue(BlockAnvil.DAMAGE);
@@ -136,7 +149,8 @@ public class GuiHandler implements IGuiHandler {
 
 		if (entity instanceof EntityMetalMinecart) {
 			EntityMetalMinecart cart = (EntityMetalMinecart) entity;
-			Block block = cart.getDisplayTile().getBlock();
+			IBlockState state = cart.getDisplayTile();
+			Block block = state.getBlock();
 
 			if (block instanceof BlockWorkbench) {
 				return new GuiCrafting(player.inventory, world, cart.getPosition());

@@ -1,29 +1,42 @@
 package T145.metaltransport.api.carts;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+
+import net.minecraft.block.Block;
+import net.minecraft.util.ResourceLocation;
 
 public class CartBehaviorRegistry {
 
-	private static final Map<String, CartBehavior> BEHAVIORS = new HashMap<>();
+	private static final BiMap<ResourceLocation, ICartBehaviorFactory> BEHAVIORS = HashBiMap.create();
 
 	private CartBehaviorRegistry() {}
 
-	public static void register(String blockName, CartBehavior action) {
-		BEHAVIORS.put(blockName, action);
+	public static void register(ResourceLocation resource, ICartBehaviorFactory factory) {
+		BEHAVIORS.put(resource, factory);
 	}
 
-	public static void register(CartBehavior behavior) {
-		for (String name : behavior.getBlockNames()) {
-			register(name, behavior);
-		}
+	public static void register(Block block, ICartBehaviorFactory factory) {
+		register(block.getRegistryName(), factory);
 	}
 
-	public static CartBehavior get(String blockName) {
-		return BEHAVIORS.get(blockName);
+	public static ICartBehaviorFactory get(ResourceLocation resource) {
+		return BEHAVIORS.get(resource);
 	}
 
-	public static boolean contains(String blockName) {
-		return BEHAVIORS.containsKey(blockName);
+	public static ICartBehaviorFactory get(Block block) {
+		return get(block.getRegistryName());
+	}
+
+	public static ResourceLocation get(ICartBehaviorFactory factory) {
+		return BEHAVIORS.inverse().get(factory);
+	}
+
+	public static boolean contains(ResourceLocation resource) {
+		return BEHAVIORS.containsKey(resource);
+	}
+
+	public static boolean contains(ICartBehaviorFactory factory) {
+		return BEHAVIORS.containsValue(factory);
 	}
 }

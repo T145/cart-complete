@@ -14,10 +14,6 @@ public class SerializersMT {
 	public static DataSerializerEntry ENTRY_CART_TYPE;
 	public static DataSerializer CART_TYPE;
 
-	@ObjectHolder(RegistryMT.KEY_CART_BEHAVIOR)
-	public static DataSerializerEntry ENTRY_CART_BEHAVIOR;
-	public static DataSerializer CART_BEHAVIOR;
-
 	public static <T> DataSerializer<T> getSerializer(DataSerializerEntry entry) {
 		return (DataSerializer<T>) entry.getSerializer();
 	}

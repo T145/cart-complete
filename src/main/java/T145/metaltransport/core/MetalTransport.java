@@ -1,25 +1,17 @@
 package T145.metaltransport.core;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import T145.metaltransport.api.EntitiesMT;
 import T145.metaltransport.api.ItemsMT;
 import T145.metaltransport.api.SerializersMT;
 import T145.metaltransport.api.carts.CartBehaviorRegistry;
-import T145.metaltransport.api.carts.ICartBehavior;
 import T145.metaltransport.api.constants.CartType;
 import T145.metaltransport.api.constants.RegistryMT;
 import T145.metaltransport.client.gui.GuiHandler;
 import T145.metaltransport.client.render.entities.RenderMetalMinecart;
 import T145.metaltransport.entities.EntityMetalMinecart;
 import T145.metaltransport.entities.behaviors.EnderChestBehavior;
-import T145.metaltransport.entities.behaviors.FurnaceBehavior;
-import T145.metaltransport.entities.behaviors.JukeboxBehavior;
-import T145.metaltransport.entities.behaviors.LampBehavior;
-import T145.metaltransport.entities.behaviors.MobSpawnerBehavior;
-import T145.metaltransport.entities.behaviors.SimpleGuiBehavior;
-import T145.metaltransport.entities.behaviors.TNTBehavior;
 import T145.metaltransport.items.ItemMetalMinecart;
 import T145.tbone.core.TBone;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
@@ -32,8 +24,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializer;
@@ -44,7 +34,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
@@ -104,13 +93,7 @@ public class MetalTransport {
 	@EventHandler
 	public void metaltransport$postInit(final FMLPostInitializationEvent event) {
 		BehaviorDispenseMinecart.register(ItemsMT.METAL_MINECART, ItemMetalMinecart.DISPENSER_BEHAVIOR);
-		CartBehaviorRegistry.register(new SimpleGuiBehavior());
-		CartBehaviorRegistry.register(new FurnaceBehavior());
-		CartBehaviorRegistry.register(new EnderChestBehavior());
-		CartBehaviorRegistry.register(new MobSpawnerBehavior());
-		CartBehaviorRegistry.register(new TNTBehavior());
-		CartBehaviorRegistry.register(new LampBehavior());
-		CartBehaviorRegistry.register(new JukeboxBehavior());
+		CartBehaviorRegistry.register(Blocks.ENDER_CHEST, new EnderChestBehavior.EnderChestBehaviorFactory());
 	}
 
 	@SubscribeEvent
@@ -148,44 +131,6 @@ public class MetalTransport {
 					}
 
 				}).setRegistryName(RegistryMT.ID, RegistryMT.KEY_CART_TYPE));
-
-		registry.register(SerializersMT.ENTRY_CART_BEHAVIOR = new DataSerializerEntry(
-				SerializersMT.CART_BEHAVIOR = new DataSerializer<Optional<ICartBehavior>>() {
-
-					@Override
-					public void write(PacketBuffer buf, Optional<ICartBehavior> value) {
-						boolean present = value.isPresent();
-
-						buf.writeBoolean(present);
-
-						if (present) {
-							buf.writeCompoundTag(value.get().serialize());
-						}
-					}
-
-					@Override
-					public Optional<ICartBehavior> read(PacketBuffer buf) throws IOException {
-						if (buf.readBoolean()) {
-							NBTTagCompound tag = buf.readCompoundTag();
-							NBTTagList names = tag.getTagList("BlockNames", Constants.NBT.TAG_STRING);
-							Optional<ICartBehavior> behavior = Optional.ofNullable(CartBehaviorRegistry.get(names.getStringTagAt(0)));
-							behavior.ifPresent(val -> val.deserialize(tag));
-							return behavior;
-						}
-						return Optional.empty();
-					}
-
-					@Override
-					public DataParameter<Optional<ICartBehavior>> createKey(int id) {
-						return new DataParameter<Optional<ICartBehavior>>(id, this);
-					}
-
-					@Override
-					public Optional<ICartBehavior> copyValue(Optional<ICartBehavior> value) {
-						return value;
-					}
-
-				}).setRegistryName(RegistryMT.ID, RegistryMT.KEY_CART_BEHAVIOR));
 	}
 
 	@SubscribeEvent

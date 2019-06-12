@@ -1,130 +1,117 @@
 package T145.metaltransport.api.carts;
 
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Optional;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class CartBehavior implements ICartBehavior {
 
-	private HashSet<String> nameSet;
-	protected String[] blockNames;
+	protected int dimId;
+	protected int entityId;
+	private Optional<EntityMinecart> cart = Optional.empty();
 
-	public CartBehavior() {
-		this.blockNames = new String[1];
-		this.nameSet = new HashSet<>();
+	public CartBehavior(EntityMinecart cart) {
+		this.dimId = cart.world.provider.getDimension();
+		this.entityId = cart.getEntityId();
 	}
 
-	public CartBehavior(Block[] blocks) {
-		this.blockNames = new String[blocks.length];
+	public int getDimension() {
+		return dimId;
+	}
 
-		for (short i = 0; i < blocks.length; ++i) {
-			blockNames[i] = blocks[i].getRegistryName().toString();
+	protected void setDimension(int dimId) {
+		this.dimId = dimId;
+	}
+
+	public int getEntityId() {
+		return entityId;
+	}
+
+	protected void setEntityId(int entityId) {
+		this.entityId = entityId;
+	}
+
+	public EntityMinecart getCart() {
+		if (!cart.isPresent()) {
+			World world = DimensionManager.getWorld(dimId);
+			Entity entity = world.getEntityByID(entityId);
+
+			if (entity instanceof EntityMinecart) {
+				cart = Optional.of((EntityMinecart) entity);
+			}
 		}
 
-		this.nameSet = new HashSet<>(Arrays.asList(blockNames));
-	}
-
-	public CartBehavior(Block block) {
-		this(new Block[] { block });
-	}
-
-	@Override
-	public String[] getBlockNames() {
-		return blockNames;
-	}
-
-	@Override
-	public boolean hasBlockName(String blockName) {
-		return nameSet.contains(blockName);
+		return cart.get();
 	}
 
 	@OverridingMethodsMustInvokeSuper
 	@Override
 	public NBTTagCompound serialize() {
 		NBTTagCompound tag = new NBTTagCompound();
-		NBTTagList names = new NBTTagList();
-
-		for (short i = 0; i < blockNames.length; ++i) {
-			names.appendTag(new NBTTagString(blockNames[i]));
-		}
-
-		tag.setInteger("Size", blockNames.length);
-		tag.setTag("BlockNames", names);
-
+		tag.setInteger("DimId", this.dimId);
+		tag.setInteger("EntityId", this.entityId);
 		return tag;
 	}
 
 	@OverridingMethodsMustInvokeSuper
 	@Override
 	public ICartBehavior deserialize(NBTTagCompound tag) {
-		blockNames = new String[tag.getInteger("Size")];
-		NBTTagList names = tag.getTagList("BlockNames", Constants.NBT.TAG_STRING);
-
-		for (short i = 0; i < names.tagCount(); ++i) {
-			blockNames[i] = names.getStringTagAt(i);
-		}
-
-		this.nameSet = new HashSet<>(Arrays.asList(blockNames));
+		this.setDimension(tag.getInteger("DimId"));
+		this.setEntityId(tag.getInteger("EntityId"));
 		return this;
 	}
 
 	@Override
-	public double getMaxCartSpeed() {
-		return DEFAULT_CART_SPEED;
-	}
+	public void tick() {}
 
 	@Override
-	public void tick(EntityMinecart cart) {}
+	public void tickDataManager(DataParameter<?> key) {}
 
 	@Override
-	public void tickDataManager(EntityMinecart cart, DataParameter<?> key) {}
+	public void activate(EntityPlayer player, EnumHand hand) {}
 
 	@Override
-	public void activate(EntityMinecart cart, EntityPlayer player, EnumHand hand) {}
+	public void attackCartFrom(DamageSource source, float amount) {}
 
 	@Override
-	public void attackCartFrom(EntityMinecart cart, DamageSource source, float amount) {}
+	public void killMinecart(DamageSource source, boolean dropItems) {}
 
 	@Override
-	public void killMinecart(EntityMinecart cart, DamageSource source, boolean dropItems) {}
+	public void onDeath() {}
 
 	@Override
-	public void onDeath(EntityMinecart cart) {}
+	public void fall(float distance, float damageMultiplier) {}
 
 	@Override
-	public void fall(EntityMinecart cart, float distance, float damageMultiplier) {}
+	public void onActivatorRailPass(int x, int y, int z, boolean receivingPower) {}
 
 	@Override
-	public void onActivatorRailPass(EntityMinecart cart, int x, int y, int z, boolean receivingPower) {}
+	public void moveAlongTrack(BlockPos pos, IBlockState rail) {}
 
 	@Override
-	public void moveAlongTrack(EntityMinecart cart, BlockPos pos, IBlockState rail) {}
+	public void applyDrag() {}
 
 	@Override
-	public void applyDrag(EntityMinecart cart) {}
-
-	@Override
-	public boolean ignoreItemEntityData(EntityMinecart cart) {
-		return false; // default entity value
+	public boolean ignoreItemEntityData() {
+		// default entity value
+		return false;
 	}
 
 	@SideOnly(Side.CLIENT)
 	@Override
-	public void handleStatusUpdate(EntityMinecart cart, byte id) {}
+	public void handleStatusUpdate(byte id) {}
 }

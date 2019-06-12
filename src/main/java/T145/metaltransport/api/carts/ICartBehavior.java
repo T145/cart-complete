@@ -1,7 +1,6 @@
 package T145.metaltransport.api.carts;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
@@ -16,45 +15,39 @@ public interface ICartBehavior {
 
 	public static final double DEFAULT_CART_SPEED = 0.4D;
 
-	String[] getBlockNames();
-
-	boolean hasBlockName(String blockName);
-
-	public default boolean hasNames() {
-		return getBlockNames().length > 0;
-	}
-
 	NBTTagCompound serialize();
 
 	ICartBehavior deserialize(NBTTagCompound tag);
 
-	double getMaxCartSpeed();
+	default double getMaxCartSpeed() {
+		return DEFAULT_CART_SPEED;
+	}
 
-	void tick(EntityMinecart cart);
+	void tick();
 
-	void tickDataManager(EntityMinecart cart, DataParameter<?> key);
+	void tickDataManager(DataParameter<?> key);
 
-	void activate(EntityMinecart cart, EntityPlayer player, EnumHand hand);
+	void activate(EntityPlayer player, EnumHand hand);
 
-	void attackCartFrom(EntityMinecart cart, DamageSource source, float amount);
+	void attackCartFrom(DamageSource source, float amount);
 
-	void killMinecart(EntityMinecart cart, DamageSource source, boolean dropItems);
+	void killMinecart(DamageSource source, boolean dropItems);
 
-	void onDeath(EntityMinecart cart);
+	void onDeath();
 
-	void fall(EntityMinecart cart, float distance, float damageMultiplier);
+	void fall(float distance, float damageMultiplier);
 
-	void onActivatorRailPass(EntityMinecart cart, int x, int y, int z, boolean receivingPower);
+	void onActivatorRailPass(int x, int y, int z, boolean receivingPower);
 
-	void moveAlongTrack(EntityMinecart cart, BlockPos pos, IBlockState rail);
+	void moveAlongTrack(BlockPos pos, IBlockState rail);
 
-	void applyDrag(EntityMinecart cart);
+	void applyDrag();
 
-	boolean ignoreItemEntityData(EntityMinecart cart);
+	boolean ignoreItemEntityData();
 
 	/**
 	 * Handler for {@link World#setEntityState}
 	 */
 	@SideOnly(Side.CLIENT)
-	void handleStatusUpdate(EntityMinecart cart, byte id);
+	void handleStatusUpdate(byte id);
 }

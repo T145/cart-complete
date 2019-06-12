@@ -17,21 +17,21 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.item.EntityMinecartEmpty;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.minecart.MinecartInteractEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -39,19 +39,21 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMinecart {
 
 	private static final DataParameter<ItemStack> DISPLAY = EntityDataManager.createKey(EntityMetalMinecart.class, DataSerializers.ITEM_STACK);
-	private static final DataParameter<Optional<ICartBehavior>> BEHAVIOR = EntityDataManager.createKey(EntityMetalMinecart.class, SerializersMT.CART_BEHAVIOR);
 	private static final DataParameter<CartType> CART_TYPE = EntityDataManager.createKey(EntityMetalMinecart.class, SerializersMT.CART_TYPE);
+	private Optional<ICartBehavior> behavior = Optional.empty();
 
-	private static final Map<String, EntityMinecart.Type> MINECART_TYPES = new HashMap() {{
-		put("minecraft:chest", EntityMinecart.Type.CHEST);
-		put("minecraft:trapped_chest", EntityMinecart.Type.CHEST);
-		put("minecraft:ender_chest", EntityMinecart.Type.CHEST);
-		put("minecraft:furnace", EntityMinecart.Type.FURNACE);
-		put("minecraft:lit_furnace", EntityMinecart.Type.FURNACE);
-		put("minecraft:tnt", EntityMinecart.Type.TNT);
-		put("minecraft:mob_spawner", EntityMinecart.Type.SPAWNER);
-		put("minecraft:hopper", EntityMinecart.Type.HOPPER);
-		put("minecraft:command_block", EntityMinecart.Type.COMMAND_BLOCK);
+	private static final Map<ResourceLocation, EntityMinecart.Type> MINECART_TYPES = new HashMap() {{
+		put(Blocks.CHEST.getRegistryName(), EntityMinecart.Type.CHEST);
+		put(Blocks.TRAPPED_CHEST.getRegistryName(), EntityMinecart.Type.CHEST);
+		put(Blocks.ENDER_CHEST.getRegistryName(), EntityMinecart.Type.CHEST);
+		put(Blocks.FURNACE.getRegistryName(), EntityMinecart.Type.FURNACE);
+		put(Blocks.LIT_FURNACE.getRegistryName(), EntityMinecart.Type.FURNACE);
+		put(Blocks.TNT.getRegistryName(), EntityMinecart.Type.TNT);
+		put(Blocks.MOB_SPAWNER.getRegistryName(), EntityMinecart.Type.SPAWNER);
+		put(Blocks.HOPPER.getRegistryName(), EntityMinecart.Type.HOPPER);
+		put(Blocks.CHAIN_COMMAND_BLOCK.getRegistryName(), EntityMinecart.Type.COMMAND_BLOCK);
+		put(Blocks.COMMAND_BLOCK.getRegistryName(), EntityMinecart.Type.COMMAND_BLOCK);
+		put(Blocks.REPEATING_COMMAND_BLOCK.getRegistryName(), EntityMinecart.Type.COMMAND_BLOCK);
 	}};
 
 	public EntityMetalMinecart(World world) {
@@ -79,6 +81,22 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		this.motionZ = cart.motionZ;
 		this.rotationPitch = cart.rotationPitch;
 		this.rotationYaw = cart.rotationYaw;
+	}
+
+	@Override
+	public Optional<ICartBehavior> getBehavior() {
+		return behavior;
+	}
+
+	@Override
+	public CartType getCartType() {
+		return dataManager.get(CART_TYPE);
+	}
+
+	@Override
+	public EntityMinecart setCartType(CartType type) {
+		dataManager.set(CART_TYPE, type);
+		return this;
 	}
 
 	@Override
@@ -124,38 +142,26 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	}
 
 	protected EntityMetalMinecart setDisplayState(IBlockState state, int meta) {
-		String blockName = state.getBlock().getRegistryName().toString();
-		this.setBehavior(Optional.ofNullable(CartBehaviorRegistry.get(blockName)));
 		this.setDisplayTile(state);
-		return this;
-	}
 
-	@Override
-	public Optional<ICartBehavior> getBehavior() {
-		return this.dataManager.get(BEHAVIOR);
-	}
-
-	@Override
-	public void setBehavior(Optional<ICartBehavior> behavior) {
-		this.dataManager.set(BEHAVIOR, behavior);
-	}
-
-	@Override
-	public CartType getCartType() {
-		return dataManager.get(CART_TYPE);
-	}
-
-	@Override
-	public EntityMinecart setCartType(CartType type) {
-		dataManager.set(CART_TYPE, type);
+		// ensure the behavior is set after we have a display tile,
+		// so there's no possibility problems occur while reading NBT
+		Optional.ofNullable(CartBehaviorRegistry.get(state.getBlock().getRegistryName())).ifPresent(factory -> {
+			this.behavior = Optional.of(factory.createBehavior(this));
+		});
 		return this;
 	}
 
 	@Override
 	public EntityMinecart.Type getType() {
-		Optional<ICartBehavior> behavior = this.getBehavior();
-		if (behavior.isPresent()) {
-			return MINECART_TYPES.get(behavior.get().getBlockNames()[0]);
+		if (this.hasDisplayTile()) {
+			IBlockState state = this.getDisplayTile();
+			Block block = state.getBlock();
+			ResourceLocation resource = block.getRegistryName();
+
+			if (MINECART_TYPES.containsKey(resource)) {
+				return MINECART_TYPES.get(resource);
+			}
 		}
 		return super.getType();
 	}
@@ -165,7 +171,6 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		super.entityInit();
 		this.dataManager.register(CART_TYPE, CartType.IRON);
 		this.dataManager.register(DISPLAY, ItemStack.EMPTY);
-		this.dataManager.register(BEHAVIOR, Optional.empty());
 	}
 
 	@Override
@@ -188,11 +193,13 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		this.dataManager.set(DISPLAY, new ItemStack(tag.getCompoundTag(TAG_DISPLAY)));
 
 		if (tag.hasKey("HasBehavior")) {
-			NBTTagCompound behaviorTag = tag.getCompoundTag(TAG_BEHAVIOR);
-			NBTTagList names = behaviorTag.getTagList("BlockNames", Constants.NBT.TAG_STRING);
+			IBlockState state = this.getDisplayTile();
+			Block block = state.getBlock();
+			ResourceLocation resource = block.getRegistryName();
 
-			Optional.ofNullable(CartBehaviorRegistry.get(names.getStringTagAt(0))).ifPresent(behavior -> {
-				this.setBehavior(Optional.of(behavior.deserialize(behaviorTag)));
+			Optional.ofNullable(CartBehaviorRegistry.get(resource)).ifPresent(factory -> {
+				NBTTagCompound behaviorTag = tag.getCompoundTag(TAG_BEHAVIOR);
+				this.behavior = Optional.of(factory.createBehavior(this).deserialize(behaviorTag));
 			});
 		}
 	}
@@ -200,13 +207,13 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void handleStatusUpdate(byte id) {
-		this.getBehavior().ifPresent(behavior -> behavior.handleStatusUpdate(this, id));
+		this.getBehavior().ifPresent(behavior -> behavior.handleStatusUpdate(id));
 	}
 
 	@Override
 	public void onUpdate() {
 		super.onUpdate();
-		this.getBehavior().ifPresent(behavior -> behavior.tick(this));
+		this.getBehavior().ifPresent(behavior -> behavior.tick());
 	}
 
 	@Override
@@ -218,12 +225,12 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	@Override
 	protected void moveAlongTrack(BlockPos pos, IBlockState rail) {
 		super.moveAlongTrack(pos, rail);
-		this.getBehavior().ifPresent(behavior -> behavior.moveAlongTrack(this, pos, rail));
+		this.getBehavior().ifPresent(behavior -> behavior.moveAlongTrack(pos, rail));
 	}
 
 	@Override
 	protected void applyDrag() {
-		this.getBehavior().ifPresent(behavior -> behavior.applyDrag(this));
+		this.getBehavior().ifPresent(behavior -> behavior.applyDrag());
 		super.applyDrag();
 	}
 
@@ -241,7 +248,7 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		}
 
 		if (this.hasDisplayTile()) {
-			this.getBehavior().ifPresent(behavior -> behavior.activate(this, player, hand));
+			this.getBehavior().ifPresent(behavior -> behavior.activate(player, hand));
 		} else if (!this.world.isRemote) {
 			player.startRiding(this);
 		}
@@ -292,7 +299,7 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 			this.setDisplayTile(getDefaultDisplayTile());
 			this.setHasDisplayTile(false);
 			this.dataManager.set(DISPLAY, ItemStack.EMPTY);
-			this.setBehavior(Optional.empty());
+			this.behavior = Optional.empty();
 			// natively synchronizes w/ the client, so no packets needed
 		}
 
@@ -308,7 +315,7 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	@Override
 	public void setDead() {
 		super.setDead();
-		this.getBehavior().ifPresent(behavior -> behavior.onDeath(this));
+		this.getBehavior().ifPresent(behavior -> behavior.onDeath());
 	}
 
 	@Override
@@ -331,31 +338,31 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 			}
 		}
 
-		this.getBehavior().ifPresent(behavior -> behavior.killMinecart(this, source, dropItems));
+		this.getBehavior().ifPresent(behavior -> behavior.killMinecart(source, dropItems));
 	}
 
 	@Override
 	public boolean attackEntityFrom(DamageSource source, float amount) {
-		this.getBehavior().ifPresent(behavior -> behavior.attackCartFrom(this, source, amount));
+		this.getBehavior().ifPresent(behavior -> behavior.attackCartFrom(source, amount));
 		return super.attackEntityFrom(source, amount);
 	}
 
 	@Override
 	public void notifyDataManagerChange(DataParameter<?> key) {
 		// super method is empty
-		this.getBehavior().ifPresent(behavior -> behavior.tickDataManager(this, key));
+		this.getBehavior().ifPresent(behavior -> behavior.tickDataManager(key));
 	}
 
 	@Override
 	public void fall(float distance, float damageMultiplier) {
-		this.getBehavior().ifPresent(behavior -> behavior.fall(this, distance, damageMultiplier));
+		this.getBehavior().ifPresent(behavior -> behavior.fall(distance, damageMultiplier));
 		super.fall(distance, damageMultiplier);
 	}
 
 	@Override
 	public void onActivatorRailPass(int x, int y, int z, boolean receivingPower) {
 		if (this.hasDisplayTile()) {
-			this.getBehavior().ifPresent(behavior -> behavior.onActivatorRailPass(this, x, y, z, receivingPower));
+			this.getBehavior().ifPresent(behavior -> behavior.onActivatorRailPass(x, y, z, receivingPower));
 		} else {
 			super.onActivatorRailPass(x, y, z, receivingPower);
 		}

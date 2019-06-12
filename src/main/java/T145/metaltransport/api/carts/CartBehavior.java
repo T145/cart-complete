@@ -1,9 +1,11 @@
 package T145.metaltransport.api.carts;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
+import T145.metaltransport.api.constants.RegistryMT;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
@@ -21,12 +23,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class CartBehavior implements ICartBehavior {
 
 	protected int dimId;
-	protected int entityId;
+	protected UUID entityId;
 	private Optional<EntityMinecart> cart = Optional.empty();
 
 	public CartBehavior(EntityMinecart cart) {
 		this.dimId = cart.world.provider.getDimension();
-		this.entityId = cart.getEntityId();
+		this.entityId = cart.getPersistentID();
 	}
 
 	public int getDimension() {
@@ -37,18 +39,27 @@ public class CartBehavior implements ICartBehavior {
 		this.dimId = dimId;
 	}
 
-	public int getEntityId() {
+	public UUID getEntityId() {
 		return entityId;
 	}
 
-	protected void setEntityId(int entityId) {
+	protected void setEntityId(UUID entityId) {
 		this.entityId = entityId;
+	}
+
+	private Entity getEntityFromUUID(World world) {
+		for (Entity entity : world.getLoadedEntityList()) {
+			if (entity.getPersistentID().equals(entityId)) {
+				return entity;
+			}
+		}
+		return null;
 	}
 
 	public EntityMinecart getCart() {
 		if (!cart.isPresent()) {
 			World world = DimensionManager.getWorld(dimId);
-			Entity entity = world.getEntityByID(entityId);
+			Entity entity = this.getEntityFromUUID(world);
 
 			if (entity instanceof EntityMinecart) {
 				cart = Optional.of((EntityMinecart) entity);
@@ -63,7 +74,7 @@ public class CartBehavior implements ICartBehavior {
 	public NBTTagCompound serialize() {
 		NBTTagCompound tag = new NBTTagCompound();
 		tag.setInteger("DimId", this.dimId);
-		tag.setInteger("EntityId", this.entityId);
+		tag.setUniqueId("EntityId", this.entityId);
 		return tag;
 	}
 
@@ -71,7 +82,7 @@ public class CartBehavior implements ICartBehavior {
 	@Override
 	public ICartBehavior deserialize(NBTTagCompound tag) {
 		this.setDimension(tag.getInteger("DimId"));
-		this.setEntityId(tag.getInteger("EntityId"));
+		this.setEntityId(tag.getUniqueId("EntityId"));
 		return this;
 	}
 

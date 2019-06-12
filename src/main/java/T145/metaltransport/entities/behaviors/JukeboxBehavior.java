@@ -1,7 +1,6 @@
 package T145.metaltransport.entities.behaviors;
 
 import T145.metaltransport.api.carts.CartBehavior;
-import T145.metaltransport.api.constants.RegistryMT;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -35,8 +34,8 @@ public class JukeboxBehavior extends CartBehavior {
 	public NBTTagCompound serialize() {
 		NBTTagCompound tag = super.serialize();
 
-		if (!this.getRecord().isEmpty()) {
-			tag.setTag("RecordItem", this.getRecord().writeToNBT(new NBTTagCompound()));
+		if (!record.isEmpty()) {
+			tag.setTag("RecordItem", record.writeToNBT(new NBTTagCompound()));
 		}
 
 		return tag;
@@ -77,7 +76,6 @@ public class JukeboxBehavior extends CartBehavior {
 			BlockPos pos = cart.getPosition();
 			ItemStack stack = player.getHeldItem(hand);
 			Item item = stack.getItem();
-			RegistryMT.LOG.info(stack);
 
 			if (item instanceof ItemRecord) {
 				insertRecord(stack);

@@ -11,6 +11,7 @@ import T145.metaltransport.api.constants.RegistryMT;
 import T145.metaltransport.client.gui.GuiHandler;
 import T145.metaltransport.client.render.entities.RenderMetalMinecart;
 import T145.metaltransport.entities.EntityMetalMinecart;
+import T145.metaltransport.entities.behaviors.ChestBehavior;
 import T145.metaltransport.entities.behaviors.EnderChestBehavior;
 import T145.metaltransport.entities.behaviors.FurnaceBehavior;
 import T145.metaltransport.entities.behaviors.JukeboxBehavior;
@@ -136,6 +137,8 @@ public class MetalTransport {
 		CartBehaviorRegistry.register(Blocks.LIT_FURNACE, new FurnaceBehavior.FurnaceBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.MOB_SPAWNER, new MobSpawnerBehavior.MobSpawnerBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.TNT, new TNTBehavior.TNTBehaviorFactory());
+		CartBehaviorRegistry.register(Blocks.CHEST, new ChestBehavior.ChestBehaviorFactory());
+		CartBehaviorRegistry.register(Blocks.TRAPPED_CHEST, new ChestBehavior.ChestBehaviorFactory());
 	}
 
 	@SubscribeEvent

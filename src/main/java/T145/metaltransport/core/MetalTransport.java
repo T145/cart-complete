@@ -12,11 +12,18 @@ import T145.metaltransport.client.gui.GuiHandler;
 import T145.metaltransport.client.render.entities.RenderMetalMinecart;
 import T145.metaltransport.entities.EntityMetalMinecart;
 import T145.metaltransport.entities.behaviors.EnderChestBehavior;
+import T145.metaltransport.entities.behaviors.FurnaceBehavior;
+import T145.metaltransport.entities.behaviors.JukeboxBehavior;
+import T145.metaltransport.entities.behaviors.LampBehavior;
+import T145.metaltransport.entities.behaviors.MobSpawnerBehavior;
+import T145.metaltransport.entities.behaviors.SimpleGuiBehavior;
+import T145.metaltransport.entities.behaviors.TNTBehavior;
 import T145.metaltransport.items.ItemMetalMinecart;
 import T145.tbone.core.TBone;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.item.EntityMinecartEmpty;
 import net.minecraft.entity.player.EntityPlayer;
@@ -24,12 +31,19 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityMobSpawner;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.datafix.DataFixer;
+import net.minecraft.util.datafix.FixTypes;
+import net.minecraft.util.datafix.IDataFixer;
+import net.minecraft.util.datafix.IDataWalker;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.common.config.Config;
@@ -87,13 +101,41 @@ public class MetalTransport {
 	public void metaltransport$init(final FMLInitializationEvent event) {
 		NetworkRegistry.INSTANCE.registerGuiHandler(instance, new GuiHandler());
 		DataFixer fixer = FMLCommonHandler.instance().getDataFixer();
+
+		// does nothing for now, but done for future-proofing
 		EntityMinecart.registerFixesMinecart(fixer, EntityMetalMinecart.class);
+
+		fixer.registerWalker(FixTypes.ENTITY, new IDataWalker() {
+
+			@Override
+			public NBTTagCompound process(IDataFixer fixer, NBTTagCompound tag, int version) {
+				String id = tag.getString("id");
+
+				if (EntityList.getKey(EntityMetalMinecart.class).equals(new ResourceLocation(id))) {
+					tag.setString("id", TileEntity.getKey(TileEntityMobSpawner.class).toString());
+					fixer.process(FixTypes.BLOCK_ENTITY, tag, version);
+					tag.setString("id", id);
+				}
+
+				return tag;
+			}
+		});
 	}
 
 	@EventHandler
 	public void metaltransport$postInit(final FMLPostInitializationEvent event) {
 		BehaviorDispenseMinecart.register(ItemsMT.METAL_MINECART, ItemMetalMinecart.DISPENSER_BEHAVIOR);
 		CartBehaviorRegistry.register(Blocks.ENDER_CHEST, new EnderChestBehavior.EnderChestBehaviorFactory());
+		CartBehaviorRegistry.register(Blocks.JUKEBOX, new JukeboxBehavior.JukeboxBehaviorFactory());
+		CartBehaviorRegistry.register(Blocks.REDSTONE_LAMP, new LampBehavior.LampBehaviorFactory());
+		CartBehaviorRegistry.register(Blocks.LIT_REDSTONE_LAMP, new LampBehavior.LampBehaviorFactory());
+		CartBehaviorRegistry.register(Blocks.CRAFTING_TABLE, new SimpleGuiBehavior.SimpleGuiBehaviorFactory());
+		CartBehaviorRegistry.register(Blocks.ENCHANTING_TABLE, new SimpleGuiBehavior.SimpleGuiBehaviorFactory());
+		CartBehaviorRegistry.register(Blocks.ANVIL, new SimpleGuiBehavior.SimpleGuiBehaviorFactory());
+		CartBehaviorRegistry.register(Blocks.FURNACE, new FurnaceBehavior.FurnaceBehaviorFactory());
+		CartBehaviorRegistry.register(Blocks.LIT_FURNACE, new FurnaceBehavior.FurnaceBehaviorFactory());
+		CartBehaviorRegistry.register(Blocks.MOB_SPAWNER, new MobSpawnerBehavior.MobSpawnerBehaviorFactory());
+		CartBehaviorRegistry.register(Blocks.TNT, new TNTBehavior.TNTBehaviorFactory());
 	}
 
 	@SubscribeEvent

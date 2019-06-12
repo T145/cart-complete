@@ -333,7 +333,7 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 
 			this.entityDropItem(stack, 0.0F);
 
-			if (this.hasDisplayTile()) {
+			if ((!source.isExplosion() || this.getCartType() == CartType.OBSIDIAN) && this.hasDisplayTile()) {
 				this.dropDisplayStack();
 			}
 		}

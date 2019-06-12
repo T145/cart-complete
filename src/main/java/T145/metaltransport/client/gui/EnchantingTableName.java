@@ -4,7 +4,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.IWorldNameable;
 
-public class EnchantmentTableNameable implements IWorldNameable {
+public class EnchantingTableName implements IWorldNameable {
 
 	@Override
 	public String getName() {

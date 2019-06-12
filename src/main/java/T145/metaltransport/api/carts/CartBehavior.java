@@ -116,6 +116,9 @@ public class CartBehavior implements ICartBehavior {
 	public void applyDrag() {}
 
 	@Override
+	public void onDeletion() {}
+
+	@Override
 	public boolean ignoreItemEntityData() {
 		// default entity value
 		return false;

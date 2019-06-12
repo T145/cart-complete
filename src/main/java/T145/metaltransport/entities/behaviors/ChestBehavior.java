@@ -86,9 +86,14 @@ public class ChestBehavior extends CartBehavior implements ILockableContainer, I
 	}
 
 	@Override
-	public void onDeath() {
+	public void onDeletion() {
 		EntityMinecart cart = this.getCart();
 		InventoryHelper.dropInventoryItems(cart.world, cart.getPosition(), this);
+	}
+
+	@Override
+	public void onDeath() {
+		this.onDeletion();
 	}
 
 	@Override

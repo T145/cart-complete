@@ -299,7 +299,10 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 			this.setDisplayTile(getDefaultDisplayTile());
 			this.setHasDisplayTile(false);
 			this.dataManager.set(DISPLAY, ItemStack.EMPTY);
-			this.behavior = Optional.empty();
+			behavior.ifPresent(b -> {
+				b.onDeletion();
+				this.behavior = Optional.empty();
+			});
 			// natively synchronizes w/ the client, so no packets needed
 		}
 

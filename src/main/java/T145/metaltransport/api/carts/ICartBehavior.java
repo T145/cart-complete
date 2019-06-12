@@ -43,6 +43,8 @@ public interface ICartBehavior {
 
 	void applyDrag();
 
+	void onDeletion();
+
 	boolean ignoreItemEntityData();
 
 	/**

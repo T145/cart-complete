@@ -13,7 +13,6 @@ import T145.metaltransport.api.constants.RegistryMT;
 import T145.metaltransport.client.gui.GuiHandler;
 import T145.metaltransport.client.render.entities.RenderMetalMinecart;
 import T145.metaltransport.entities.EntityMetalMinecart;
-import T145.metaltransport.entities.behaviors.ChestBehavior;
 import T145.metaltransport.entities.behaviors.EnderChestBehavior;
 import T145.metaltransport.entities.behaviors.FurnaceBehavior;
 import T145.metaltransport.entities.behaviors.JukeboxBehavior;
@@ -112,7 +111,6 @@ public class MetalTransport {
 		CartBehaviorRegistry.register(new TNTBehavior());
 		CartBehaviorRegistry.register(new LampBehavior());
 		CartBehaviorRegistry.register(new JukeboxBehavior());
-		CartBehaviorRegistry.register(new ChestBehavior());
 	}
 
 	@SubscribeEvent

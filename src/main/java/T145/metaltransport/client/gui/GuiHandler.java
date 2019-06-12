@@ -1,11 +1,8 @@
 package T145.metaltransport.client.gui;
 
-import T145.metaltransport.containers.CartChestContainer;
 import T145.metaltransport.entities.EntityMetalMinecart;
-import T145.tbone.api.IInventoryHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAnvil;
-import net.minecraft.block.BlockChest;
 import net.minecraft.block.BlockEnchantmentTable;
 import net.minecraft.block.BlockWorkbench;
 import net.minecraft.block.state.IBlockState;
@@ -45,11 +42,6 @@ public class GuiHandler implements IGuiHandler {
 			EntityMetalMinecart cart = (EntityMetalMinecart) entity;
 			IBlockState state = cart.getDisplayTile();
 			Block block = state.getBlock();
-
-			if (block instanceof BlockChest) {
-				IInventoryHandler inv = (IInventoryHandler) cart.getBehavior().get();
-				return new CartChestContainer(inv, player, cart.getPosition());
-			}
 
 			if (block instanceof BlockWorkbench) {
 				return new ContainerWorkbench(player.inventory, world, cart.getPosition()) {
@@ -155,17 +147,10 @@ public class GuiHandler implements IGuiHandler {
 	public Gui getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
 		Entity entity = world.getEntityByID(ID);
 
-		// Should a client-side BlockPos always be BlockPos.ORIGIN?
-
 		if (entity instanceof EntityMetalMinecart) {
 			EntityMetalMinecart cart = (EntityMetalMinecart) entity;
 			IBlockState state = cart.getDisplayTile();
 			Block block = state.getBlock();
-
-			if (block instanceof BlockChest) {
-				IInventoryHandler inv = (IInventoryHandler) cart.getBehavior().get();
-				return new CartChestGui(inv, player, cart.getPosition());
-			}
 
 			if (block instanceof BlockWorkbench) {
 				return new GuiCrafting(player.inventory, world, cart.getPosition());

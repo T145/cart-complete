@@ -15,16 +15,8 @@ import net.minecraft.world.World;
 
 public class SimpleGuiBehavior extends CartBehavior {
 
-	public SimpleGuiBehavior(Block block) {
-		super(block);
-	}
-
-	public SimpleGuiBehavior(Block[] blocks) {
-		super(blocks);
-	}
-
 	public SimpleGuiBehavior() {
-		this(new Block[] { Blocks.CRAFTING_TABLE, Blocks.ANVIL, Blocks.ENCHANTING_TABLE });
+		super(new Block[] { Blocks.CRAFTING_TABLE, Blocks.ANVIL, Blocks.ENCHANTING_TABLE });
 	}
 
 	@Override

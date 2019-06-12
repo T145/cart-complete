@@ -1,14 +1,14 @@
 package T145.metaltransport.api.carts;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.minecraft.block.Block;
 import net.minecraft.util.ResourceLocation;
 
 public class CartBehaviorRegistry {
 
-	private static final BiMap<ResourceLocation, ICartBehaviorFactory> BEHAVIORS = HashBiMap.create();
+	private static final Map<ResourceLocation, ICartBehaviorFactory> BEHAVIORS = new HashMap<>();
 
 	private CartBehaviorRegistry() {}
 
@@ -26,10 +26,6 @@ public class CartBehaviorRegistry {
 
 	public static ICartBehaviorFactory get(Block block) {
 		return get(block.getRegistryName());
-	}
-
-	public static ResourceLocation get(ICartBehaviorFactory factory) {
-		return BEHAVIORS.inverse().get(factory);
 	}
 
 	public static boolean contains(ResourceLocation resource) {

@@ -179,6 +179,7 @@ public class MetalTransport {
 		EntityPlayer player = event.getEntityPlayer();
 
 		if (target instanceof EntityMinecartEmpty && target.getPassengers().isEmpty()) {
+			EntityMinecartEmpty cart = (EntityMinecartEmpty) target;
 			EnumHand hand = EnumHand.MAIN_HAND;
 			ItemStack stack = player.getHeldItemMainhand();
 
@@ -187,9 +188,9 @@ public class MetalTransport {
 				hand = EnumHand.OFF_HAND;
 			}
 
-			if (isSolidBlock(stack)) {
+			if (!cart.hasDisplayTile() && isSolidBlock(stack)) {
 				World world = event.getWorld();
-				EntityMetalMinecart cart = new EntityMetalMinecart((EntityMinecartEmpty) target).setDisplayStack(stack);
+				cart = new EntityMetalMinecart((EntityMinecartEmpty) target).setDisplayStack(stack);
 
 				if (!world.isRemote) {
 					if (!player.isCreative()) {

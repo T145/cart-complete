@@ -12,6 +12,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerChest;
+import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -85,10 +86,17 @@ public class ChestBehavior extends CartBehavior implements ILockableContainer, I
 	}
 
 	@Override
+	public void onDeath() {
+		EntityMinecart cart = this.getCart();
+		InventoryHelper.dropInventoryItems(cart.world, cart.getPosition(), this);
+	}
+
+	@Override
 	public int getSizeInventory() {
 		return 27;
 	}
 
+	@Override
 	public boolean isEmpty() {
 		for (ItemStack itemstack : this.stacks) {
 			if (!itemstack.isEmpty()) {

@@ -12,16 +12,22 @@ import T145.metaltransport.client.gui.GuiHandler;
 import T145.metaltransport.client.render.entities.RenderMetalMinecart;
 import T145.metaltransport.entities.EntityMetalMinecart;
 import T145.metaltransport.entities.behaviors.ChestBehavior;
+import T145.metaltransport.entities.behaviors.DispenserBehavior;
+import T145.metaltransport.entities.behaviors.DropperBehavior;
 import T145.metaltransport.entities.behaviors.EnderChestBehavior;
 import T145.metaltransport.entities.behaviors.FurnaceBehavior;
 import T145.metaltransport.entities.behaviors.JukeboxBehavior;
 import T145.metaltransport.entities.behaviors.LampBehavior;
 import T145.metaltransport.entities.behaviors.MobSpawnerBehavior;
+import T145.metaltransport.entities.behaviors.ObserverBehavior;
+import T145.metaltransport.entities.behaviors.PistonBehavior;
 import T145.metaltransport.entities.behaviors.SimpleGuiBehavior;
 import T145.metaltransport.entities.behaviors.TNTBehavior;
 import T145.metaltransport.items.ItemMetalMinecart;
+import T145.metaltransport.network.MTPacketHandler;
 import T145.tbone.core.TBone;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
+import T145.tbone.network.TPacketHandler;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -76,6 +82,8 @@ import net.minecraftforge.registries.IForgeRegistry;
 @EventBusSubscriber(modid = RegistryMT.ID)
 public class MetalTransport {
 
+	public static final TPacketHandler NETWORK = new MTPacketHandler();
+
 	public MetalTransport() {
 		TBone.registerMod(RegistryMT.ID, RegistryMT.NAME);
 	}
@@ -96,6 +104,7 @@ public class MetalTransport {
 		meta.url = "https://github.com/T145/metaltransport";
 		meta.useDependencyInformation = false;
 		meta.version = RegistryMT.VERSION;
+		NETWORK.registerMessages();
 	}
 
 	@EventHandler
@@ -139,6 +148,11 @@ public class MetalTransport {
 		CartBehaviorRegistry.register(Blocks.TNT, new TNTBehavior.TNTBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.CHEST, new ChestBehavior.ChestBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.TRAPPED_CHEST, new ChestBehavior.ChestBehaviorFactory());
+		CartBehaviorRegistry.register(Blocks.DISPENSER, new DispenserBehavior.DispenserBehaviorFactory());
+		CartBehaviorRegistry.register(Blocks.DROPPER, new DropperBehavior.DropperBehaviorFactory());
+		CartBehaviorRegistry.register(Blocks.PISTON, new PistonBehavior.PistonBehaviorFactory());
+		CartBehaviorRegistry.register(Blocks.STICKY_PISTON, new PistonBehavior.PistonBehaviorFactory());
+		CartBehaviorRegistry.register(Blocks.OBSERVER, new ObserverBehavior.ObserverBehaviorFactory());
 	}
 
 	@SubscribeEvent

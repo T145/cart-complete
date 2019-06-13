@@ -8,9 +8,12 @@ import T145.metaltransport.api.ItemsMT;
 import T145.metaltransport.api.SerializersMT;
 import T145.metaltransport.api.carts.CartBehaviorRegistry;
 import T145.metaltransport.api.carts.ICartBehavior;
+import T145.metaltransport.api.carts.ICartBehaviorFactory;
 import T145.metaltransport.api.carts.IMetalMinecart;
 import T145.metaltransport.api.carts.IMetalMinecartBlock;
 import T145.metaltransport.api.constants.CartType;
+import T145.metaltransport.core.MetalTransport;
+import T145.metaltransport.network.client.SyncMetalMinecartClient;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
@@ -116,6 +119,10 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		return this.dataManager.get(DISPLAY);
 	}
 
+	public void syncBehaviorWithClient() {
+		MetalTransport.NETWORK.sendToAllAround(new SyncMetalMinecartClient(this.getDisplayStack(), this.getPosition()), world, this.getPosition());
+	}
+
 	@Override
 	public EntityMetalMinecart setDisplayStack(ItemStack stack) {
 		ItemStack copyStack = stack.copy();
@@ -125,30 +132,35 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		}
 
 		this.dataManager.set(DISPLAY, copyStack);
-		return this.setDisplayItem(stack.getItem(), stack.getItemDamage());
-	}
 
-	protected EntityMetalMinecart setDisplayItem(Item item, int meta) {
-		return this.setDisplayBlock(Block.getBlockFromItem(item), meta);
-	}
+		if (stack.isEmpty()) {
+			this.setDisplayTile(getDefaultDisplayTile());
+			this.setHasDisplayTile(false);
+			this.behavior = Optional.empty();
+		} else {
+			Item item = stack.getItem();
+			Block block = Block.getBlockFromItem(item);
+			IBlockState state = block.getDefaultState();
 
-	protected EntityMetalMinecart setDisplayBlock(Block block, int meta) {
-		if (block instanceof IMetalMinecartBlock) {
-			IMetalMinecartBlock cartBlock = (IMetalMinecartBlock) block;
-			return this.setDisplayState(cartBlock.getDisplayState(this, meta), meta);
+			if (block instanceof IMetalMinecartBlock) {
+				state = ((IMetalMinecartBlock) block).getDisplayState(this, stack.getItemDamage());
+			}
+
+			ResourceLocation key = block.getRegistryName();
+			Optional<ICartBehaviorFactory> behaviorFactory = Optional.ofNullable(CartBehaviorRegistry.get(key));
+
+			if (behaviorFactory.isPresent()) {
+				ICartBehavior cartBehavior = behaviorFactory.get().createBehavior(this);
+				this.behavior = Optional.of(cartBehavior);
+				this.setDisplayTile(cartBehavior.customizeState(state));
+			} else {
+				this.behavior = Optional.empty();
+				this.setDisplayTile(state);
+			}
 		}
 
-		return this.setDisplayState(block.getDefaultState(), meta);
-	}
+		syncBehaviorWithClient();
 
-	protected EntityMetalMinecart setDisplayState(IBlockState state, int meta) {
-		this.setDisplayTile(state);
-
-		// ensure the behavior is set after we have a display tile,
-		// so there's no possibility problems occur while reading NBT
-		Optional.ofNullable(CartBehaviorRegistry.get(state.getBlock().getRegistryName())).ifPresent(factory -> {
-			this.behavior = Optional.of(factory.createBehavior(this));
-		});
 		return this;
 	}
 
@@ -288,22 +300,20 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 
 	public ItemStack removeDisplayStack() {
 		ItemStack stack = this.getDisplayStack();
+		IBlockState state = this.getDisplayTile();
+		Block block = state.getBlock();
 
 		if (stack.isEmpty()) {
-			IBlockState state = this.getDisplayTile();
-			Block block = state.getBlock();
 			stack = new ItemStack(block, 1, block.getMetaFromState(state));
 		}
 
 		if (this.isEntityAlive()) {
-			this.setDisplayTile(getDefaultDisplayTile());
-			this.setHasDisplayTile(false);
-			this.dataManager.set(DISPLAY, ItemStack.EMPTY);
 			behavior.ifPresent(b -> {
 				b.onDeletion();
 				this.behavior = Optional.empty();
 			});
-			// natively synchronizes w/ the client, so no packets needed
+
+			this.setDisplayStack(ItemStack.EMPTY);
 		}
 
 		return stack.copy();

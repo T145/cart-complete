@@ -68,6 +68,16 @@ public class CartBehavior implements ICartBehavior {
 		return cart.get();
 	}
 
+	@Override
+	public boolean renderAsItem() {
+		return false;
+	}
+
+	@Override
+	public IBlockState customizeState(IBlockState state) {
+		return state;
+	}
+
 	@OverridingMethodsMustInvokeSuper
 	@Override
 	public NBTTagCompound serialize() {

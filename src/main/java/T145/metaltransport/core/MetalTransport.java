@@ -142,10 +142,10 @@ public class MetalTransport {
 		CartBehaviorRegistry.register(Blocks.CRAFTING_TABLE, new SimpleGuiBehavior.SimpleGuiBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.ENCHANTING_TABLE, new SimpleGuiBehavior.SimpleGuiBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.ANVIL, new SimpleGuiBehavior.SimpleGuiBehaviorFactory());
-		CartBehaviorRegistry.register(Blocks.FURNACE, new FurnaceBehavior.FurnaceBehaviorFactory());
+		//CartBehaviorRegistry.register(Blocks.FURNACE, new FurnaceBehavior.FurnaceBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.LIT_FURNACE, new FurnaceBehavior.FurnaceBehaviorFactory());
-		CartBehaviorRegistry.register(Blocks.MOB_SPAWNER, new MobSpawnerBehavior.MobSpawnerBehaviorFactory());
-		CartBehaviorRegistry.register(Blocks.TNT, new TNTBehavior.TNTBehaviorFactory());
+		//CartBehaviorRegistry.register(Blocks.MOB_SPAWNER, new MobSpawnerBehavior.MobSpawnerBehaviorFactory());
+		//CartBehaviorRegistry.register(Blocks.TNT, new TNTBehavior.TNTBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.CHEST, new ChestBehavior.ChestBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.TRAPPED_CHEST, new ChestBehavior.ChestBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.DISPENSER, new DispenserBehavior.DispenserBehaviorFactory());

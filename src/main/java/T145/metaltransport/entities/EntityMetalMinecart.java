@@ -225,7 +225,7 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	@Override
 	public void onUpdate() {
 		super.onUpdate();
-		this.getBehavior().ifPresent(behavior -> behavior.tick());
+		//this.getBehavior().ifPresent(behavior -> behavior.tick());
 	}
 
 	@Override

@@ -104,33 +104,16 @@ public class RenderMetalMinecart extends Render<EntityMetalMinecart> {
 		// behaves slightly better than the normal minecart:
 		// Normal renders air; I just don't call the code
 		if (cart.hasDisplayTile()) {
-			if (optBehavior.isPresent() && optBehavior.get().renderAsItem()) {
-				ItemStack stack = cart.getDisplayStack();
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(0, 0.25, 0);
-				GlStateManager.rotate(90, 0, 1, 0);
-				GlStateManager.scale(1.5, 1.5, 1.5);
-				Minecraft.getMinecraft().getRenderItem().renderItem(stack, ItemCameraTransforms.TransformType.FIXED);
-				GlStateManager.popMatrix();
-			} else {
-				int j = cart.getDisplayTileOffset();
-				IBlockState state = cart.getDisplayTile();
+			GlStateManager.pushMatrix();
 
-				if (state.getRenderType() != EnumBlockRenderType.INVISIBLE) {
-					GlStateManager.pushMatrix();
-					this.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-					float f4 = 0.75F;
-					GlStateManager.scale(0.75F, 0.75F, 0.75F);
-					GlStateManager.translate(-0.5F, (j - 8) / 16.0F, 0.5F);
+			ItemStack stack = cart.getDisplayStack();
+			GlStateManager.translate(0, 0.3, 0);
+			GlStateManager.rotate(90, 0, 1, 0);
+			GlStateManager.scale(1.5, 1.5, 1.5);
+			Minecraft.getMinecraft().getRenderItem().renderItem(stack, ItemCameraTransforms.TransformType.FIXED);
 
-					GlStateManager.pushMatrix();
-					Minecraft.getMinecraft().getBlockRendererDispatcher().renderBlockBrightness(state, cart.getBrightness());
-					GlStateManager.popMatrix();
-
-					GlStateManager.popMatrix();
-				}
-			}
 			GlStateManager.color(1, 1, 1, 1);
+			GlStateManager.popMatrix();
 		}
 
 		// render the cart itself

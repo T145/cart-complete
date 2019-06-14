@@ -36,8 +36,6 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.minecart.MinecartInteractEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMinecart {
 
@@ -212,12 +210,6 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 				this.behavior = Optional.of(factory.createBehavior(this).deserialize(behaviorTag));
 			});
 		}
-	}
-
-	@SideOnly(Side.CLIENT)
-	@Override
-	public void handleStatusUpdate(byte id) {
-		this.behavior.ifPresent(b -> b.handleStatusUpdate(id));
 	}
 
 	@Override

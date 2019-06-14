@@ -3,6 +3,8 @@ package T145.metaltransport.entities.behaviors;
 import T145.metaltransport.api.carts.CartBehavior;
 import T145.metaltransport.api.carts.ICartBehavior;
 import T145.metaltransport.api.carts.ICartBehaviorFactory;
+import T145.metaltransport.core.MetalTransport;
+import T145.metaltransport.network.client.SpawnSmokeParticles;
 import net.minecraft.block.BlockFurnace;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityMinecart;
@@ -13,7 +15,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
@@ -100,8 +101,7 @@ public class FurnaceBehavior extends CartBehavior {
 		this.setPowered(this.fuel > 0);
 
 		if (powered && world.rand.nextInt(4) == 0) {
-			// TODO: Make packet for handling particles
-			//world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, cart.posX, cart.posY + 0.8D, cart.posZ, 0, 0, 0);
+			MetalTransport.NETWORK.sendToAllAround(new SpawnSmokeParticles(pos), world, pos);
 		}
 
 		if (prevPowered != powered) {

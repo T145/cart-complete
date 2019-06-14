@@ -5,18 +5,17 @@ import java.util.Random;
 import T145.metaltransport.api.carts.CartBehavior;
 import T145.metaltransport.api.carts.ICartBehavior;
 import T145.metaltransport.api.carts.ICartBehaviorFactory;
+import T145.metaltransport.core.MetalTransport;
+import T145.metaltransport.network.client.SpawnSmokeParticles;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class TNTBehavior extends CartBehavior {
 
@@ -55,12 +54,8 @@ public class TNTBehavior extends CartBehavior {
 		World world = cart.world;
 		this.fuse = 80;
 
-		if (!world.isRemote) {
-			world.setEntityState(cart, (byte) 10);
-
-			if (!cart.isSilent()) {
-				world.playSound(null, cart.posX, cart.posY, cart.posZ, SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.BLOCKS, 1.0F, 1.0F);
-			}
+		if (!cart.isSilent()) {
+			world.playSound(null, cart.posX, cart.posY, cart.posZ, SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.BLOCKS, 1.0F, 1.0F);
 		}
 	}
 
@@ -74,9 +69,7 @@ public class TNTBehavior extends CartBehavior {
 	@Override
 	public ICartBehavior deserialize(NBTTagCompound tag) {
 		super.deserialize(tag);
-		if (tag.hasKey("Fuse", 99)) {
-			this.fuse = tag.getInteger("Fuse");
-		}
+		this.fuse = tag.getInteger("Fuse");
 		return this;
 	}
 
@@ -90,8 +83,7 @@ public class TNTBehavior extends CartBehavior {
 
 		if (this.fuse > 0) {
 			--this.fuse;
-			// TODO: Make packet for handling particles; sync fuse too
-			//cart.world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, cart.posX, cart.posY + 0.5D, cart.posZ, 0, 0, 0);
+			MetalTransport.NETWORK.sendToAllAround(new SpawnSmokeParticles(pos), world, pos);
 		} else if (this.fuse == 0) {
 			this.detonateCart(this.getHorizontalMotion(cart));
 		}
@@ -143,14 +135,6 @@ public class TNTBehavior extends CartBehavior {
 	@Override
 	public void onActivatorRailPass(int x, int y, int z, boolean receivingPower) {
 		if (receivingPower && this.fuse < 0) {
-			this.ignite();
-		}
-	}
-
-	@SideOnly(Side.CLIENT)
-	@Override
-	public void handleStatusUpdate(byte id) {
-		if (id == 10) {
 			this.ignite();
 		}
 	}

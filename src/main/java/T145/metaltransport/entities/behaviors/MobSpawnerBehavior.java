@@ -11,8 +11,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.MobSpawnerBaseLogic;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class MobSpawnerBehavior extends CartBehavior {
 
@@ -69,11 +67,5 @@ public class MobSpawnerBehavior extends CartBehavior {
 	public void tickServer(World world, BlockPos pos) {
 		this.logic.updateSpawner();
 		MetalTransport.NETWORK.sendToAllAround(new SyncMobSpawnerClient(pos), world, pos);
-	}
-
-	@SideOnly(Side.CLIENT)
-	@Override
-	public void handleStatusUpdate(byte id) {
-		this.logic.setDelayToMin(id);
 	}
 }

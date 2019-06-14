@@ -15,8 +15,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class CartBehavior implements ICartBehavior {
 
@@ -124,8 +122,4 @@ public class CartBehavior implements ICartBehavior {
 		// default entity value
 		return false;
 	}
-
-	@SideOnly(Side.CLIENT)
-	@Override
-	public void handleStatusUpdate(byte id) {}
 }

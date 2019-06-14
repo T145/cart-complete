@@ -5,18 +5,14 @@ import T145.metaltransport.api.carts.ICartBehavior;
 import T145.metaltransport.api.carts.ICartBehaviorFactory;
 import T145.metaltransport.core.MetalTransport;
 import T145.metaltransport.network.client.SpawnSmokeParticles;
-import net.minecraft.block.BlockFurnace;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
 public class FurnaceBehavior extends CartBehavior {
@@ -29,19 +25,15 @@ public class FurnaceBehavior extends CartBehavior {
 		}
 	}
 
+	public static final float MAX_SPEED = 0.499F;
+	public static final float FORCE_DAMPEN_FACTOR = 3.5F;
+
 	private boolean powered;
 	private boolean prevPowered;
-	private int fuel;
-	public double pushX;
-	public double pushZ;
+	private short fuel;
 
-	public FurnaceBehavior(EntityMinecart cart) {
-		super(cart);
-	}
-
-	public IBlockState getFurnaceState() {
-		return (this.powered ? Blocks.LIT_FURNACE : Blocks.FURNACE)
-				.getDefaultState().withProperty(BlockFurnace.FACING, EnumFacing.NORTH);
+	public ItemStack getFurnaceStack() {
+		return new ItemStack(this.powered ? Blocks.LIT_FURNACE : Blocks.FURNACE);
 	}
 
 	public void setPowered(boolean powered) {
@@ -49,13 +41,8 @@ public class FurnaceBehavior extends CartBehavior {
 		this.powered = powered;
 	}
 
-	public double getHorizontalMotion() {
-		return this.pushX * this.pushX + this.pushZ * this.pushZ;
-	}
-
-	public double getHorizontalCartMotion() {
-		EntityMinecart cart = this.getCart();
-		return cart.motionX * cart.motionX + cart.motionZ * cart.motionZ;
+	public FurnaceBehavior(EntityMinecart cart) {
+		super(cart);
 	}
 
 	@Override
@@ -68,9 +55,7 @@ public class FurnaceBehavior extends CartBehavior {
 		NBTTagCompound tag = super.serialize();
 		tag.setBoolean("Powered", this.powered);
 		tag.setBoolean("PrevPowered", this.prevPowered);
-		tag.setDouble("PushX", this.pushX);
-		tag.setDouble("PushZ", this.pushZ);
-		tag.setInteger("Fuel", fuel);
+		tag.setShort("Fuel", this.fuel);
 		return tag;
 	}
 
@@ -79,9 +64,7 @@ public class FurnaceBehavior extends CartBehavior {
 		super.deserialize(tag);
 		this.powered = tag.getBoolean("Powered");
 		this.prevPowered = tag.getBoolean("PrevPowered");
-		this.pushX = tag.getDouble("PushX");
-		this.pushZ = tag.getDouble("PushZ");
-		this.fuel = tag.getInteger("Fuel");
+		this.fuel = tag.getShort("Fuel");
 		return this;
 	}
 
@@ -93,78 +76,67 @@ public class FurnaceBehavior extends CartBehavior {
 			--this.fuel;
 		}
 
-		if (this.fuel <= 0) {
-			this.pushX = 0.0D;
-			this.pushZ = 0.0D;
-		}
-
 		this.setPowered(this.fuel > 0);
 
-		if (powered && world.rand.nextInt(4) == 0) {
+		if (this.powered && world.rand.nextInt(4) == 0) {
 			MetalTransport.NETWORK.sendToAllAround(new SpawnSmokeParticles(pos), world, pos);
 		}
 
-		if (prevPowered != powered) {
-			cart.setDisplayTile(getFurnaceState());
+		if (this.prevPowered != this.powered) {
+			// send packet to change display state
 		}
 	}
 
 	@Override
 	public void activate(EntityPlayer player, EnumHand hand) {
 		EntityMinecart cart = this.getCart();
-		ItemStack fuelStack = player.getHeldItem(hand);
+		ItemStack itemstack = player.getHeldItem(hand);
 
-		if (fuelStack.getItem() == Items.COAL && this.fuel + 3600 <= 32000) {
+		if (itemstack.getItem() == Items.COAL && this.fuel + 3600 <= 32000) {
 			if (!player.capabilities.isCreativeMode) {
-				fuelStack.shrink(1);
+				itemstack.shrink(1);
 			}
 
 			this.fuel += 3600;
 		}
-
-		this.pushX = cart.posX - player.posX;
-		this.pushZ = cart.posZ - player.posZ;
 	}
 
-	@Override
-	public void moveAlongTrack(BlockPos pos, IBlockState rail) {
-		EntityMinecart cart = this.getCart();
-		double motion = getHorizontalMotion();
-
-		if (motion > 1.0E-4D && getHorizontalCartMotion() > 0.001D) {
-			motion = MathHelper.sqrt(motion);
-			this.pushX /= motion;
-			this.pushZ /= motion;
-
-			if (this.pushX * cart.motionX + this.pushZ * cart.motionZ < 0.0D) {
-				this.pushX = 0.0D;
-				this.pushZ = 0.0D;
-			} else {
-				double d1 = motion / this.getMaxCartSpeed();
-				this.pushX *= d1;
-				this.pushZ *= d1;
-			}
+	private boolean isSpeeding(EntityMinecart cart) {
+		if (Math.abs(cart.motionX) > MAX_SPEED) {
+			cart.motionX = Math.copySign(MAX_SPEED, cart.motionX);
+			return true;
 		}
+
+		if (Math.abs(cart.motionZ) > MAX_SPEED) {
+			cart.motionZ = Math.copySign(MAX_SPEED, cart.motionZ);
+			return true;
+		}
+
+		return false;
 	}
 
 	@Override
 	public void applyDrag() {
 		EntityMinecart cart = this.getCart();
-		double motion = getHorizontalMotion();
 
-		if (motion > 1.0E-4D) {
-			motion = MathHelper.sqrt(motion);
-			this.pushX /= motion;
-			this.pushZ /= motion;
-			cart.motionX *= 0.8D;
-			cart.motionY *= 0.0D;
-			cart.motionZ *= 0.8D;
-			cart.motionX += this.pushX * 1.0D;
-			cart.motionZ += this.pushZ * 1.0D;
-		} else {
-			cart.motionX *= 0.98D;
-			cart.motionY *= 0.0D;
-			cart.motionZ *= 0.98D;
+		cart.motionX *= cart.getDragAir();
+		cart.motionY *= 0.0D;
+		cart.motionZ *= cart.getDragAir();
+
+		if (powered) {
+			float force = 0.15F;
+
+			if (isSpeeding(cart)) {
+				force *= FORCE_DAMPEN_FACTOR;
+			}
+
+			double yaw = cart.rotationYaw * Math.PI / 180D;
+			cart.motionX += Math.cos(yaw) * force;
+			cart.motionZ += Math.sin(yaw) * force;
 		}
+
+		float limit = 0.3F;
+		cart.motionX = Math.copySign(Math.min(Math.abs(cart.motionX), limit), cart.motionX);
+		cart.motionZ = Math.copySign(Math.min(Math.abs(cart.motionZ), limit), cart.motionZ);
 	}
 }

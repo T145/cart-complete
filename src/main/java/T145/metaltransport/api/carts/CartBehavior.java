@@ -90,7 +90,7 @@ public class CartBehavior implements ICartBehavior {
 	}
 
 	@Override
-	public void tick() {}
+	public void tickServer(World world, BlockPos pos) {}
 
 	@Override
 	public void activate(EntityPlayer player, EnumHand hand) {}

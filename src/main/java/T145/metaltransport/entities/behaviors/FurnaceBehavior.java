@@ -85,9 +85,8 @@ public class FurnaceBehavior extends CartBehavior {
 	}
 
 	@Override
-	public void tick() {
+	public void tickServer(World world, BlockPos pos) {
 		EntityMinecart cart = this.getCart();
-		World world = cart.world;
 
 		if (this.fuel > 0) {
 			--this.fuel;
@@ -101,7 +100,8 @@ public class FurnaceBehavior extends CartBehavior {
 		this.setPowered(this.fuel > 0);
 
 		if (powered && world.rand.nextInt(4) == 0) {
-			world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, cart.posX, cart.posY + 0.8D, cart.posZ, 0, 0, 0);
+			// TODO: Make packet for handling particles
+			//world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, cart.posX, cart.posY + 0.8D, cart.posZ, 0, 0, 0);
 		}
 
 		if (prevPowered != powered) {

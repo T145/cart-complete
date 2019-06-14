@@ -223,7 +223,22 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	@Override
 	public void onUpdate() {
 		super.onUpdate();
-		//this.behavior.ifPresent(b -> b.tickServer());
+
+		/*
+		 * == Behavior Detailing
+		 * 
+		 * Calling this from the client will always crash the game
+		 * if getCart() is called, since getPersistentId() is
+		 * different for each thread. Behaviors can only do things
+		 * from the server anyway, so any client interaction will
+		 * have to be done through packets. This removes passing
+		 * a live minecart instance as a valid work-around.
+		 * Luckily any client work is usually just spawning particles.
+		 */
+
+		if (!world.isRemote) {
+			this.behavior.ifPresent(b -> b.tickServer(world, this.getPosition()));
+		}
 	}
 
 	@Override

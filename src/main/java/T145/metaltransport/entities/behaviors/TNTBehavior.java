@@ -13,6 +13,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -84,12 +85,13 @@ public class TNTBehavior extends CartBehavior {
 	}
 
 	@Override
-	public void tick() {
+	public void tickServer(World world, BlockPos pos) {
 		EntityMinecart cart = this.getCart();
 
 		if (this.fuse > 0) {
 			--this.fuse;
-			cart.world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, cart.posX, cart.posY + 0.5D, cart.posZ, 0, 0, 0);
+			// TODO: Make packet for handling particles; sync fuse too
+			//cart.world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, cart.posX, cart.posY + 0.5D, cart.posZ, 0, 0, 0);
 		} else if (this.fuse == 0) {
 			this.detonateCart(this.getHorizontalMotion(cart));
 		}

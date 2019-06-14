@@ -24,7 +24,7 @@ public interface ICartBehavior {
 		return DEFAULT_CART_SPEED;
 	}
 
-	void tick();
+	void tickServer(World world, BlockPos pos);
 
 	void activate(EntityPlayer player, EnumHand hand);
 

@@ -68,7 +68,7 @@ public class MobSpawnerBehavior extends CartBehavior {
 	@Override
 	public void tickServer(World world, BlockPos pos) {
 		this.logic.updateSpawner();
-		MetalTransport.NETWORK.sendToAllAround(new SyncMobSpawnerClient(pos, logic.spawnDelay, logic.mobRotation, logic.prevMobRotation), world, pos);
+		MetalTransport.NETWORK.sendToAllAround(new SyncMobSpawnerClient(pos), world, pos);
 	}
 
 	@SideOnly(Side.CLIENT)

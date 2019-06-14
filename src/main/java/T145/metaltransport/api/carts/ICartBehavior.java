@@ -3,7 +3,6 @@ package T145.metaltransport.api.carts;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -14,8 +13,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public interface ICartBehavior {
 
 	public static final double DEFAULT_CART_SPEED = 0.4D;
-
-	boolean renderAsItem();
 
 	IBlockState customizeState(IBlockState state);
 
@@ -28,8 +25,6 @@ public interface ICartBehavior {
 	}
 
 	void tick();
-
-	void tickDataManager(DataParameter<?> key);
 
 	void activate(EntityPlayer player, EnumHand hand);
 

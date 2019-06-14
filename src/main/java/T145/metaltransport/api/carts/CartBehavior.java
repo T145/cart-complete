@@ -10,7 +10,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -69,11 +68,6 @@ public class CartBehavior implements ICartBehavior {
 	}
 
 	@Override
-	public boolean renderAsItem() {
-		return false;
-	}
-
-	@Override
 	public IBlockState customizeState(IBlockState state) {
 		return state;
 	}
@@ -97,9 +91,6 @@ public class CartBehavior implements ICartBehavior {
 
 	@Override
 	public void tick() {}
-
-	@Override
-	public void tickDataManager(DataParameter<?> key) {}
 
 	@Override
 	public void activate(EntityPlayer player, EnumHand hand) {}

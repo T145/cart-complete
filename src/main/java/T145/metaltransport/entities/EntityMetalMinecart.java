@@ -119,10 +119,6 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		return this.dataManager.get(DISPLAY);
 	}
 
-	public void syncBehaviorWithClient() {
-		MetalTransport.NETWORK.sendToAllAround(new SyncMetalMinecartClient(this.getDisplayStack(), this.getPosition()), world, this.getPosition());
-	}
-
 	@Override
 	public EntityMetalMinecart setDisplayStack(ItemStack stack) {
 		ItemStack copyStack = stack.copy();
@@ -159,7 +155,8 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 			}
 		}
 
-		syncBehaviorWithClient();
+		BlockPos pos = this.getPosition();
+		MetalTransport.NETWORK.sendToAllAround(new SyncMetalMinecartClient(copyStack, pos), world, pos);
 
 		return this;
 	}
@@ -192,9 +189,10 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		NBTTagCompound stackTag = new NBTTagCompound();
 		this.getDisplayStack().writeToNBT(stackTag);
 		tag.setTag(TAG_DISPLAY, stackTag);
-		this.getBehavior().ifPresent(behavior -> {
+
+		this.behavior.ifPresent(b -> {
 			tag.setByte("HasBehavior", (byte) 1);
-			tag.setTag(TAG_BEHAVIOR, this.getBehavior().get().serialize());
+			tag.setTag(TAG_BEHAVIOR, b.serialize());
 		});
 	}
 
@@ -219,30 +217,30 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void handleStatusUpdate(byte id) {
-		this.getBehavior().ifPresent(behavior -> behavior.handleStatusUpdate(id));
+		this.behavior.ifPresent(b -> b.handleStatusUpdate(id));
 	}
 
 	@Override
 	public void onUpdate() {
 		super.onUpdate();
-		//this.getBehavior().ifPresent(behavior -> behavior.tick());
+		//this.behavior.ifPresent(b -> b.tickServer());
 	}
 
 	@Override
 	protected double getMaximumSpeed() {
-		this.getBehavior().ifPresent(behavior -> behavior.getMaxCartSpeed());
+		this.behavior.ifPresent(b -> b.getMaxCartSpeed());
 		return super.getMaximumSpeed();
 	}
 
 	@Override
 	protected void moveAlongTrack(BlockPos pos, IBlockState rail) {
 		super.moveAlongTrack(pos, rail);
-		this.getBehavior().ifPresent(behavior -> behavior.moveAlongTrack(pos, rail));
+		this.behavior.ifPresent(b -> b.moveAlongTrack(pos, rail));
 	}
 
 	@Override
 	protected void applyDrag() {
-		this.getBehavior().ifPresent(behavior -> behavior.applyDrag());
+		this.behavior.ifPresent(b -> b.applyDrag());
 		super.applyDrag();
 	}
 
@@ -260,7 +258,7 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		}
 
 		if (this.hasDisplayTile()) {
-			this.getBehavior().ifPresent(behavior -> behavior.activate(player, hand));
+			this.behavior.ifPresent(b -> b.activate(player, hand));
 		} else if (!this.world.isRemote) {
 			player.startRiding(this);
 		}
@@ -308,11 +306,7 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		}
 
 		if (this.isEntityAlive()) {
-			behavior.ifPresent(b -> {
-				b.onDeletion();
-				this.behavior = Optional.empty();
-			});
-
+			behavior.ifPresent(b -> b.onDeletion());
 			this.setDisplayStack(ItemStack.EMPTY);
 		}
 
@@ -328,15 +322,23 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	@Override
 	public void setDead() {
 		super.setDead();
-		this.getBehavior().ifPresent(behavior -> behavior.onDeath());
+
+		this.behavior.ifPresent(b -> {
+			if (!world.isRemote) {
+				b.onDeletion();
+			}
+			b.onDeath();
+		});
 	}
 
 	@Override
 	public void killMinecart(DamageSource source) {
-		this.setDead();
-
 		boolean dropItems = this.world.getGameRules().getBoolean("doEntityDrops");
 
+		this.behavior.ifPresent(b -> b.killMinecart(source, dropItems));
+		this.setDead();
+
+		// TODO: Fix dropDisplayStack to not send an extra packet after death; that would be truly optimal
 		if (dropItems) {
 			ItemStack stack = this.getCartItem();
 
@@ -350,32 +352,24 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 				this.dropDisplayStack();
 			}
 		}
-
-		this.getBehavior().ifPresent(behavior -> behavior.killMinecart(source, dropItems));
 	}
 
 	@Override
 	public boolean attackEntityFrom(DamageSource source, float amount) {
-		this.getBehavior().ifPresent(behavior -> behavior.attackCartFrom(source, amount));
+		this.behavior.ifPresent(b -> b.attackCartFrom(source, amount));
 		return super.attackEntityFrom(source, amount);
 	}
 
 	@Override
-	public void notifyDataManagerChange(DataParameter<?> key) {
-		// super method is empty
-		this.getBehavior().ifPresent(behavior -> behavior.tickDataManager(key));
-	}
-
-	@Override
 	public void fall(float distance, float damageMultiplier) {
-		this.getBehavior().ifPresent(behavior -> behavior.fall(distance, damageMultiplier));
+		this.behavior.ifPresent(b -> b.fall(distance, damageMultiplier));
 		super.fall(distance, damageMultiplier);
 	}
 
 	@Override
 	public void onActivatorRailPass(int x, int y, int z, boolean receivingPower) {
 		if (this.hasDisplayTile()) {
-			this.getBehavior().ifPresent(behavior -> behavior.onActivatorRailPass(x, y, z, receivingPower));
+			this.behavior.ifPresent(b -> b.onActivatorRailPass(x, y, z, receivingPower));
 		} else {
 			super.onActivatorRailPass(x, y, z, receivingPower);
 		}

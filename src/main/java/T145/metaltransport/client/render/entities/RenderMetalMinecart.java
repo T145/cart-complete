@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import T145.metaltransport.api.carts.ICartBehavior;
 import T145.metaltransport.entities.EntityMetalMinecart;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelMinecart;
@@ -12,9 +11,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -105,13 +101,10 @@ public class RenderMetalMinecart extends Render<EntityMetalMinecart> {
 		// Normal renders air; I just don't call the code
 		if (cart.hasDisplayTile()) {
 			GlStateManager.pushMatrix();
-
-			ItemStack stack = cart.getDisplayStack();
 			GlStateManager.translate(0, 0.3, 0);
 			GlStateManager.rotate(90, 0, 1, 0);
 			GlStateManager.scale(1.5, 1.5, 1.5);
-			Minecraft.getMinecraft().getRenderItem().renderItem(stack, ItemCameraTransforms.TransformType.FIXED);
-
+			Minecraft.getMinecraft().getRenderItem().renderItem(cart.getDisplayStack(), ItemCameraTransforms.TransformType.FIXED);
 			GlStateManager.color(1, 1, 1, 1);
 			GlStateManager.popMatrix();
 		}

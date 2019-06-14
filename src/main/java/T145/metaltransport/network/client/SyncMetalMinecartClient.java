@@ -46,8 +46,7 @@ public class SyncMetalMinecartClient extends TMessage {
 			List<EntityMetalMinecart> carts = world.getEntitiesWithinAABB(EntityMetalMinecart.class, new AxisAlignedBB(pos));
 
 			if (!carts.isEmpty()) {
-				EntityMetalMinecart cart = carts.get(0);
-				cart.setDisplayStack(displayStack);
+				carts.get(0).setDisplayStack(displayStack);
 			}
 		}
 	}

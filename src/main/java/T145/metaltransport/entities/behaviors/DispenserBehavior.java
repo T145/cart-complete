@@ -25,11 +25,6 @@ public class DispenserBehavior extends ChestBehavior {
 	}
 
 	@Override
-	public boolean renderAsItem() {
-		return true;
-	}
-
-	@Override
 	public void activate(EntityPlayer player, EnumHand hand) {
 		super.activate(player, hand);
 

@@ -23,11 +23,6 @@ public class ObserverBehavior extends CartBehavior {
 	}
 
 	@Override
-	public boolean renderAsItem() {
-		return true;
-	}
-
-	@Override
 	public IBlockState customizeState(IBlockState state) {
 		return state.withProperty(BlockDirectional.FACING, EnumFacing.NORTH);
 	}

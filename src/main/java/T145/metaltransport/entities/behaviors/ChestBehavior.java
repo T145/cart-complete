@@ -78,9 +78,7 @@ public class ChestBehavior extends CartBehavior implements IInventoryLootHandler
 	}
 
 	@Override
-	public void onDeath() {
-		this.onDeletion();
-	}
+	public void onDeath() {}
 
 	@Override
 	public ItemStackHandler getInventory() {

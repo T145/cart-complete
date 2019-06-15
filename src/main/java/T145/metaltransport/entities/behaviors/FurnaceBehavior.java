@@ -8,9 +8,9 @@ import T145.metaltransport.network.client.SpawnSmokeParticles;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -27,6 +27,7 @@ public class FurnaceBehavior extends CartBehavior {
 
 	public static final float MAX_SPEED = 0.499F;
 	public static final float FORCE_DAMPEN_FACTOR = 3.5F;
+	public static final int BURN_TIME_CAP = 102400;
 
 	private boolean powered;
 	private boolean prevPowered;
@@ -83,21 +84,21 @@ public class FurnaceBehavior extends CartBehavior {
 		}
 
 		if (this.prevPowered != this.powered) {
-			// send packet to change display state
+			
 		}
 	}
 
 	@Override
 	public void activate(EntityPlayer player, EnumHand hand) {
 		EntityMinecart cart = this.getCart();
-		ItemStack itemstack = player.getHeldItem(hand);
+		ItemStack stack = player.getHeldItem(hand);
 
-		if (itemstack.getItem() == Items.COAL && this.fuel + 3600 <= 32000) {
+		if (!stack.isEmpty() && fuel < BURN_TIME_CAP) {
 			if (!player.capabilities.isCreativeMode) {
-				itemstack.shrink(1);
+				stack.shrink(1);
 			}
 
-			this.fuel += 3600;
+			fuel += TileEntityFurnace.getItemBurnTime(stack);
 		}
 	}
 

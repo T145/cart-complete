@@ -5,36 +5,31 @@ import java.util.List;
 
 import T145.metaltransport.entities.EntityMetalMinecart;
 import T145.tbone.network.TMessage;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-public class SyncMetalMinecartClient extends TMessage {
+public class SyncBehaviorWithClient extends TMessage {
 
-	private ItemStack displayStack;
 	private BlockPos pos;
 
-	public SyncMetalMinecartClient() {
+	public SyncBehaviorWithClient() {
 		// DEFAULT CONSTRUCTOR REQUIRED
 	}
 
-	public SyncMetalMinecartClient(ItemStack displayStack, BlockPos pos) {
-		this.displayStack = displayStack;
+	public SyncBehaviorWithClient(BlockPos pos) {
 		this.pos = pos;
 	}
 
 	@Override
 	public void serialize(PacketBuffer buf) {
-		buf.writeItemStack(displayStack);
 		buf.writeBlockPos(pos);
 	}
 
 	@Override
 	public void deserialize(PacketBuffer buf) throws IOException {
-		this.displayStack = buf.readItemStack();
 		this.pos = buf.readBlockPos();
 	}
 
@@ -46,7 +41,7 @@ public class SyncMetalMinecartClient extends TMessage {
 			List<EntityMetalMinecart> carts = world.getEntitiesWithinAABB(EntityMetalMinecart.class, new AxisAlignedBB(pos));
 
 			if (!carts.isEmpty()) {
-				carts.get(0).setDisplayStack(displayStack);
+				carts.get(0).setBehavior();
 			}
 		}
 	}

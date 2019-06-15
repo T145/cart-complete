@@ -18,6 +18,8 @@ public interface IMetalMinecart {
 
 	Optional<ICartBehavior> getBehavior();
 
+	IMetalMinecart setBehavior();
+
 	CartType getCartType();
 
 	EntityMinecart setCartType(CartType type);

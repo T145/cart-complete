@@ -19,7 +19,6 @@ import T145.metaltransport.entities.behaviors.FurnaceBehavior;
 import T145.metaltransport.entities.behaviors.JukeboxBehavior;
 import T145.metaltransport.entities.behaviors.LampBehavior;
 import T145.metaltransport.entities.behaviors.MobSpawnerBehavior;
-import T145.metaltransport.entities.behaviors.ObserverBehavior;
 import T145.metaltransport.entities.behaviors.PistonBehavior;
 import T145.metaltransport.entities.behaviors.SimpleGuiBehavior;
 import T145.metaltransport.entities.behaviors.TNTBehavior;
@@ -143,7 +142,6 @@ public class MetalTransport {
 		CartBehaviorRegistry.register(Blocks.ENCHANTING_TABLE, new SimpleGuiBehavior.SimpleGuiBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.ANVIL, new SimpleGuiBehavior.SimpleGuiBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.FURNACE, new FurnaceBehavior.FurnaceBehaviorFactory());
-		CartBehaviorRegistry.register(Blocks.LIT_FURNACE, new FurnaceBehavior.FurnaceBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.MOB_SPAWNER, new MobSpawnerBehavior.MobSpawnerBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.TNT, new TNTBehavior.TNTBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.CHEST, new ChestBehavior.ChestBehaviorFactory());
@@ -152,7 +150,6 @@ public class MetalTransport {
 		CartBehaviorRegistry.register(Blocks.DROPPER, new DropperBehavior.DropperBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.PISTON, new PistonBehavior.PistonBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.STICKY_PISTON, new PistonBehavior.PistonBehaviorFactory());
-		CartBehaviorRegistry.register(Blocks.OBSERVER, new ObserverBehavior.ObserverBehaviorFactory());
 	}
 
 	@SubscribeEvent
@@ -249,7 +246,7 @@ public class MetalTransport {
 
 			if (!cart.hasDisplayTile() && isSolidBlock(stack)) {
 				World world = event.getWorld();
-				cart = new EntityMetalMinecart((EntityMinecartEmpty) target).setDisplayStack(stack);
+				cart = new EntityMetalMinecart((EntityMinecartEmpty) target).setDisplayStack(stack).setBehavior();
 
 				if (!world.isRemote) {
 					if (!player.isCreative()) {

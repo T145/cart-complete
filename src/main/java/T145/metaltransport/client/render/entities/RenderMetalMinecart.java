@@ -1,8 +1,5 @@
 package T145.metaltransport.client.render.entities;
 
-import java.util.Optional;
-
-import T145.metaltransport.api.carts.ICartBehavior;
 import T145.metaltransport.entities.EntityMetalMinecart;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
@@ -11,6 +8,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -27,13 +25,7 @@ public class RenderMetalMinecart extends Render<EntityMetalMinecart> {
 		this.shadowSize = 0.5F;
 	}
 
-	@Override
-	public void doRender(EntityMetalMinecart cart, double x, double y, double z, float entityYaw, float partialTicks) {
-		Optional<ICartBehavior> optBehavior = cart.getBehavior();
-
-		GlStateManager.pushMatrix();
-		this.bindEntityTexture(cart);
-
+	public void computeTranslationAndRotation(EntityMetalMinecart cart, double x, double y, double z, float entityYaw, float partialTicks) {
 		long i = cart.getEntityId() * 493286711L;
 
 		i = i * i * 4392167121L + i * 98761L;
@@ -91,6 +83,24 @@ public class RenderMetalMinecart extends Render<EntityMetalMinecart> {
 
 			GlStateManager.rotate(MathHelper.sin(f5) * f5 * f6 / 10.0F * cart.getRollingDirection(), 1.0F, 0.0F, 0.0F);
 		}
+	}
+
+	public void renderDisplayStack(ItemStack stack) {
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(0, 0.3, 0);
+		GlStateManager.rotate(90, 0, 1, 0);
+		GlStateManager.scale(1.5, 1.5, 1.5);
+		Minecraft.getMinecraft().getRenderItem().renderItem(stack, ItemCameraTransforms.TransformType.FIXED);
+		GlStateManager.color(1, 1, 1, 1);
+		GlStateManager.popMatrix();
+	}
+
+	@Override
+	public void doRender(EntityMetalMinecart cart, double x, double y, double z, float entityYaw, float partialTicks) {
+		GlStateManager.pushMatrix();
+		this.bindEntityTexture(cart);
+
+		computeTranslationAndRotation(cart, x, y, z, entityYaw, partialTicks);
 
 		if (this.renderOutlines) {
 			GlStateManager.enableColorMaterial();
@@ -100,25 +110,20 @@ public class RenderMetalMinecart extends Render<EntityMetalMinecart> {
 		// behaves slightly better than the normal minecart:
 		// Normal renders air; I just don't call the code
 		if (cart.hasDisplayTile()) {
-			GlStateManager.pushMatrix();
-			GlStateManager.translate(0, 0.3, 0);
-			GlStateManager.rotate(90, 0, 1, 0);
-			GlStateManager.scale(1.5, 1.5, 1.5);
-			Minecraft.getMinecraft().getRenderItem().renderItem(cart.getDisplayStack(), ItemCameraTransforms.TransformType.FIXED);
-			GlStateManager.color(1, 1, 1, 1);
-			GlStateManager.popMatrix();
+			this.renderDisplayStack(cart.getDisplayStack());
 		}
 
 		// render the cart itself
 		this.bindEntityTexture(cart);
 		GlStateManager.scale(-1.0F, -1.0F, 1.0F);
 		this.modelMinecart.render(cart, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
-		GlStateManager.popMatrix();
 
 		if (this.renderOutlines) {
 			GlStateManager.disableOutlineMode();
 			GlStateManager.disableColorMaterial();
 		}
+
+		GlStateManager.popMatrix();
 
 		super.doRender(cart, x, y, z, entityYaw, partialTicks);
 	}

@@ -12,8 +12,6 @@ public interface ICartBehavior {
 
 	public static final double DEFAULT_CART_SPEED = 0.4D;
 
-	IBlockState customizeState(IBlockState state);
-
 	NBTTagCompound serialize();
 
 	ICartBehavior deserialize(NBTTagCompound tag);

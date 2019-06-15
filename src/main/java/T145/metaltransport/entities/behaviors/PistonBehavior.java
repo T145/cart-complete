@@ -3,10 +3,7 @@ package T145.metaltransport.entities.behaviors;
 import T145.metaltransport.api.carts.CartBehavior;
 import T145.metaltransport.api.carts.ICartBehavior;
 import T145.metaltransport.api.carts.ICartBehaviorFactory;
-import net.minecraft.block.BlockPistonBase;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityMinecart;
-import net.minecraft.util.EnumFacing;
 
 public class PistonBehavior extends CartBehavior {
 
@@ -22,8 +19,5 @@ public class PistonBehavior extends CartBehavior {
 		super(cart);
 	}
 
-	@Override
-	public IBlockState customizeState(IBlockState state) {
-		return state.withProperty(BlockPistonBase.FACING, EnumFacing.UP);
-	}
+	// TODO: Implement piston extension in a cart
 }

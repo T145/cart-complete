@@ -13,7 +13,7 @@ import T145.metaltransport.api.carts.IMetalMinecart;
 import T145.metaltransport.api.carts.IMetalMinecartBlock;
 import T145.metaltransport.api.constants.CartType;
 import T145.metaltransport.core.MetalTransport;
-import T145.metaltransport.network.client.SyncMetalMinecartClient;
+import T145.metaltransport.network.client.SyncBehaviorWithClient;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
@@ -71,7 +71,10 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		if (cart instanceof EntityMetalMinecart) {
 			this.setCartType(((EntityMetalMinecart) cart).getCartType());
 		} else if (cart.hasDisplayTile()) {
-			this.setDisplayTile(cart.getDisplayTile());
+			IBlockState state = cart.getDisplayTile();
+			Block block = state.getBlock();
+			ItemStack stack = new ItemStack(block);
+			this.setDisplayStack(stack);
 		}
 
 		this.posX = cart.posX;
@@ -82,11 +85,6 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		this.motionZ = cart.motionZ;
 		this.rotationPitch = cart.rotationPitch;
 		this.rotationYaw = cart.rotationYaw;
-	}
-
-	@Override
-	public Optional<ICartBehavior> getBehavior() {
-		return behavior;
 	}
 
 	@Override
@@ -101,16 +99,7 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	}
 
 	@Override
-	public void setDisplayTile(IBlockState state) {
-		ItemStack stack = this.getDisplayStack();
-		Block block = state.getBlock();
-
-		if (!stack.isEmpty()) {
-			state = block.getStateFromMeta(stack.getItemDamage());
-		}
-
-		super.setDisplayTile(state);
-	}
+	public void setDisplayTile(IBlockState state) {}
 
 	@Override
 	public ItemStack getDisplayStack() {
@@ -126,18 +115,30 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		}
 
 		this.dataManager.set(DISPLAY, copyStack);
+		this.setHasDisplayTile(!copyStack.isEmpty());
+
+		return this;
+	}
+
+	@Override
+	public Optional<ICartBehavior> getBehavior() {
+		return behavior;
+	}
+
+	@Override
+	public EntityMetalMinecart setBehavior() {
+		ItemStack stack = this.getDisplayStack();
 
 		if (stack.isEmpty()) {
-			this.setDisplayTile(getDefaultDisplayTile());
-			this.setHasDisplayTile(false);
 			this.behavior = Optional.empty();
 		} else {
 			Item item = stack.getItem();
 			Block block = Block.getBlockFromItem(item);
-			IBlockState state = block.getDefaultState();
 
 			if (block instanceof IMetalMinecartBlock) {
-				state = ((IMetalMinecartBlock) block).getDisplayState(this, stack.getItemDamage());
+				stack = ((IMetalMinecartBlock) block).getDisplayStack(this, stack.getItemDamage());
+				stack.setCount(1); // just in case
+				this.setDisplayStack(stack);
 			}
 
 			ResourceLocation key = block.getRegistryName();
@@ -146,28 +147,31 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 			if (behaviorFactory.isPresent()) {
 				ICartBehavior cartBehavior = behaviorFactory.get().createBehavior(this);
 				this.behavior = Optional.of(cartBehavior);
-				this.setDisplayTile(cartBehavior.customizeState(state));
 			} else {
 				this.behavior = Optional.empty();
-				this.setDisplayTile(state);
 			}
 		}
 
+		// sync the cart behavior with the client
 		BlockPos pos = this.getPosition();
-		MetalTransport.NETWORK.sendToAllAround(new SyncMetalMinecartClient(copyStack, pos), world, pos);
+		MetalTransport.NETWORK.sendToAllAround(new SyncBehaviorWithClient(pos), world, pos);
 
 		return this;
+	}
+
+	public ResourceLocation getKey() {
+		ItemStack stack = this.getDisplayStack();
+		Block block = MetalTransport.getBlockFromStack(stack);
+		return block.getRegistryName();
 	}
 
 	@Override
 	public EntityMinecart.Type getType() {
 		if (this.hasDisplayTile()) {
-			IBlockState state = this.getDisplayTile();
-			Block block = state.getBlock();
-			ResourceLocation resource = block.getRegistryName();
+			ResourceLocation key = this.getKey();
 
-			if (MINECART_TYPES.containsKey(resource)) {
-				return MINECART_TYPES.get(resource);
+			if (MINECART_TYPES.containsKey(key)) {
+				return MINECART_TYPES.get(key);
 			}
 		}
 		return super.getType();
@@ -201,11 +205,7 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		this.dataManager.set(DISPLAY, new ItemStack(tag.getCompoundTag(TAG_DISPLAY)));
 
 		if (tag.hasKey("HasBehavior")) {
-			IBlockState state = this.getDisplayTile();
-			Block block = state.getBlock();
-			ResourceLocation resource = block.getRegistryName();
-
-			Optional.ofNullable(CartBehaviorRegistry.get(resource)).ifPresent(factory -> {
+			Optional.ofNullable(CartBehaviorRegistry.get(this.getKey())).ifPresent(factory -> {
 				NBTTagCompound behaviorTag = tag.getCompoundTag(TAG_BEHAVIOR);
 				this.behavior = Optional.of(factory.createBehavior(this).deserialize(behaviorTag));
 			});
@@ -305,16 +305,11 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 
 	public ItemStack removeDisplayStack() {
 		ItemStack stack = this.getDisplayStack();
-		IBlockState state = this.getDisplayTile();
-		Block block = state.getBlock();
-
-		if (stack.isEmpty()) {
-			stack = new ItemStack(block, 1, block.getMetaFromState(state));
-		}
 
 		if (this.isEntityAlive()) {
 			behavior.ifPresent(b -> b.onDeletion());
 			this.setDisplayStack(ItemStack.EMPTY);
+			this.setBehavior();
 		}
 
 		return stack.copy();
@@ -345,7 +340,6 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 		this.behavior.ifPresent(b -> b.killMinecart(source, dropItems));
 		this.setDead();
 
-		// TODO: Fix dropDisplayStack to not send an extra packet after death; that would be truly optimal
 		if (dropItems) {
 			ItemStack stack = this.getCartItem();
 

@@ -4,7 +4,7 @@ import T145.metaltransport.api.carts.CartBehavior;
 import T145.metaltransport.api.carts.ICartBehavior;
 import T145.metaltransport.api.carts.ICartBehaviorFactory;
 import T145.metaltransport.core.MetalTransport;
-import T145.metaltransport.network.client.SyncMobSpawnerClient;
+import T145.metaltransport.network.client.SyncMobSpawnerWithClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.nbt.NBTTagCompound;
@@ -66,6 +66,6 @@ public class MobSpawnerBehavior extends CartBehavior {
 	@Override
 	public void tickServer(World world, BlockPos pos) {
 		this.logic.updateSpawner();
-		MetalTransport.NETWORK.sendToAllAround(new SyncMobSpawnerClient(pos), world, pos);
+		MetalTransport.NETWORK.sendToAllAround(new SyncMobSpawnerWithClient(pos), world, pos);
 	}
 }

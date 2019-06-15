@@ -17,9 +17,7 @@ import T145.metaltransport.entities.behaviors.DropperBehavior;
 import T145.metaltransport.entities.behaviors.EnderChestBehavior;
 import T145.metaltransport.entities.behaviors.FurnaceBehavior;
 import T145.metaltransport.entities.behaviors.JukeboxBehavior;
-import T145.metaltransport.entities.behaviors.LampBehavior;
 import T145.metaltransport.entities.behaviors.MobSpawnerBehavior;
-import T145.metaltransport.entities.behaviors.PistonBehavior;
 import T145.metaltransport.entities.behaviors.SimpleGuiBehavior;
 import T145.metaltransport.entities.behaviors.TNTBehavior;
 import T145.metaltransport.items.ItemMetalMinecart;
@@ -136,8 +134,6 @@ public class MetalTransport {
 		BehaviorDispenseMinecart.register(ItemsMT.METAL_MINECART, ItemMetalMinecart.DISPENSER_BEHAVIOR);
 		CartBehaviorRegistry.register(Blocks.ENDER_CHEST, new EnderChestBehavior.EnderChestBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.JUKEBOX, new JukeboxBehavior.JukeboxBehaviorFactory());
-		CartBehaviorRegistry.register(Blocks.REDSTONE_LAMP, new LampBehavior.LampBehaviorFactory());
-		CartBehaviorRegistry.register(Blocks.LIT_REDSTONE_LAMP, new LampBehavior.LampBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.CRAFTING_TABLE, new SimpleGuiBehavior.SimpleGuiBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.ENCHANTING_TABLE, new SimpleGuiBehavior.SimpleGuiBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.ANVIL, new SimpleGuiBehavior.SimpleGuiBehaviorFactory());
@@ -148,8 +144,6 @@ public class MetalTransport {
 		CartBehaviorRegistry.register(Blocks.TRAPPED_CHEST, new ChestBehavior.ChestBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.DISPENSER, new DispenserBehavior.DispenserBehaviorFactory());
 		CartBehaviorRegistry.register(Blocks.DROPPER, new DropperBehavior.DropperBehaviorFactory());
-		CartBehaviorRegistry.register(Blocks.PISTON, new PistonBehavior.PistonBehaviorFactory());
-		CartBehaviorRegistry.register(Blocks.STICKY_PISTON, new PistonBehavior.PistonBehaviorFactory());
 	}
 
 	@SubscribeEvent

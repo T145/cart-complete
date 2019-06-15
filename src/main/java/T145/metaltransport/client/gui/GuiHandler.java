@@ -1,17 +1,18 @@
 package T145.metaltransport.client.gui;
 
+import T145.metaltransport.core.MetalTransport;
 import T145.metaltransport.entities.EntityMetalMinecart;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAnvil;
 import net.minecraft.block.BlockEnchantmentTable;
 import net.minecraft.block.BlockWorkbench;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiEnchantment;
 import net.minecraft.client.gui.GuiRepair;
 import net.minecraft.client.gui.inventory.GuiCrafting;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerEnchantment;
 import net.minecraft.inventory.ContainerRepair;
@@ -40,8 +41,8 @@ public class GuiHandler implements IGuiHandler {
 
 		if (entity instanceof EntityMetalMinecart) {
 			EntityMetalMinecart cart = (EntityMetalMinecart) entity;
-			IBlockState state = cart.getDisplayTile();
-			Block block = state.getBlock();
+			ItemStack stack = cart.getDisplayStack();
+			Block block = MetalTransport.getBlockFromStack(stack);
 
 			if (block instanceof BlockWorkbench) {
 				return new ContainerWorkbench(player.inventory, world, cart.getPosition()) {
@@ -102,14 +103,14 @@ public class GuiHandler implements IGuiHandler {
 								maximumCost = 0;
 
 								if (!thePlayer.capabilities.isCreativeMode && !world.isRemote && thePlayer.getRNG().nextFloat() < breakChance) {
-									int l = state.getValue(BlockAnvil.DAMAGE);
-									++l;
+									int dmg = cart.getDisplayStack().getItemDamage();
+									++dmg;
 
-									if (l > 2) {
-										cart.setDisplayTile(cart.getDefaultDisplayTile());
+									if (dmg > 2) {
+										cart.setDisplayStack(ItemStack.EMPTY).setBehavior();
 										world.playEvent(1029, pos, 0);
 									} else {
-										cart.setDisplayTile(state.withProperty(BlockAnvil.DAMAGE, l));
+										cart.setDisplayStack(new ItemStack(Blocks.ANVIL, 1, dmg));
 										world.playEvent(1030, pos, 0);
 									}
 								} else if (!world.isRemote) {
@@ -149,8 +150,8 @@ public class GuiHandler implements IGuiHandler {
 
 		if (entity instanceof EntityMetalMinecart) {
 			EntityMetalMinecart cart = (EntityMetalMinecart) entity;
-			IBlockState state = cart.getDisplayTile();
-			Block block = state.getBlock();
+			ItemStack stack = cart.getDisplayStack();
+			Block block = MetalTransport.getBlockFromStack(stack);
 
 			if (block instanceof BlockWorkbench) {
 				return new GuiCrafting(player.inventory, world, cart.getPosition());

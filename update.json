@@ -6,10 +6,11 @@
         "v1.2.0+mc1.12.2": "https://github.com/T145/metaltransport/releases/tag/v1.2.0",
         "v1.2.4+mc1.12.2": "https://github.com/T145/metaltransport/releases/tag/v1.2.4",
         "v1.3.8+mc1.12.2": "https://github.com/T145/metaltransport/releases/tag/v1.3.8",
-        "v1.5.6+mc1.12.2": "https://github.com/T145/metaltransport/releases/tag/v1.5.6"
+        "v1.5.6+mc1.12.2": "https://github.com/T145/metaltransport/releases/tag/v1.5.6",
+        "v1.7.4+mc1.12.2": "https://github.com/T145/metaltransport/releases/tag/v1.7.4"
     },
     "promos": {
-        "1.12.2-latest": "v1.5.6+mc1.12.2",
-        "1.12.2-recommended": "v1.5.6+mc1.12.2"
+        "1.12.2-latest": "v1.7.4+mc1.12.2",
+        "1.12.2-recommended": "v1.7.4+mc1.12.2"
     }
 }

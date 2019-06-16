@@ -217,6 +217,15 @@ public class EntityMetalMinecart extends EntityMinecart implements IMetalMinecar
 		return EntityMinecart.Type.RIDEABLE;
 	}
 
+	private ItemStack getDropStack() {
+		if (this.hasDisplayStack()) {
+			return this.getDisplayStack().copy();
+		} else {
+			Block block = this.getDisplayBlock();
+			return new ItemStack(block, 1, block.getMetaFromState(getDisplayTile()));
+		}
+	}
+
 	@Override
 	public ItemStack getCartItem() {
 		return new ItemStack(ItemsMT.METAL_MINECART, 1, getCartType().ordinal());
@@ -337,7 +346,7 @@ public class EntityMetalMinecart extends EntityMinecart implements IMetalMinecar
 
 		if (this.hasDisplayBlock()) {
 			if (player.isSneaking()) {
-				ItemStack stack = new ItemStack(this.getDisplayBlock());
+				ItemStack stack = this.getDisplayStack();
 				this.removeDisplayBlock();
 
 				if (!world.isRemote) {
@@ -413,7 +422,7 @@ public class EntityMetalMinecart extends EntityMinecart implements IMetalMinecar
 			this.entityDropItem(stack, 0);
 
 			if (!world.isRemote && (!source.isExplosion() || this.getCartType() == CartType.OBSIDIAN) && this.hasDisplayTile()) {
-				this.entityDropItem(new ItemStack(this.getDisplayBlock()), 0);
+				this.entityDropItem(this.getDropStack(), 0);
 			}
 		}
 	}

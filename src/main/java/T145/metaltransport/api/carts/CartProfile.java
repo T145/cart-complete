@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
+import T145.metaltransport.api.consts.RegistryMT;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
@@ -16,49 +17,30 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 
-public class CartBehavior implements ICartBehavior {
+public class CartProfile implements ICartProfile {
 
-	protected int dimId;
-	protected UUID entityId;
 	private Optional<EntityMinecart> cart = Optional.empty();
+	private int dim;
+	private UUID entityId;
 
-	public CartBehavior(EntityMinecart cart) {
-		this.dimId = cart.world.provider.getDimension();
+	public CartProfile(EntityMinecart cart) {
+		World world = cart.world;
 		this.entityId = cart.getPersistentID();
-	}
-
-	public int getDimension() {
-		return dimId;
-	}
-
-	protected void setDimension(int dimId) {
-		this.dimId = dimId;
-	}
-
-	public UUID getEntityId() {
-		return entityId;
-	}
-
-	protected void setEntityId(UUID entityId) {
-		this.entityId = entityId;
-	}
-
-	private Entity getEntityFromUUID(World world) {
-		for (Entity entity : world.getLoadedEntityList()) {
-			if (entity.getPersistentID().equals(entityId)) {
-				return entity;
-			}
-		}
-		return null;
 	}
 
 	public EntityMinecart getCart() {
 		if (!cart.isPresent()) {
-			World world = DimensionManager.getWorld(dimId);
-			Entity entity = this.getEntityFromUUID(world);
+			World world = DimensionManager.getWorld(dim);
 
-			if (entity instanceof EntityMinecart) {
-				cart = Optional.of((EntityMinecart) entity);
+			for (Entity entity : world.getLoadedEntityList()) {
+				if (entity instanceof EntityMinecart && !entity.isDead && entity.getPersistentID().equals(this.entityId)) {
+					this.cart = Optional.of((EntityMinecart) entity);
+					break;
+				}
+			}
+
+			if (!cart.isPresent()) {
+				RegistryMT.LOG.error("Cart entity is still unknown after reading known data!");
 			}
 		}
 
@@ -69,16 +51,16 @@ public class CartBehavior implements ICartBehavior {
 	@Override
 	public NBTTagCompound serialize() {
 		NBTTagCompound tag = new NBTTagCompound();
-		tag.setInteger("DimId", this.dimId);
+		tag.setInteger("Dimension", dim);
 		tag.setUniqueId("EntityId", this.entityId);
 		return tag;
 	}
 
 	@OverridingMethodsMustInvokeSuper
 	@Override
-	public ICartBehavior deserialize(NBTTagCompound tag) {
-		this.setDimension(tag.getInteger("DimId"));
-		this.setEntityId(tag.getUniqueId("EntityId"));
+	public ICartProfile deserialize(NBTTagCompound tag) {
+		this.dim = tag.getInteger("Dimension");
+		this.entityId = tag.getUniqueId("EntityId");
 		return this;
 	}
 
@@ -89,32 +71,28 @@ public class CartBehavior implements ICartBehavior {
 	public void activate(EntityPlayer player, EnumHand hand) {}
 
 	@Override
-	public void attackCartFrom(DamageSource source, float amount) {}
+	public boolean attackCart(DamageSource source, float amount) {
+		return false;
+	}
 
 	@Override
-	public void killMinecart(DamageSource source, boolean dropItems) {}
+	public void killCart(DamageSource source, boolean dropItems) {}
 
 	@Override
-	public void onDeath() {}
+	public void onProfileDeletion() {}
+
+	@Override
+	public void onCartDeath() {}
 
 	@Override
 	public void fall(float distance, float damageMultiplier) {}
 
 	@Override
-	public void onActivatorRailPass(int x, int y, int z, boolean receivingPower) {}
+	public void onActivatorRailPass(int x, int y, int z, boolean powered) {}
 
 	@Override
 	public void moveAlongTrack(BlockPos pos, IBlockState rail) {}
 
 	@Override
 	public void applyDrag() {}
-
-	@Override
-	public void onDeletion() {}
-
-	@Override
-	public boolean ignoreItemEntityData() {
-		// default entity value
-		return false;
-	}
 }

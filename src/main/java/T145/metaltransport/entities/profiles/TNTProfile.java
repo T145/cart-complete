@@ -1,12 +1,11 @@
-package T145.metaltransport.entities.behaviors;
+package T145.metaltransport.entities.profiles;
 
 import java.util.Random;
 
-import T145.metaltransport.api.carts.CartBehavior;
-import T145.metaltransport.api.carts.ICartBehavior;
-import T145.metaltransport.api.carts.ICartBehaviorFactory;
-import T145.metaltransport.core.MetalTransport;
-import T145.metaltransport.network.client.SpawnSmokeParticles;
+import T145.metaltransport.MetalTransport;
+import T145.metaltransport.api.carts.CartProfile;
+import T145.metaltransport.api.carts.ICartProfileFactory;
+import T145.metaltransport.net.client.SpawnSmokeParticles;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.projectile.EntityArrow;
@@ -17,45 +16,41 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class TNTBehavior extends CartBehavior {
+public class TNTProfile extends CartProfile {
 
-	public static class TNTBehaviorFactory implements ICartBehaviorFactory {
+	public static class TNTBehaviorFactory implements ICartProfileFactory {
 
 		@Override
-		public ICartBehavior createBehavior(EntityMinecart cart) {
-			return new TNTBehavior(cart);
+		public TNTProfile createProfile(EntityMinecart cart) {
+			return new TNTProfile(cart);
 		}
 	}
 
 	private int fuse = -1;
 
-	public TNTBehavior(EntityMinecart cart) {
+	public TNTProfile(EntityMinecart cart) {
 		super(cart);
 	}
 
 	protected void detonateCart(double radius) {
 		EntityMinecart cart = this.getCart();
 		World world = cart.world;
+		double scaledRadius = Math.sqrt(radius);
 
-		if (!world.isRemote) {
-			double scaledRadius = Math.sqrt(radius);
-
-			if (scaledRadius > 5.0D) {
-				scaledRadius = 5.0D;
-			}
-
-			world.createExplosion(cart, cart.posX, cart.posY, cart.posZ, (float) (4.0D + world.rand.nextDouble() * 1.5D * scaledRadius), true);
-			cart.setDead();
+		if (scaledRadius > 5.0D) {
+			scaledRadius = 5.0D;
 		}
+
+		world.createExplosion(cart, cart.posX, cart.posY, cart.posZ, (float) (4.0D + world.rand.nextDouble() * 1.5D * scaledRadius), true);
+		cart.setDead();
 	}
 
 	public void ignite() {
 		EntityMinecart cart = this.getCart();
-		World world = cart.world;
 		this.fuse = 80;
 
 		if (!cart.isSilent()) {
-			world.playSound(null, cart.posX, cart.posY, cart.posZ, SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.BLOCKS, 1.0F, 1.0F);
+			cart.world.playSound(null, cart.posX, cart.posY, cart.posZ, SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.BLOCKS, 1.0F, 1.0F);
 		}
 	}
 
@@ -67,7 +62,7 @@ public class TNTBehavior extends CartBehavior {
 	}
 
 	@Override
-	public ICartBehavior deserialize(NBTTagCompound tag) {
+	public TNTProfile deserialize(NBTTagCompound tag) {
 		super.deserialize(tag);
 		this.fuse = tag.getInteger("Fuse");
 		return this;
@@ -83,7 +78,7 @@ public class TNTBehavior extends CartBehavior {
 
 		if (this.fuse > 0) {
 			--this.fuse;
-			MetalTransport.NETWORK.sendToAllAround(new SpawnSmokeParticles(pos), world, pos);
+			MetalTransport.NETWORK.sendToAllAround(new SpawnSmokeParticles(pos));
 		} else if (this.fuse == 0) {
 			this.detonateCart(this.getHorizontalMotion(cart));
 		}
@@ -98,7 +93,7 @@ public class TNTBehavior extends CartBehavior {
 	}
 
 	@Override
-	public void attackCartFrom(DamageSource source, float amount) {
+	public boolean attackCart(DamageSource source, float amount) {
 		Entity entity = source.getImmediateSource();
 
 		if (entity instanceof EntityArrow) {
@@ -108,16 +103,16 @@ public class TNTBehavior extends CartBehavior {
 				this.detonateCart(arrow.motionX * arrow.motionX + arrow.motionY * arrow.motionY + arrow.motionZ * arrow.motionZ);
 			}
 		}
+		return false;
 	}
 
 	@Override
-	public void killMinecart(DamageSource source, boolean dropItems) {
+	public void killCart(DamageSource source, boolean dropItems) {
 		EntityMinecart cart = this.getCart();
 		double motion = this.getHorizontalMotion(cart);
 
 		if ((source.isFireDamage() || source.isExplosion() || motion >= 0.01D) && fuse < 0) {
-			World world = cart.world;
-			Random rand = world.rand;
+			Random rand = cart.world.rand;
 
 			this.ignite();
 			this.fuse = rand.nextInt(20) + rand.nextInt(20);

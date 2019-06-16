@@ -1,35 +1,34 @@
-package T145.metaltransport.core;
+package T145.metaltransport;
 
 import java.io.IOException;
 
-import T145.metaltransport.api.EntitiesMT;
-import T145.metaltransport.api.ItemsMT;
-import T145.metaltransport.api.SerializersMT;
-import T145.metaltransport.api.carts.CartBehaviorRegistry;
-import T145.metaltransport.api.constants.CartType;
-import T145.metaltransport.api.constants.RegistryMT;
+import T145.metaltransport.api.carts.CartProfileRegistry;
+import T145.metaltransport.api.consts.CartType;
+import T145.metaltransport.api.consts.RegistryMT;
+import T145.metaltransport.api.obj.EntitiesMT;
+import T145.metaltransport.api.obj.ItemsMT;
+import T145.metaltransport.api.obj.SerializersMT;
 import T145.metaltransport.client.gui.GuiHandler;
 import T145.metaltransport.client.render.entities.RenderMetalMinecart;
 import T145.metaltransport.entities.EntityMetalMinecart;
-import T145.metaltransport.entities.behaviors.ChestBehavior;
-import T145.metaltransport.entities.behaviors.DispenserBehavior;
-import T145.metaltransport.entities.behaviors.DropperBehavior;
-import T145.metaltransport.entities.behaviors.EnderChestBehavior;
-import T145.metaltransport.entities.behaviors.FurnaceBehavior;
-import T145.metaltransport.entities.behaviors.JukeboxBehavior;
-import T145.metaltransport.entities.behaviors.MobSpawnerBehavior;
-import T145.metaltransport.entities.behaviors.SimpleGuiBehavior;
-import T145.metaltransport.entities.behaviors.TNTBehavior;
+import T145.metaltransport.entities.profiles.ChestProfile;
+import T145.metaltransport.entities.profiles.DispenserProfile;
+import T145.metaltransport.entities.profiles.DropperProfile;
+import T145.metaltransport.entities.profiles.EnderChestProfile;
+import T145.metaltransport.entities.profiles.FurnaceProfile;
+import T145.metaltransport.entities.profiles.JukeboxProfile;
+import T145.metaltransport.entities.profiles.LampProfile;
+import T145.metaltransport.entities.profiles.MobSpawnerProfile;
+import T145.metaltransport.entities.profiles.SimpleGuiProfile;
+import T145.metaltransport.entities.profiles.TNTProfile;
 import T145.metaltransport.items.ItemMetalMinecart;
-import T145.metaltransport.network.MTPacketHandler;
+import T145.metaltransport.net.PacketHandlerMT;
 import T145.tbone.core.TBone;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
 import T145.tbone.network.TPacketHandler;
 import net.minecraft.block.Block;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.item.EntityMinecart;
-import net.minecraft.entity.item.EntityMinecartEmpty;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
@@ -41,7 +40,6 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityMobSpawner;
-import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.datafix.DataFixer;
@@ -53,7 +51,7 @@ import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.minecart.MinecartInteractEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -70,19 +68,26 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.DataSerializerEntry;
 import net.minecraftforge.registries.IForgeRegistry;
 
-@Mod(modid = RegistryMT.ID, name = RegistryMT.NAME, version = RegistryMT.VERSION, updateJSON = RegistryMT.UPDATE_JSON, dependencies = "required-after:tbone;after:metalchests")
+@Mod(modid = RegistryMT.ID, name = RegistryMT.NAME, version = MetalTransport.VERSION, updateJSON = MetalTransport.UPDATE_JSON, dependencies = "required-after:tbone;after:metalchests")
 @EventBusSubscriber(modid = RegistryMT.ID)
 public class MetalTransport {
 
-	public static final TPacketHandler NETWORK = new MTPacketHandler();
+	public static final String VERSION = "@VERSION@";
+	public static final String UPDATE_JSON = "https://raw.githubusercontent.com/T145/metaltransport/master/update.json";
+	public static final TPacketHandler NETWORK = new PacketHandlerMT();
 
 	public MetalTransport() {
 		TBone.registerMod(RegistryMT.ID, RegistryMT.NAME);
+	}
+
+	public static boolean inDevMode() {
+		return VERSION.contentEquals("@VERSION@");
 	}
 
 	@Instance(RegistryMT.ID)
@@ -100,17 +105,13 @@ public class MetalTransport {
 		meta.name = RegistryMT.NAME;
 		meta.url = "https://github.com/T145/metaltransport";
 		meta.useDependencyInformation = false;
-		meta.version = RegistryMT.VERSION;
+		meta.version = VERSION;
 		NETWORK.registerMessages();
 	}
 
 	@EventHandler
 	public void metaltransport$init(final FMLInitializationEvent event) {
-		NetworkRegistry.INSTANCE.registerGuiHandler(instance, new GuiHandler());
 		DataFixer fixer = FMLCommonHandler.instance().getDataFixer();
-
-		// does nothing for now, but done for future-proofing
-		EntityMinecart.registerFixesMinecart(fixer, EntityMetalMinecart.class);
 
 		fixer.registerWalker(FixTypes.ENTITY, new IDataWalker() {
 
@@ -127,30 +128,28 @@ public class MetalTransport {
 				return tag;
 			}
 		});
+
+		NetworkRegistry.INSTANCE.registerGuiHandler(instance, new GuiHandler());
 	}
 
 	@EventHandler
 	public void metaltransport$postInit(final FMLPostInitializationEvent event) {
 		BehaviorDispenseMinecart.register(ItemsMT.METAL_MINECART, ItemMetalMinecart.DISPENSER_BEHAVIOR);
-		CartBehaviorRegistry.register(Blocks.ENDER_CHEST, new EnderChestBehavior.EnderChestBehaviorFactory());
-		CartBehaviorRegistry.register(Blocks.JUKEBOX, new JukeboxBehavior.JukeboxBehaviorFactory());
-		CartBehaviorRegistry.register(Blocks.CRAFTING_TABLE, new SimpleGuiBehavior.SimpleGuiBehaviorFactory());
-		CartBehaviorRegistry.register(Blocks.ENCHANTING_TABLE, new SimpleGuiBehavior.SimpleGuiBehaviorFactory());
-		CartBehaviorRegistry.register(Blocks.ANVIL, new SimpleGuiBehavior.SimpleGuiBehaviorFactory());
-		CartBehaviorRegistry.register(Blocks.FURNACE, new FurnaceBehavior.FurnaceBehaviorFactory());
-		CartBehaviorRegistry.register(Blocks.MOB_SPAWNER, new MobSpawnerBehavior.MobSpawnerBehaviorFactory());
-		CartBehaviorRegistry.register(Blocks.TNT, new TNTBehavior.TNTBehaviorFactory());
-		CartBehaviorRegistry.register(Blocks.CHEST, new ChestBehavior.ChestBehaviorFactory());
-		CartBehaviorRegistry.register(Blocks.TRAPPED_CHEST, new ChestBehavior.ChestBehaviorFactory());
-		CartBehaviorRegistry.register(Blocks.DISPENSER, new DispenserBehavior.DispenserBehaviorFactory());
-		CartBehaviorRegistry.register(Blocks.DROPPER, new DropperBehavior.DropperBehaviorFactory());
-	}
-
-	@SubscribeEvent
-	public static void metaltransport$updateConfig(final OnConfigChangedEvent event) {
-		if (event.getModID().equals(RegistryMT.ID)) {
-			ConfigManager.sync(RegistryMT.ID, Config.Type.INSTANCE);
-		}
+		CartProfileRegistry.register(Blocks.ENDER_CHEST, new EnderChestProfile.EnderChestProfileFactory());
+		CartProfileRegistry.register(Blocks.REDSTONE_LAMP, new LampProfile.LampProfileFactory());
+		CartProfileRegistry.register(Blocks.LIT_REDSTONE_LAMP, new LampProfile.LampProfileFactory());
+		CartProfileRegistry.register(Blocks.FURNACE, new FurnaceProfile.FurnaceProfileFactory());
+		CartProfileRegistry.register(Blocks.LIT_FURNACE, new FurnaceProfile.FurnaceProfileFactory());
+		CartProfileRegistry.register(Blocks.CRAFTING_TABLE, new SimpleGuiProfile.SimpleGuiProfileFactory());
+		CartProfileRegistry.register(Blocks.ENCHANTING_TABLE, new SimpleGuiProfile.SimpleGuiProfileFactory());
+		CartProfileRegistry.register(Blocks.ANVIL, new SimpleGuiProfile.SimpleGuiProfileFactory());
+		CartProfileRegistry.register(Blocks.CHEST, new ChestProfile.ChestProfileFactory());
+		CartProfileRegistry.register(Blocks.TRAPPED_CHEST, new ChestProfile.ChestProfileFactory());
+		CartProfileRegistry.register(Blocks.DISPENSER, new DispenserProfile.DispenserProfileFactory());
+		CartProfileRegistry.register(Blocks.DROPPER, new DropperProfile.DropperProfileFactory());
+		CartProfileRegistry.register(Blocks.JUKEBOX, new JukeboxProfile.JukeboxProfileFactory());
+		CartProfileRegistry.register(Blocks.TNT, new TNTProfile.TNTBehaviorFactory());
+		CartProfileRegistry.register(Blocks.MOB_SPAWNER, new MobSpawnerProfile.MobSpawnerProfileFactory());
 	}
 
 	@SubscribeEvent
@@ -212,7 +211,19 @@ public class MetalTransport {
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void metalchests$registerRecipes(RegistryEvent.Register<IRecipe> event) {
-		CartType.registerRecipes();
+		for (CartType type : CartType.VALUES) {
+			GameRegistry.addShapedRecipe(new ResourceLocation(RegistryMT.ID, String.format("recipe_%s_cart", type.getName())), RegistryMT.RECIPE_GROUP,
+					new ItemStack(ItemsMT.METAL_MINECART, 1, type.ordinal()),
+					"a a", "aaa",
+					'a', type.getOreName());
+		}
+	}
+
+	@SubscribeEvent
+	public static void metaltransport$updateConfig(OnConfigChangedEvent event) {
+		if (event.getModID().equals(RegistryMT.ID)) {
+			ConfigManager.sync(RegistryMT.ID, Config.Type.INSTANCE);
+		}
 	}
 
 	public static Block getBlockFromStack(ItemStack stack) {
@@ -224,13 +235,12 @@ public class MetalTransport {
 	}
 
 	@SubscribeEvent
-	public static void metaltransport$playerInteract(PlayerInteractEvent.EntityInteractSpecific event) {
-		Entity target = event.getTarget();
-		EntityPlayer player = event.getEntityPlayer();
+	public static void metaltransport$playerInteract(MinecartInteractEvent event) {
+		EntityMinecart target = event.getMinecart();
 
-		if (target instanceof EntityMinecartEmpty && target.getPassengers().isEmpty()) {
-			EntityMinecartEmpty cart = (EntityMinecartEmpty) target;
+		if (target.canBeRidden() && target.getPassengers().isEmpty()) {
 			EnumHand hand = EnumHand.MAIN_HAND;
+			EntityPlayer player = event.getPlayer();
 			ItemStack stack = player.getHeldItemMainhand();
 
 			if (!isSolidBlock(stack)) {
@@ -238,9 +248,9 @@ public class MetalTransport {
 				hand = EnumHand.OFF_HAND;
 			}
 
-			if (!cart.hasDisplayTile() && isSolidBlock(stack)) {
-				World world = event.getWorld();
-				cart = new EntityMetalMinecart((EntityMinecartEmpty) target).setDisplayStack(stack).setBehavior();
+			if (isSolidBlock(stack)) {
+				World world = target.world;
+				EntityMetalMinecart cart = new EntityMetalMinecart(target).setDisplayStack(stack).setCartProfile();
 
 				if (!world.isRemote) {
 					if (!player.isCreative()) {
@@ -252,7 +262,6 @@ public class MetalTransport {
 				}
 
 				player.swingArm(hand);
-				event.setCancellationResult(EnumActionResult.SUCCESS);
 				event.setCanceled(true);
 			}
 		}

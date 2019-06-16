@@ -1,27 +1,27 @@
 package T145.metaltransport.entities;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
-import T145.metaltransport.api.ItemsMT;
-import T145.metaltransport.api.SerializersMT;
-import T145.metaltransport.api.carts.CartBehaviorRegistry;
-import T145.metaltransport.api.carts.ICartBehavior;
-import T145.metaltransport.api.carts.ICartBehaviorFactory;
+import T145.metaltransport.MetalTransport;
+import T145.metaltransport.api.carts.CartProfileRegistry;
+import T145.metaltransport.api.carts.ICartProfile;
 import T145.metaltransport.api.carts.IMetalMinecart;
-import T145.metaltransport.api.carts.IMetalMinecartBlock;
-import T145.metaltransport.api.constants.CartType;
-import T145.metaltransport.core.MetalTransport;
-import T145.metaltransport.network.client.SyncBehaviorWithClient;
+import T145.metaltransport.api.consts.CartType;
+import T145.metaltransport.api.obj.ItemsMT;
+import T145.metaltransport.api.obj.SerializersMT;
+import T145.metaltransport.net.client.SyncProfileWithClient;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockChest;
+import net.minecraft.block.BlockCommandBlock;
+import net.minecraft.block.BlockFurnace;
+import net.minecraft.block.BlockHopper;
+import net.minecraft.block.BlockMobSpawner;
+import net.minecraft.block.BlockTNT;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.item.EntityMinecart;
-import net.minecraft.entity.item.EntityMinecartEmpty;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
@@ -36,26 +36,14 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.minecart.MinecartInteractEvent;
+import net.minecraftforge.oredict.OreDictionary;
 
-public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMinecart {
+public class EntityMetalMinecart extends EntityMinecart implements IMetalMinecart {
 
-	private static final DataParameter<ItemStack> DISPLAY = EntityDataManager.createKey(EntityMetalMinecart.class, DataSerializers.ITEM_STACK);
 	private static final DataParameter<CartType> CART_TYPE = EntityDataManager.createKey(EntityMetalMinecart.class, SerializersMT.CART_TYPE);
-	private Optional<ICartBehavior> behavior = Optional.empty();
-
-	private static final Map<ResourceLocation, EntityMinecart.Type> MINECART_TYPES = new HashMap() {{
-		put(Blocks.CHEST.getRegistryName(), EntityMinecart.Type.CHEST);
-		put(Blocks.TRAPPED_CHEST.getRegistryName(), EntityMinecart.Type.CHEST);
-		put(Blocks.ENDER_CHEST.getRegistryName(), EntityMinecart.Type.CHEST);
-		put(Blocks.FURNACE.getRegistryName(), EntityMinecart.Type.FURNACE);
-		put(Blocks.LIT_FURNACE.getRegistryName(), EntityMinecart.Type.FURNACE);
-		put(Blocks.TNT.getRegistryName(), EntityMinecart.Type.TNT);
-		put(Blocks.MOB_SPAWNER.getRegistryName(), EntityMinecart.Type.SPAWNER);
-		put(Blocks.HOPPER.getRegistryName(), EntityMinecart.Type.HOPPER);
-		put(Blocks.CHAIN_COMMAND_BLOCK.getRegistryName(), EntityMinecart.Type.COMMAND_BLOCK);
-		put(Blocks.COMMAND_BLOCK.getRegistryName(), EntityMinecart.Type.COMMAND_BLOCK);
-		put(Blocks.REPEATING_COMMAND_BLOCK.getRegistryName(), EntityMinecart.Type.COMMAND_BLOCK);
-	}};
+	private static final DataParameter<ItemStack> DISPLAY_STACK = EntityDataManager.createKey(EntityMetalMinecart.class, DataSerializers.ITEM_STACK);
+	private static final DataParameter<Boolean> SHOW_STACK = EntityDataManager.createKey(EntityMetalMinecart.class, DataSerializers.BOOLEAN);
+	private Optional<ICartProfile> profile = Optional.empty();
 
 	public EntityMetalMinecart(World world) {
 		super(world);
@@ -66,211 +54,170 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	}
 
 	public EntityMetalMinecart(EntityMinecart cart) {
-		this(cart.getEntityWorld(), cart.prevPosX, cart.prevPosY, cart.prevPosZ);
+		super(cart.world, cart.posX, cart.posY, cart.posZ);
 
 		if (cart instanceof EntityMetalMinecart) {
 			this.setCartType(((EntityMetalMinecart) cart).getCartType());
-		} else if (cart.hasDisplayTile()) {
-			IBlockState state = cart.getDisplayTile();
-			Block block = state.getBlock();
-			ItemStack stack = new ItemStack(block);
-			this.setDisplayStack(stack);
 		}
 
+		this.prevPosX = cart.prevPosX;
+		this.prevPosY = cart.prevPosY;
+		this.prevPosZ = cart.prevPosZ;
 		this.posX = cart.posX;
 		this.posY = cart.posY;
 		this.posZ = cart.posZ;
 		this.motionX = cart.motionX;
 		this.motionY = cart.motionY;
 		this.motionZ = cart.motionZ;
-		this.rotationPitch = cart.rotationPitch;
 		this.rotationYaw = cart.rotationYaw;
-	}
-
-	@Override
-	public CartType getCartType() {
-		return dataManager.get(CART_TYPE);
-	}
-
-	@Override
-	public EntityMinecart setCartType(CartType type) {
-		dataManager.set(CART_TYPE, type);
-		return this;
-	}
-
-	@Override
-	public void setDisplayTile(IBlockState state) {}
-
-	@Override
-	public ItemStack getDisplayStack() {
-		return this.dataManager.get(DISPLAY);
-	}
-
-	@Override
-	public EntityMetalMinecart setDisplayStack(ItemStack stack) {
-		ItemStack copyStack = stack.copy();
-
-		if (stack.getCount() > 1) {
-			copyStack.setCount(1);
-		}
-
-		this.dataManager.set(DISPLAY, copyStack);
-		this.setHasDisplayTile(!copyStack.isEmpty());
-
-		return this;
-	}
-
-	@Override
-	public Optional<ICartBehavior> getBehavior() {
-		return behavior;
-	}
-
-	@Override
-	public EntityMetalMinecart setBehavior() {
-		ItemStack stack = this.getDisplayStack();
-
-		if (stack.isEmpty()) {
-			this.behavior = Optional.empty();
-		} else {
-			Item item = stack.getItem();
-			Block block = Block.getBlockFromItem(item);
-
-			if (block instanceof IMetalMinecartBlock) {
-				stack = ((IMetalMinecartBlock) block).getDisplayStack(this, stack.getItemDamage());
-				stack.setCount(1); // just in case
-				this.setDisplayStack(stack);
-			}
-
-			ResourceLocation key = block.getRegistryName();
-			Optional<ICartBehaviorFactory> behaviorFactory = Optional.ofNullable(CartBehaviorRegistry.get(key));
-
-			if (behaviorFactory.isPresent()) {
-				ICartBehavior cartBehavior = behaviorFactory.get().createBehavior(this);
-				this.behavior = Optional.of(cartBehavior);
-			} else {
-				this.behavior = Optional.empty();
-			}
-		}
-
-		// sync the cart behavior with the client
-		BlockPos pos = this.getPosition();
-		MetalTransport.NETWORK.sendToAllAround(new SyncBehaviorWithClient(pos), world, pos);
-
-		return this;
-	}
-
-	public ResourceLocation getKey() {
-		ItemStack stack = this.getDisplayStack();
-		Block block = MetalTransport.getBlockFromStack(stack);
-		return block.getRegistryName();
-	}
-
-	@Override
-	public EntityMinecart.Type getType() {
-		if (this.hasDisplayTile()) {
-			ResourceLocation key = this.getKey();
-
-			if (MINECART_TYPES.containsKey(key)) {
-				return MINECART_TYPES.get(key);
-			}
-		}
-		return super.getType();
+		this.rotationPitch = cart.rotationPitch;
+		this.prevRotationYaw = cart.prevRotationYaw;
+		this.prevRotationPitch = cart.prevRotationPitch;
+		this.lastTickPosX = cart.lastTickPosX;
+		this.lastTickPosY = cart.lastTickPosY;
+		this.lastTickPosZ = cart.lastTickPosZ;
 	}
 
 	@Override
 	protected void entityInit() {
 		super.entityInit();
 		this.dataManager.register(CART_TYPE, CartType.IRON);
-		this.dataManager.register(DISPLAY, ItemStack.EMPTY);
+		this.dataManager.register(DISPLAY_STACK, ItemStack.EMPTY);
+		this.dataManager.register(SHOW_STACK, false);
 	}
 
 	@Override
-	protected void writeEntityToNBT(NBTTagCompound tag) {
-		super.writeEntityToNBT(tag);
-		tag.setString(TAG_CART_TYPE, getCartType().toString());
-		NBTTagCompound stackTag = new NBTTagCompound();
-		this.getDisplayStack().writeToNBT(stackTag);
-		tag.setTag(TAG_DISPLAY, stackTag);
-
-		this.behavior.ifPresent(b -> {
-			tag.setByte("HasBehavior", (byte) 1);
-			tag.setTag(TAG_BEHAVIOR, b.serialize());
-		});
+	public CartType getCartType() {
+		return this.dataManager.get(CART_TYPE);
 	}
 
 	@Override
-	protected void readEntityFromNBT(NBTTagCompound tag) {
-		super.readEntityFromNBT(tag);
-		setCartType(CartType.valueOf(tag.getString(TAG_CART_TYPE)));
-		this.dataManager.set(DISPLAY, new ItemStack(tag.getCompoundTag(TAG_DISPLAY)));
-
-		if (tag.hasKey("HasBehavior")) {
-			Optional.ofNullable(CartBehaviorRegistry.get(this.getKey())).ifPresent(factory -> {
-				NBTTagCompound behaviorTag = tag.getCompoundTag(TAG_BEHAVIOR);
-				this.behavior = Optional.of(factory.createBehavior(this).deserialize(behaviorTag));
-			});
-		}
+	public EntityMetalMinecart setCartType(CartType type) {
+		this.dataManager.set(CART_TYPE, type);
+		return this;
 	}
 
 	@Override
-	public void onUpdate() {
-		super.onUpdate();
-
-		/*
-		 * == Behavior Detailing
-		 * 
-		 * Calling this from the client will always crash the game
-		 * if getCart() is called, since getPersistentId() is
-		 * different for each thread. Behaviors can only do things
-		 * from the server anyway, so any client interaction will
-		 * have to be done through packets. This removes passing
-		 * a live minecart instance as a valid work-around.
-		 * Luckily any client work is usually just spawning particles.
-		 */
-
-		if (!world.isRemote) {
-			this.behavior.ifPresent(b -> b.tickServer(world, this.getPosition()));
-		}
+	public ItemStack getDisplayStack() {
+		return this.dataManager.get(DISPLAY_STACK);
 	}
 
 	@Override
-	protected double getMaximumSpeed() {
-		this.behavior.ifPresent(b -> b.getMaxCartSpeed());
-		return super.getMaximumSpeed();
-	}
+	public EntityMetalMinecart setDisplayStack(ItemStack stack) {
+		ItemStack copyStack = stack.copy();
 
-	@Override
-	protected void moveAlongTrack(BlockPos pos, IBlockState rail) {
-		super.moveAlongTrack(pos, rail);
-		this.behavior.ifPresent(b -> b.moveAlongTrack(pos, rail));
-	}
-
-	@Override
-	protected void applyDrag() {
-		this.behavior.ifPresent(b -> b.applyDrag());
-		super.applyDrag();
-	}
-
-	@Override
-	public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
-		if (MinecraftForge.EVENT_BUS.post(new MinecartInteractEvent(this, player, hand)) || this.isBeingRidden()) {
-			return true;
+		if (copyStack.getCount() > 1) {
+			copyStack.setCount(1);
 		}
 
-		if (player.isSneaking()) {
-			if (this.hasDisplayTile()) {
-				this.dropDisplayStack();
-			}
-			return true;
+		this.dataManager.set(DISPLAY_STACK, copyStack);
+		this.setHasDisplayStack(!copyStack.isEmpty());
+		return this;
+	}
+
+	@Override
+	public boolean hasDisplayStack() {
+		return this.dataManager.get(SHOW_STACK);
+	}
+
+	@Override
+	public void setHasDisplayStack(boolean hasStack) {
+		if (hasStack) {
+			this.setHasDisplayTile(false);
+		}
+
+		this.dataManager.set(SHOW_STACK, hasStack);
+	}
+
+	@Override
+	public void setHasDisplayTile(boolean showBlock) {
+		if (showBlock) {
+			this.setHasDisplayStack(false);
+		}
+
+		super.setHasDisplayTile(showBlock);
+	}
+
+	@Override
+	public Block getDisplayBlock() {
+		if (this.hasDisplayStack()) {
+			return Block.getBlockFromItem(this.getDisplayStack().getItem());
 		}
 
 		if (this.hasDisplayTile()) {
-			this.behavior.ifPresent(b -> b.activate(player, hand));
-		} else if (!this.world.isRemote) {
-			player.startRiding(this);
+			return this.getDisplayTile().getBlock();
 		}
 
-		return true;
+		return Blocks.AIR;
+	}
+
+	@Override
+	public boolean hasDisplayBlock() {
+		return this.hasDisplayStack() || this.hasDisplayTile();
+	}
+
+	@Override
+	public Optional<ICartProfile> getCartProfile() {
+		return this.profile;
+	}
+
+	@Override
+	public EntityMetalMinecart setCartProfile() {
+		if (this.hasDisplayBlock()) {
+			Block block = this.getDisplayBlock();
+			ResourceLocation key = block.getRegistryName();
+
+			if (CartProfileRegistry.contains(key)) {
+				this.profile = Optional.of(CartProfileRegistry.get(key).createProfile(this));
+			} else {
+				this.profile = Optional.empty();
+			}
+		} else {
+			this.profile = Optional.empty();
+		}
+
+		MetalTransport.NETWORK.sendToAllAround(new SyncProfileWithClient(this.getPosition()));
+
+		return this;
+	}
+
+	@Override
+	public EntityMinecart.Type getType() {
+		if (this.hasDisplayBlock()) {
+			Block block = this.getDisplayBlock();
+
+			if (block instanceof BlockCommandBlock) {
+				return EntityMinecart.Type.COMMAND_BLOCK;
+			}
+
+			if (block instanceof BlockFurnace) {
+				return EntityMinecart.Type.FURNACE;
+			}
+
+			if (block instanceof BlockHopper) {
+				return EntityMinecart.Type.HOPPER;
+			}
+
+			if (block instanceof BlockMobSpawner) {
+				return EntityMinecart.Type.SPAWNER;
+			}
+
+			if (block instanceof BlockTNT) {
+				return EntityMinecart.Type.TNT;
+			}
+
+			if (block instanceof BlockChest) {
+				return EntityMinecart.Type.CHEST;
+			} else {
+				ItemStack chestStack = new ItemStack(block);
+
+				if (OreDictionary.getOres("chest").contains(chestStack)) {
+					return EntityMinecart.Type.CHEST;
+				}
+			}
+		}
+
+		return EntityMinecart.Type.RIDEABLE;
 	}
 
 	@Override
@@ -280,7 +227,7 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 
 	@Override
 	public boolean canBeRidden() {
-		return !this.hasDisplayTile();
+		return !this.hasDisplayBlock();
 	}
 
 	@Override
@@ -296,40 +243,159 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	public ITextComponent getDisplayName() {
 		TextComponentString name = (TextComponentString) super.getDisplayName();
 
-		if (this.hasDisplayTile()) {
+		if (this.hasDisplayBlock()) {
 			return name.appendText(" With ").appendText(this.getDisplayStack().getDisplayName());
 		}
 
 		return name;
 	}
 
-	public ItemStack removeDisplayStack() {
-		ItemStack stack = this.getDisplayStack();
+	@Override
+	protected void readEntityFromNBT(NBTTagCompound tag) {
+		this.setCartType(CartType.valueOf(tag.getString(TAG_CART_TYPE)));
 
-		if (this.isEntityAlive()) {
-			behavior.ifPresent(b -> b.onDeletion());
-			this.setDisplayStack(ItemStack.EMPTY);
-			this.setBehavior();
+		if (tag.hasKey(TAG_HAS_STACK)) {
+			this.setDisplayStack(new ItemStack(tag.getCompoundTag(TAG_DISPLAY_STACK)));
+		} else {
+			super.readEntityFromNBT(tag);
 		}
 
-		return stack.copy();
+		if (tag.hasKey(TAG_HAS_PROFILE)) {
+			Block block = this.getDisplayBlock();
+			ResourceLocation key = block.getRegistryName();
+
+			if (CartProfileRegistry.contains(key)) {
+				this.profile = Optional.of(CartProfileRegistry.get(key).createProfile(this).deserialize(tag.getCompoundTag(TAG_CART_PROFILE)));
+			}
+		}
 	}
 
-	public void dropDisplayStack() {
-		if (!this.world.isRemote) {
-			entityDropItem(removeDisplayStack(), 0.0F);
+	@Override
+	protected void writeEntityToNBT(NBTTagCompound tag) {
+		tag.setString(TAG_CART_TYPE, this.getCartType().toString());
+
+		if (this.hasDisplayStack()) {
+			tag.setByte(TAG_HAS_STACK, (byte) 1);
+			tag.setTag(TAG_DISPLAY_STACK, this.getDisplayStack().serializeNBT());
+		} else {
+			super.writeEntityToNBT(tag);
 		}
+
+		this.profile.ifPresent(profile -> {
+			tag.setByte(TAG_HAS_PROFILE, (byte) 1);
+			tag.setTag(TAG_CART_PROFILE, profile.serialize());
+		});
+	}
+
+	@Override
+	public void onUpdate() {
+		super.onUpdate();
+
+		/*
+		 * == Profile Detailing
+		 * 
+		 * Calling this from the client will always crash the game
+		 * if getCart() is called, since getPersistentId() is
+		 * different for each thread. Profiles can only do things
+		 * from the server anyway, so any client interaction will
+		 * have to be done through packets. This removes passing
+		 * a live minecart instance as a valid work-around.
+		 * Luckily any client work is usually just spawning particles.
+		 */
+
+		if (!world.isRemote) {
+			this.profile.ifPresent(profile -> profile.tickServer(world, this.getPosition()));
+		}
+	}
+
+	@Override
+	protected void moveAlongTrack(BlockPos pos, IBlockState rail) {
+		super.moveAlongTrack(pos, rail);
+		this.profile.ifPresent(profile -> profile.moveAlongTrack(pos, rail));
+	}
+
+	@Override
+	protected void applyDrag() {
+		this.profile.ifPresent(profile -> profile.applyDrag());
+		super.applyDrag();
+	}
+
+	@Override
+	public void fall(float distance, float damageMultiplier) {
+		this.profile.ifPresent(profile -> profile.fall(distance, damageMultiplier));
+		super.fall(distance, damageMultiplier);
+	}
+
+	public void removeDisplayBlock() {
+		this.setDisplayStack(ItemStack.EMPTY);
+		this.setHasDisplayTile(false);
+		this.profile.ifPresent(profile -> profile.onProfileDeletion());
+	}
+
+	@Override
+	public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
+		if (MinecraftForge.EVENT_BUS.post(new MinecartInteractEvent(this, player, hand)) || this.isBeingRidden()) {
+			return true;
+		}
+
+		if (this.hasDisplayBlock()) {
+			if (player.isSneaking()) {
+				ItemStack stack = new ItemStack(this.getDisplayBlock());
+				this.removeDisplayBlock();
+
+				if (!world.isRemote) {
+					this.entityDropItem(stack, 0);
+					this.profile.ifPresent(profile -> profile.onProfileDeletion());
+				}
+
+				this.setCartProfile();
+
+				return true;
+			}
+
+			this.profile.ifPresent(profile -> profile.activate(player, hand));
+		} else if (!this.world.isRemote) {
+			player.startRiding(this);
+		}
+
+		return true;
+	}
+
+	@Override
+	public void onActivatorRailPass(int x, int y, int z, boolean receivingPower) {
+		if (this.hasDisplayBlock()) {
+			this.profile.ifPresent(profile -> profile.onActivatorRailPass(x, y, z, receivingPower));
+		} else if (receivingPower) {
+			if (this.isBeingRidden()) {
+				this.removePassengers();
+			}
+
+			if (this.getRollingAmplitude() == 0) {
+				this.setRollingDirection(-this.getRollingDirection());
+				this.setRollingAmplitude(10);
+				this.setDamage(50.0F);
+				this.markVelocityChanged();
+			}
+		}
+	}
+
+	@Override
+	public boolean attackEntityFrom(DamageSource source, float amount) {
+		if (this.profile.isPresent() && this.profile.get().attackCart(source, amount)) {
+			return true;
+		} // useful for the note block
+		return super.attackEntityFrom(source, amount);
 	}
 
 	@Override
 	public void setDead() {
 		super.setDead();
 
-		this.behavior.ifPresent(b -> {
+		this.profile.ifPresent(profile -> {
 			if (!world.isRemote) {
-				b.onDeletion();
+				profile.onProfileDeletion();
 			}
-			b.onDeath();
+			profile.onCartDeath();
 		});
 	}
 
@@ -337,7 +403,7 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 	public void killMinecart(DamageSource source) {
 		boolean dropItems = this.world.getGameRules().getBoolean("doEntityDrops");
 
-		this.behavior.ifPresent(b -> b.killMinecart(source, dropItems));
+		this.profile.ifPresent(profile -> profile.killCart(source, dropItems));
 		this.setDead();
 
 		if (dropItems) {
@@ -347,32 +413,11 @@ public class EntityMetalMinecart extends EntityMinecartEmpty implements IMetalMi
 				stack.setStackDisplayName(this.getCustomNameTag());
 			}
 
-			this.entityDropItem(stack, 0.0F);
+			this.entityDropItem(stack, 0);
 
-			if ((!source.isExplosion() || this.getCartType() == CartType.OBSIDIAN) && this.hasDisplayTile()) {
-				this.dropDisplayStack();
+			if (!world.isRemote && (!source.isExplosion() || this.getCartType() == CartType.OBSIDIAN) && this.hasDisplayTile()) {
+				this.entityDropItem(new ItemStack(this.getDisplayBlock()), 0);
 			}
-		}
-	}
-
-	@Override
-	public boolean attackEntityFrom(DamageSource source, float amount) {
-		this.behavior.ifPresent(b -> b.attackCartFrom(source, amount));
-		return super.attackEntityFrom(source, amount);
-	}
-
-	@Override
-	public void fall(float distance, float damageMultiplier) {
-		this.behavior.ifPresent(b -> b.fall(distance, damageMultiplier));
-		super.fall(distance, damageMultiplier);
-	}
-
-	@Override
-	public void onActivatorRailPass(int x, int y, int z, boolean receivingPower) {
-		if (this.hasDisplayTile()) {
-			this.behavior.ifPresent(b -> b.onActivatorRailPass(x, y, z, receivingPower));
-		} else {
-			super.onActivatorRailPass(x, y, z, receivingPower);
 		}
 	}
 }

@@ -1,6 +1,6 @@
-package T145.metaltransport.api;
+package T145.metaltransport.api.obj;
 
-import T145.metaltransport.api.constants.RegistryMT;
+import T145.metaltransport.api.consts.RegistryMT;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 

@@ -1,8 +1,7 @@
-package T145.metaltransport.entities.behaviors;
+package T145.metaltransport.entities.profiles;
 
-import T145.metaltransport.api.carts.CartBehavior;
-import T145.metaltransport.api.carts.ICartBehavior;
-import T145.metaltransport.api.carts.ICartBehaviorFactory;
+import T145.metaltransport.api.carts.CartProfile;
+import T145.metaltransport.api.carts.ICartProfileFactory;
 import T145.tbone.api.IInventoryLootHandler;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,13 +16,13 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.items.ItemStackHandler;
 
-public class ChestBehavior extends CartBehavior implements IInventoryLootHandler {
+public class ChestProfile extends CartProfile implements IInventoryLootHandler {
 
-	public static class ChestBehaviorFactory implements ICartBehaviorFactory {
+	public static class ChestProfileFactory implements ICartProfileFactory {
 
 		@Override
-		public ICartBehavior createBehavior(EntityMinecart cart) {
-			return new ChestBehavior(cart);
+		public ChestProfile createProfile(EntityMinecart cart) {
+			return new ChestProfile(cart);
 		}
 	}
 
@@ -31,12 +30,12 @@ public class ChestBehavior extends CartBehavior implements IInventoryLootHandler
 	private ResourceLocation lootTable;
 	private long lootTableSeed;
 
-	public ChestBehavior(EntityMinecart cart, int invSize) {
+	public ChestProfile(EntityMinecart cart, int invSize) {
 		super(cart);
 		this.handler = new ItemStackHandler(invSize);
 	}
 
-	public ChestBehavior(EntityMinecart cart) {
+	public ChestProfile(EntityMinecart cart) {
 		this(cart, 27);
 	}
 
@@ -48,7 +47,7 @@ public class ChestBehavior extends CartBehavior implements IInventoryLootHandler
 	}
 
 	@Override
-	public ICartBehavior deserialize(NBTTagCompound tag) {
+	public ChestProfile deserialize(NBTTagCompound tag) {
 		super.deserialize(tag);
 		handler.deserializeNBT(tag.getCompoundTag(TAG_INVENTORY));
 		return this;
@@ -56,15 +55,11 @@ public class ChestBehavior extends CartBehavior implements IInventoryLootHandler
 
 	@Override
 	public void activate(EntityPlayer player, EnumHand hand) {
-		EntityMinecart cart = this.getCart();
-
-		if (!cart.world.isRemote) {
-			player.displayGUIChest(this);
-		}
+		player.displayGUIChest(this);
 	}
 
 	@Override
-	public void onDeletion() {
+	public void onProfileDeletion() {
 		EntityMinecart cart = this.getCart();
 		World world = cart.world;
 
@@ -76,9 +71,6 @@ public class ChestBehavior extends CartBehavior implements IInventoryLootHandler
 			}
 		}
 	}
-
-	@Override
-	public void onDeath() {}
 
 	@Override
 	public ItemStackHandler getInventory() {

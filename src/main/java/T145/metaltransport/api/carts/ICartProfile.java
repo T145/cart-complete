@@ -1,5 +1,6 @@
 package T145.metaltransport.api.carts;
 
+import T145.metaltransport.api.IProfile;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -8,37 +9,28 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public interface ICartBehavior {
+public interface ICartProfile extends IProfile {
 
-	public static final double DEFAULT_CART_SPEED = 0.4D;
-
-	NBTTagCompound serialize();
-
-	ICartBehavior deserialize(NBTTagCompound tag);
-
-	default double getMaxCartSpeed() {
-		return DEFAULT_CART_SPEED;
-	}
+	@Override
+	ICartProfile deserialize(NBTTagCompound tag);
 
 	void tickServer(World world, BlockPos pos);
 
 	void activate(EntityPlayer player, EnumHand hand);
 
-	void attackCartFrom(DamageSource source, float amount);
+	boolean attackCart(DamageSource source, float amount);
 
-	void killMinecart(DamageSource source, boolean dropItems);
+	void killCart(DamageSource source, boolean dropItems);
 
-	void onDeath();
+	void onProfileDeletion();
+
+	void onCartDeath();
 
 	void fall(float distance, float damageMultiplier);
 
-	void onActivatorRailPass(int x, int y, int z, boolean receivingPower);
+	void onActivatorRailPass(int x, int y, int z, boolean powered);
 
 	void moveAlongTrack(BlockPos pos, IBlockState rail);
 
 	void applyDrag();
-
-	void onDeletion();
-
-	boolean ignoreItemEntityData();
 }

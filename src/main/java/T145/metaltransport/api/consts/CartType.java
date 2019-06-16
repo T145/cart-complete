@@ -1,12 +1,11 @@
-package T145.metaltransport.api.constants;
+package T145.metaltransport.api.consts;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
-import T145.metaltransport.api.ItemsMT;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.OreDictionary;
 
 public enum CartType implements IStringSerializable {
@@ -17,6 +16,8 @@ public enum CartType implements IStringSerializable {
 	GOLD("ingotGold"),
 	DIAMOND("gemDiamond"),
 	OBSIDIAN("obsidian");
+
+	public static final Set<CartType> VALUES = new HashSet<>(CartType.values().length);
 
 	private final String oreName;
 	private final ResourceLocation modelResource;
@@ -49,7 +50,7 @@ public enum CartType implements IStringSerializable {
 	}
 
 	public boolean isRegistered() {
-		return hasOre() /* && TIERS.contains(this) */;
+		return VALUES.contains(this);
 	}
 
 	public static CartType byMetadata(int meta) {
@@ -64,15 +65,10 @@ public enum CartType implements IStringSerializable {
 		return String.format("%s:%s_cart", RegistryMT.ID, getName());
 	}
 
-	public static void registerRecipes() {
-		for (short i = 0; i < values().length; ++i) {
-			CartType type = CartType.byMetadata(i);
-
-			if (type.isRegistered()) {
-				GameRegistry.addShapedRecipe(new ResourceLocation(RegistryMT.ID, String.format("recipe_%s_cart", type.getName())), RegistryMT.RECIPE_GROUP,
-						new ItemStack(ItemsMT.METAL_MINECART, 1, i),
-						"a a", "aaa",
-						'a', type.getOreName());
+	static {
+		for (CartType type : CartType.values()) {
+			if (type.hasOre()) {
+				VALUES.add(type);
 			}
 		}
 	}

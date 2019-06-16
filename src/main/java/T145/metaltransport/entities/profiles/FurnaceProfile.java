@@ -1,10 +1,11 @@
-package T145.metaltransport.entities.behaviors;
+package T145.metaltransport.entities.profiles;
 
-import T145.metaltransport.api.carts.CartBehavior;
-import T145.metaltransport.api.carts.ICartBehavior;
-import T145.metaltransport.api.carts.ICartBehaviorFactory;
-import T145.metaltransport.core.MetalTransport;
-import T145.metaltransport.network.client.SpawnSmokeParticles;
+import T145.metaltransport.MetalTransport;
+import T145.metaltransport.api.carts.CartProfile;
+import T145.metaltransport.api.carts.ICartProfile;
+import T145.metaltransport.api.carts.ICartProfileFactory;
+import T145.metaltransport.net.client.SpawnSmokeParticles;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -15,13 +16,13 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class FurnaceBehavior extends CartBehavior {
+public class FurnaceProfile extends CartProfile {
 
-	public static class FurnaceBehaviorFactory implements ICartBehaviorFactory {
+	public static class FurnaceProfileFactory implements ICartProfileFactory {
 
 		@Override
-		public ICartBehavior createBehavior(EntityMinecart cart) {
-			return new FurnaceBehavior(cart);
+		public ICartProfile createProfile(EntityMinecart cart) {
+			return new FurnaceProfile(cart);
 		}
 	}
 
@@ -33,8 +34,8 @@ public class FurnaceBehavior extends CartBehavior {
 	private boolean prevPowered;
 	private short fuel;
 
-	public ItemStack getFurnaceStack() {
-		return new ItemStack(this.powered ? Blocks.LIT_FURNACE : Blocks.FURNACE);
+	public IBlockState getFurnaceState() {
+		return (this.powered ? Blocks.LIT_FURNACE : Blocks.FURNACE).getDefaultState();
 	}
 
 	public void setPowered(boolean powered) {
@@ -42,13 +43,8 @@ public class FurnaceBehavior extends CartBehavior {
 		this.powered = powered;
 	}
 
-	public FurnaceBehavior(EntityMinecart cart) {
+	public FurnaceProfile(EntityMinecart cart) {
 		super(cart);
-	}
-
-	@Override
-	public double getMaxCartSpeed() {
-		return 0.2D;
 	}
 
 	@Override
@@ -61,7 +57,7 @@ public class FurnaceBehavior extends CartBehavior {
 	}
 
 	@Override
-	public ICartBehavior deserialize(NBTTagCompound tag) {
+	public ICartProfile deserialize(NBTTagCompound tag) {
 		super.deserialize(tag);
 		this.powered = tag.getBoolean("Powered");
 		this.prevPowered = tag.getBoolean("PrevPowered");
@@ -80,11 +76,11 @@ public class FurnaceBehavior extends CartBehavior {
 		this.setPowered(this.fuel > 0);
 
 		if (this.powered && world.rand.nextInt(4) == 0) {
-			MetalTransport.NETWORK.sendToAllAround(new SpawnSmokeParticles(pos), world, pos);
+			MetalTransport.NETWORK.sendToAllAround(new SpawnSmokeParticles(pos));
 		}
 
 		if (this.prevPowered != this.powered) {
-			
+			cart.setDisplayTile(getFurnaceState());
 		}
 	}
 

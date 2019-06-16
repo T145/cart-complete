@@ -1,9 +1,10 @@
-package T145.metaltransport.network.client;
+package T145.metaltransport.net.client;
 
 import java.io.IOException;
 import java.util.List;
 
 import T145.metaltransport.entities.EntityMetalMinecart;
+import T145.tbone.api.network.IWorldPositionedMessage;
 import T145.tbone.network.TMessage;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -11,14 +12,26 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-public class SyncBehaviorWithClient extends TMessage {
+public class SyncProfileWithClient extends TMessage implements IWorldPositionedMessage {
 
-	protected BlockPos pos;
+	private BlockPos pos;
 
-	public SyncBehaviorWithClient() {}
+	public SyncProfileWithClient() {
+		// DEFAULT CONSTRUCTOR REQUIRED
+	}
 
-	public SyncBehaviorWithClient(BlockPos pos) {
+	public SyncProfileWithClient(BlockPos pos) {
 		this.pos = pos;
+	}
+
+	@Override
+	public BlockPos getPos() {
+		return pos;
+	}
+
+	@Override
+	public World getWorld() {
+		return this.getClientWorld();
 	}
 
 	@Override
@@ -33,13 +46,13 @@ public class SyncBehaviorWithClient extends TMessage {
 
 	@Override
 	public void process(MessageContext buf) {
-		World world = this.getClientWorld();
+		World client = this.getWorld();
 
-		if (world != null) {
-			List<EntityMetalMinecart> carts = world.getEntitiesWithinAABB(EntityMetalMinecart.class, new AxisAlignedBB(pos));
+		if (client != null) {
+			List<EntityMetalMinecart> carts = client.getEntitiesWithinAABB(EntityMetalMinecart.class, new AxisAlignedBB(pos));
 
 			if (!carts.isEmpty()) {
-				carts.get(0).setBehavior();
+				carts.get(0).setCartProfile();
 			}
 		}
 	}

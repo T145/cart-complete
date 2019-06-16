@@ -1,8 +1,7 @@
-package T145.metaltransport.entities.behaviors;
+package T145.metaltransport.entities.profiles;
 
-import T145.metaltransport.api.carts.CartBehavior;
-import T145.metaltransport.api.carts.ICartBehavior;
-import T145.metaltransport.api.carts.ICartBehaviorFactory;
+import T145.metaltransport.api.carts.CartProfile;
+import T145.metaltransport.api.carts.ICartProfileFactory;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -15,19 +14,19 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class JukeboxBehavior extends CartBehavior {
+public class JukeboxProfile extends CartProfile {
 
-	public static class JukeboxBehaviorFactory implements ICartBehaviorFactory {
+	public static class JukeboxProfileFactory implements ICartProfileFactory {
 
 		@Override
-		public ICartBehavior createBehavior(EntityMinecart cart) {
-			return new JukeboxBehavior(cart);
+		public JukeboxProfile createProfile(EntityMinecart cart) {
+			return new JukeboxProfile(cart);
 		}
 	}
 
 	private ItemStack record = ItemStack.EMPTY;
 
-	public JukeboxBehavior(EntityMinecart cart) {
+	public JukeboxProfile(EntityMinecart cart) {
 		super(cart);
 	}
 
@@ -51,7 +50,7 @@ public class JukeboxBehavior extends CartBehavior {
 	}
 
 	@Override
-	public JukeboxBehavior deserialize(NBTTagCompound tag) {
+	public JukeboxProfile deserialize(NBTTagCompound tag) {
 		super.deserialize(tag);
 
 		if (tag.hasKey("RecordItem", 10)) {
@@ -104,14 +103,14 @@ public class JukeboxBehavior extends CartBehavior {
 	}
 
 	@Override
-	public void killMinecart(DamageSource source, boolean dropItems) {
+	public void killCart(DamageSource source, boolean dropItems) {
 		if (dropItems) {
 			this.dropRecord();
 		}
 	}
 
 	@Override
-	public void onDeath() {
+	public void onCartDeath() {
 		this.stopPlaying();
 	}
 }

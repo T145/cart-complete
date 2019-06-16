@@ -1,10 +1,9 @@
-package T145.metaltransport.entities.behaviors;
+package T145.metaltransport.entities.profiles;
 
-import T145.metaltransport.api.carts.CartBehavior;
-import T145.metaltransport.api.carts.ICartBehavior;
-import T145.metaltransport.api.carts.ICartBehaviorFactory;
-import T145.metaltransport.core.MetalTransport;
-import T145.metaltransport.network.client.SyncMobSpawnerWithClient;
+import T145.metaltransport.MetalTransport;
+import T145.metaltransport.api.carts.CartProfile;
+import T145.metaltransport.api.carts.ICartProfileFactory;
+import T145.metaltransport.net.client.SyncMobSpawnerWithClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.nbt.NBTTagCompound;
@@ -12,13 +11,13 @@ import net.minecraft.tileentity.MobSpawnerBaseLogic;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class MobSpawnerBehavior extends CartBehavior {
+public class MobSpawnerProfile extends CartProfile {
 
-	public static class MobSpawnerBehaviorFactory implements ICartBehaviorFactory {
+	public static class MobSpawnerProfileFactory implements ICartProfileFactory {
 
 		@Override
-		public ICartBehavior createBehavior(EntityMinecart cart) {
-			return new MobSpawnerBehavior(cart);
+		public MobSpawnerProfile createProfile(EntityMinecart cart) {
+			return new MobSpawnerProfile(cart);
 		}
 	}
 
@@ -41,11 +40,11 @@ public class MobSpawnerBehavior extends CartBehavior {
 
 		@Override
 		public Entity getSpawnerEntity() {
-			return MobSpawnerBehavior.this.getCart();
+			return MobSpawnerProfile.this.getCart();
 		}
 	};
 
-	public MobSpawnerBehavior(EntityMinecart cart) {
+	public MobSpawnerProfile(EntityMinecart cart) {
 		super(cart);
 	}
 
@@ -57,7 +56,7 @@ public class MobSpawnerBehavior extends CartBehavior {
 	}
 
 	@Override
-	public ICartBehavior deserialize(NBTTagCompound tag) {
+	public MobSpawnerProfile deserialize(NBTTagCompound tag) {
 		super.deserialize(tag);
 		this.logic.readFromNBT(tag);
 		return this;
@@ -66,6 +65,6 @@ public class MobSpawnerBehavior extends CartBehavior {
 	@Override
 	public void tickServer(World world, BlockPos pos) {
 		this.logic.updateSpawner();
-		MetalTransport.NETWORK.sendToAllAround(new SyncMobSpawnerWithClient(pos), world, pos);
+		MetalTransport.NETWORK.sendToAllAround(new SyncMobSpawnerWithClient(pos));
 	}
 }

@@ -1,7 +1,7 @@
 package T145.metaltransport.items;
 
-import T145.metaltransport.api.constants.CartType;
-import T145.metaltransport.api.constants.RegistryMT;
+import T145.metaltransport.api.consts.CartType;
+import T145.metaltransport.api.consts.RegistryMT;
 import T145.metaltransport.entities.EntityMetalMinecart;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
 import T145.tbone.items.TItem;

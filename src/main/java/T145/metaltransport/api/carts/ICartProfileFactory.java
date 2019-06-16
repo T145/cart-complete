@@ -4,8 +4,8 @@ import javax.annotation.Nonnull;
 
 import net.minecraft.entity.item.EntityMinecart;
 
-public interface ICartBehaviorFactory {
+public interface ICartProfileFactory {
 
 	@Nonnull
-	ICartBehavior createBehavior(EntityMinecart cart);
+	ICartProfile createProfile(EntityMinecart cart);
 }

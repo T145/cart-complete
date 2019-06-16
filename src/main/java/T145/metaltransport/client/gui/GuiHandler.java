@@ -1,6 +1,6 @@
 package T145.metaltransport.client.gui;
 
-import T145.metaltransport.core.MetalTransport;
+import T145.metaltransport.MetalTransport;
 import T145.metaltransport.entities.EntityMetalMinecart;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAnvil;
@@ -26,14 +26,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class GuiHandler implements IGuiHandler {
-
-	/*
-	 * TODO:
-	 * Come up w/ a mapped system to directly fetch containers & GUIs,
-	 * similar to how Cart Behaviors are handled.
-	 * 
-	 * - T145
-	 */
 
 	@Override
 	public Container getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
@@ -107,7 +99,7 @@ public class GuiHandler implements IGuiHandler {
 									++dmg;
 
 									if (dmg > 2) {
-										cart.setDisplayStack(ItemStack.EMPTY).setBehavior();
+										cart.setDisplayStack(ItemStack.EMPTY).setCartProfile();
 										world.playEvent(1029, pos, 0);
 									} else {
 										cart.setDisplayStack(new ItemStack(Blocks.ANVIL, 1, dmg));

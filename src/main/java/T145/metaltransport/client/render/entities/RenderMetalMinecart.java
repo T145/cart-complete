@@ -1,6 +1,7 @@
 package T145.metaltransport.client.render.entities;
 
 import T145.metaltransport.entities.EntityMetalMinecart;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelMinecart;
@@ -8,7 +9,10 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -18,10 +22,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class RenderMetalMinecart extends Render<EntityMetalMinecart> {
 
-	protected ModelBase modelMinecart = new ModelMinecart();
+	private final ModelBase model = new ModelMinecart();
 
-	public RenderMetalMinecart(RenderManager renderManagerIn) {
-		super(renderManagerIn);
+	public RenderMetalMinecart(RenderManager manager) {
+		super(manager);
 		this.shadowSize = 0.5F;
 	}
 
@@ -87,12 +91,30 @@ public class RenderMetalMinecart extends Render<EntityMetalMinecart> {
 
 	public void renderDisplayStack(ItemStack stack) {
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(0, 0.3, 0);
+		GlStateManager.translate(0, 0.28, 0);
 		GlStateManager.rotate(90, 0, 1, 0);
 		GlStateManager.scale(1.5, 1.5, 1.5);
 		Minecraft.getMinecraft().getRenderItem().renderItem(stack, ItemCameraTransforms.TransformType.FIXED);
 		GlStateManager.color(1, 1, 1, 1);
 		GlStateManager.popMatrix();
+	}
+
+	public void renderDisplayTile(EntityMinecart cart) {
+		IBlockState state = cart.getDisplayTile();
+
+		if (state.getRenderType() != EnumBlockRenderType.INVISIBLE) {
+			GlStateManager.pushMatrix();
+			this.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+			GlStateManager.scale(0.75F, 0.75F, 0.75F);
+			GlStateManager.translate(-0.5F, (cart.getDisplayTileOffset() - 8) / 16.0F, 0.5F);
+
+			GlStateManager.pushMatrix();
+			Minecraft.getMinecraft().getBlockRendererDispatcher().renderBlockBrightness(state, cart.getBrightness());
+			GlStateManager.popMatrix();
+
+			GlStateManager.color(1, 1, 1, 1);
+			GlStateManager.popMatrix();
+		}
 	}
 
 	@Override
@@ -109,14 +131,16 @@ public class RenderMetalMinecart extends Render<EntityMetalMinecart> {
 
 		// behaves slightly better than the normal minecart:
 		// Normal renders air; I just don't call the code
-		if (cart.hasDisplayTile()) {
+		if (cart.hasDisplayStack()) {
 			this.renderDisplayStack(cart.getDisplayStack());
+		} else if (cart.hasDisplayTile()) {
+			this.renderDisplayTile(cart);
 		}
 
 		// render the cart itself
 		this.bindEntityTexture(cart);
-		GlStateManager.scale(-1.0F, -1.0F, 1.0F);
-		this.modelMinecart.render(cart, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
+		GlStateManager.scale(-1, -1, 1);
+		this.model.render(cart, 0, 0, -0.1F, 0, 0, 0.0625F);
 
 		if (this.renderOutlines) {
 			GlStateManager.disableOutlineMode();

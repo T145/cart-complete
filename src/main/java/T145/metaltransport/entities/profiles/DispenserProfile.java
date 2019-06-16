@@ -1,7 +1,6 @@
-package T145.metaltransport.entities.behaviors;
+package T145.metaltransport.entities.profiles;
 
-import T145.metaltransport.api.carts.ICartBehavior;
-import T145.metaltransport.api.carts.ICartBehaviorFactory;
+import T145.metaltransport.api.carts.ICartProfileFactory;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -10,17 +9,17 @@ import net.minecraft.inventory.ContainerDispenser;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.EnumHand;
 
-public class DispenserBehavior extends ChestBehavior {
+public class DispenserProfile extends ChestProfile {
 
-	public static class DispenserBehaviorFactory implements ICartBehaviorFactory {
+	public static class DispenserProfileFactory implements ICartProfileFactory {
 
 		@Override
-		public ICartBehavior createBehavior(EntityMinecart cart) {
-			return new DispenserBehavior(cart);
+		public DispenserProfile createProfile(EntityMinecart cart) {
+			return new DispenserProfile(cart);
 		}
 	}
 
-	public DispenserBehavior(EntityMinecart cart) {
+	public DispenserProfile(EntityMinecart cart) {
 		super(cart, 9);
 	}
 
@@ -29,7 +28,7 @@ public class DispenserBehavior extends ChestBehavior {
 		super.activate(player, hand);
 
 		if (!player.world.isRemote) {
-			if (this instanceof DropperBehavior) {
+			if (this instanceof DropperProfile) {
 				player.addStat(StatList.DROPPER_INSPECTED);
 			} else {
 				player.addStat(StatList.DISPENSER_INSPECTED);

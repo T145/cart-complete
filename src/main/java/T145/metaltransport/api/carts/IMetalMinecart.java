@@ -13,7 +13,6 @@ public interface IMetalMinecart {
 	public static final String TAG_DISPLAY_STACK = "DisplayStack";
 	public static final String TAG_HAS_STACK = "HasStack";
 	public static final String TAG_CART_PROFILE = "CartProfile";
-	public static final String TAG_HAS_PROFILE = "HasProfile";
 
 	CartType getCartType();
 

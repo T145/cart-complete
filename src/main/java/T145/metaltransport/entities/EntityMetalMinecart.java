@@ -266,7 +266,7 @@ public class EntityMetalMinecart extends EntityMinecart implements IMetalMinecar
 			super.readEntityFromNBT(tag);
 		}
 
-		if (tag.hasKey(TAG_HAS_PROFILE)) {
+		if (tag.hasKey(TAG_CART_PROFILE)) {
 			Block block = this.getDisplayBlock();
 			ResourceLocation key = block.getRegistryName();
 
@@ -288,7 +288,6 @@ public class EntityMetalMinecart extends EntityMinecart implements IMetalMinecar
 		}
 
 		this.profile.ifPresent(profile -> {
-			tag.setByte(TAG_HAS_PROFILE, (byte) 1);
 			tag.setTag(TAG_CART_PROFILE, profile.serialize());
 		});
 	}

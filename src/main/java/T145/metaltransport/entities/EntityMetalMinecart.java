@@ -73,9 +73,6 @@ public class EntityMetalMinecart extends EntityMinecart implements IMetalMinecar
 		this.rotationPitch = cart.rotationPitch;
 		this.prevRotationYaw = cart.prevRotationYaw;
 		this.prevRotationPitch = cart.prevRotationPitch;
-		this.lastTickPosX = cart.lastTickPosX;
-		this.lastTickPosY = cart.lastTickPosY;
-		this.lastTickPosZ = cart.lastTickPosZ;
 	}
 
 	@Override

@@ -129,6 +129,13 @@ public class RenderMetalMinecart extends Render<EntityMetalMinecart> {
 			GlStateManager.enableOutlineMode(this.getTeamColor(cart));
 		}
 
+		// render the cart itself
+		GlStateManager.pushMatrix();
+		this.bindEntityTexture(cart);
+		GlStateManager.scale(-1, -1, 1);
+		this.model.render(cart, 0, 0, -0.1F, 0, 0, 0.0625F);
+		GlStateManager.popMatrix();
+
 		// behaves slightly better than the normal minecart:
 		// Normal renders air; I just don't call the code
 		if (cart.hasDisplayStack()) {
@@ -136,11 +143,6 @@ public class RenderMetalMinecart extends Render<EntityMetalMinecart> {
 		} else if (cart.hasDisplayTile()) {
 			this.renderDisplayTile(cart);
 		}
-
-		// render the cart itself
-		this.bindEntityTexture(cart);
-		GlStateManager.scale(-1, -1, 1);
-		this.model.render(cart, 0, 0, -0.1F, 0, 0, 0.0625F);
 
 		if (this.renderOutlines) {
 			GlStateManager.disableOutlineMode();

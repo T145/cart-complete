@@ -101,7 +101,7 @@ public class ChestProfile extends CartProfile implements IInventoryLootHandler {
 
 	@Override
 	public String getGuiID() {
-		return "minecraft.chest";
+		return "minecraft:chest";
 	}
 
 	@Override

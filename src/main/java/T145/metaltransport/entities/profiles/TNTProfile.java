@@ -21,7 +21,7 @@ public class TNTProfile extends CartProfile {
 	public static class TNTBehaviorFactory implements ICartProfileFactory {
 
 		@Override
-		public TNTProfile createProfile(EntityMinecart cart) {
+		public TNTProfile create(EntityMinecart cart) {
 			return new TNTProfile(cart);
 		}
 	}

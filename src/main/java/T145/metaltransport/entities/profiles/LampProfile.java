@@ -13,7 +13,7 @@ public class LampProfile extends CartProfile {
 	public static class LampProfileFactory implements ICartProfileFactory {
 
 		@Override
-		public LampProfile createProfile(EntityMinecart cart) {
+		public LampProfile create(EntityMinecart cart) {
 			return new LampProfile(cart);
 		}
 	}

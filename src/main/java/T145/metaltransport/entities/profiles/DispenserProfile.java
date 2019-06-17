@@ -14,7 +14,7 @@ public class DispenserProfile extends ChestProfile {
 	public static class DispenserProfileFactory implements ICartProfileFactory {
 
 		@Override
-		public DispenserProfile createProfile(EntityMinecart cart) {
+		public DispenserProfile create(EntityMinecart cart) {
 			return new DispenserProfile(cart);
 		}
 	}

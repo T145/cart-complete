@@ -165,7 +165,7 @@ public class EntityMetalMinecart extends EntityMinecart implements IMetalMinecar
 			ResourceLocation key = block.getRegistryName();
 
 			if (CartProfileRegistry.contains(key)) {
-				this.profile = Optional.of(CartProfileRegistry.get(key).createProfile(this));
+				this.profile = Optional.of(CartProfileRegistry.get(key).create(this));
 			} else {
 				this.profile = Optional.empty();
 			}
@@ -271,7 +271,7 @@ public class EntityMetalMinecart extends EntityMinecart implements IMetalMinecar
 			ResourceLocation key = block.getRegistryName();
 
 			if (CartProfileRegistry.contains(key)) {
-				this.profile = Optional.of(CartProfileRegistry.get(key).createProfile(this).deserialize(tag.getCompoundTag(TAG_CART_PROFILE)));
+				this.profile = Optional.of(CartProfileRegistry.get(key).create(this).deserialize(tag.getCompoundTag(TAG_CART_PROFILE)));
 			}
 		}
 	}

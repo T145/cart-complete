@@ -12,7 +12,7 @@ public class EnderChestProfile extends CartProfile {
 	public static class EnderChestProfileFactory implements ICartProfileFactory {
 
 		@Override
-		public EnderChestProfile createProfile(EntityMinecart cart) {
+		public EnderChestProfile create(EntityMinecart cart) {
 			return new EnderChestProfile(cart);
 		}
 	}

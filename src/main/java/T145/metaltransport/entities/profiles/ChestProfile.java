@@ -21,7 +21,7 @@ public class ChestProfile extends CartProfile implements IInventoryLootHandler {
 	public static class ChestProfileFactory implements ICartProfileFactory {
 
 		@Override
-		public ChestProfile createProfile(EntityMinecart cart) {
+		public ChestProfile create(EntityMinecart cart) {
 			return new ChestProfile(cart);
 		}
 	}

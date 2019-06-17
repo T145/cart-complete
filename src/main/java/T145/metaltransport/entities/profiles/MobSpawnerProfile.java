@@ -16,7 +16,7 @@ public class MobSpawnerProfile extends CartProfile {
 	public static class MobSpawnerProfileFactory implements ICartProfileFactory {
 
 		@Override
-		public MobSpawnerProfile createProfile(EntityMinecart cart) {
+		public MobSpawnerProfile create(EntityMinecart cart) {
 			return new MobSpawnerProfile(cart);
 		}
 	}

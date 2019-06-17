@@ -19,7 +19,7 @@ public class JukeboxProfile extends CartProfile {
 	public static class JukeboxProfileFactory implements ICartProfileFactory {
 
 		@Override
-		public JukeboxProfile createProfile(EntityMinecart cart) {
+		public JukeboxProfile create(EntityMinecart cart) {
 			return new JukeboxProfile(cart);
 		}
 	}

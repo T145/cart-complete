@@ -8,7 +8,7 @@ public class DropperProfile extends DispenserProfile {
 	public static class DropperProfileFactory implements ICartProfileFactory {
 
 		@Override
-		public DropperProfile createProfile(EntityMinecart cart) {
+		public DropperProfile create(EntityMinecart cart) {
 			return new DropperProfile(cart);
 		}
 	}

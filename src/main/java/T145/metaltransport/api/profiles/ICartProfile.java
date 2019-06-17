@@ -8,7 +8,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public interface ICartProfile extends IProfile {
+public interface ICartProfile extends ISerialProfile {
 
 	@Override
 	ICartProfile deserialize(NBTTagCompound tag);

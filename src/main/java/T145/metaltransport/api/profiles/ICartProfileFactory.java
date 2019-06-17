@@ -1,11 +1,9 @@
 package T145.metaltransport.api.profiles;
 
-import javax.annotation.Nonnull;
-
 import net.minecraft.entity.item.EntityMinecart;
 
-public interface ICartProfileFactory {
+public interface ICartProfileFactory extends IFactory<EntityMinecart> {
 
-	@Nonnull
-	ICartProfile createProfile(EntityMinecart cart);
+	@Override
+	ICartProfile create(EntityMinecart cart);
 }

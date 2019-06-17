@@ -21,7 +21,7 @@ public class FurnaceProfile extends CartProfile {
 	public static class FurnaceProfileFactory implements ICartProfileFactory {
 
 		@Override
-		public ICartProfile createProfile(EntityMinecart cart) {
+		public ICartProfile create(EntityMinecart cart) {
 			return new FurnaceProfile(cart);
 		}
 	}

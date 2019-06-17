@@ -16,7 +16,7 @@ public class SimpleGuiProfile extends CartProfile {
 	public static class SimpleGuiProfileFactory implements ICartProfileFactory {
 
 		@Override
-		public SimpleGuiProfile createProfile(EntityMinecart cart) {
+		public SimpleGuiProfile create(EntityMinecart cart) {
 			return new SimpleGuiProfile(cart);
 		}
 	}

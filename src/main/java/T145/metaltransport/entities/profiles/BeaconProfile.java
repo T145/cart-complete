@@ -40,7 +40,7 @@ public class BeaconProfile extends ChestProfile {
 	public static class BeaconProfileFactory implements ICartProfileFactory {
 
 		@Override
-		public BeaconProfile createProfile(EntityMinecart cart) {
+		public BeaconProfile create(EntityMinecart cart) {
 			return new BeaconProfile(cart);
 		}
 	}

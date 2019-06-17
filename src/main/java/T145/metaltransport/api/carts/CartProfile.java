@@ -6,6 +6,7 @@ import java.util.UUID;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 import T145.metaltransport.api.consts.RegistryMT;
+import T145.metaltransport.api.profiles.ICartProfile;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;

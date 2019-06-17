@@ -1,4 +1,4 @@
-package T145.metaltransport.api.carts;
+package T145.metaltransport.api.profiles;
 
 import javax.annotation.Nonnull;
 

@@ -1,8 +1,8 @@
 package T145.metaltransport.entities.profiles;
 
 import T145.metaltransport.api.carts.CartProfile;
-import T145.metaltransport.api.carts.ICartProfileFactory;
 import T145.metaltransport.api.consts.RegistryMT;
+import T145.metaltransport.api.profiles.ICartProfileFactory;
 import T145.metaltransport.entities.EntityMetalMinecart;
 import net.minecraft.block.BlockWorkbench;
 import net.minecraft.entity.item.EntityMinecart;

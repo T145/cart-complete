@@ -1,4 +1,4 @@
-package T145.metaltransport.api;
+package T145.metaltransport.api.profiles;
 
 import net.minecraft.nbt.NBTTagCompound;
 

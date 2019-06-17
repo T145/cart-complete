@@ -3,6 +3,7 @@ package T145.metaltransport.api.carts;
 import java.util.HashMap;
 import java.util.Map;
 
+import T145.metaltransport.api.profiles.ICartProfileFactory;
 import net.minecraft.block.Block;
 import net.minecraft.util.ResourceLocation;
 

@@ -1,6 +1,6 @@
 package T145.metaltransport.entities.profiles;
 
-import T145.metaltransport.api.carts.ICartProfileFactory;
+import T145.metaltransport.api.profiles.ICartProfileFactory;
 import net.minecraft.entity.item.EntityMinecart;
 
 public class DropperProfile extends DispenserProfile {

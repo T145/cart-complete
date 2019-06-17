@@ -2,7 +2,7 @@ package T145.metaltransport.entities.profiles;
 
 import T145.metaltransport.MetalTransport;
 import T145.metaltransport.api.carts.CartProfile;
-import T145.metaltransport.api.carts.ICartProfileFactory;
+import T145.metaltransport.api.profiles.ICartProfileFactory;
 import T145.metaltransport.net.client.SyncMobSpawnerWithClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;

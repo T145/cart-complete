@@ -1,6 +1,5 @@
-package T145.metaltransport.api.carts;
+package T145.metaltransport.api.profiles;
 
-import T145.metaltransport.api.IProfile;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;

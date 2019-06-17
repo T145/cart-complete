@@ -3,6 +3,7 @@ package T145.metaltransport.api.carts;
 import java.util.Optional;
 
 import T145.metaltransport.api.consts.CartType;
+import T145.metaltransport.api.profiles.ICartProfile;
 import net.minecraft.block.Block;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.item.ItemStack;

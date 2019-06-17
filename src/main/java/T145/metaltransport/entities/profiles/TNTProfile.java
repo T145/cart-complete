@@ -4,7 +4,7 @@ import java.util.Random;
 
 import T145.metaltransport.MetalTransport;
 import T145.metaltransport.api.carts.CartProfile;
-import T145.metaltransport.api.carts.ICartProfileFactory;
+import T145.metaltransport.api.profiles.ICartProfileFactory;
 import T145.metaltransport.net.client.SpawnSmokeParticles;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;

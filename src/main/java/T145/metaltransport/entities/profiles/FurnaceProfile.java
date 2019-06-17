@@ -2,8 +2,8 @@ package T145.metaltransport.entities.profiles;
 
 import T145.metaltransport.MetalTransport;
 import T145.metaltransport.api.carts.CartProfile;
-import T145.metaltransport.api.carts.ICartProfile;
-import T145.metaltransport.api.carts.ICartProfileFactory;
+import T145.metaltransport.api.profiles.ICartProfile;
+import T145.metaltransport.api.profiles.ICartProfileFactory;
 import T145.metaltransport.net.client.SpawnSmokeParticles;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityMinecart;

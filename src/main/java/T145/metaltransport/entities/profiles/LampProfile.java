@@ -1,7 +1,7 @@
 package T145.metaltransport.entities.profiles;
 
 import T145.metaltransport.api.carts.CartProfile;
-import T145.metaltransport.api.carts.ICartProfileFactory;
+import T145.metaltransport.api.profiles.ICartProfileFactory;
 import net.minecraft.block.BlockRailPowered;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityMinecart;

@@ -4,11 +4,11 @@ import java.util.Optional;
 
 import T145.metaltransport.MetalTransport;
 import T145.metaltransport.api.carts.CartProfileRegistry;
-import T145.metaltransport.api.carts.ICartProfile;
 import T145.metaltransport.api.carts.IMetalMinecart;
 import T145.metaltransport.api.consts.CartType;
 import T145.metaltransport.api.obj.ItemsMT;
 import T145.metaltransport.api.obj.SerializersMT;
+import T145.metaltransport.api.profiles.ICartProfile;
 import T145.metaltransport.net.client.SyncProfileWithClient;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockChest;

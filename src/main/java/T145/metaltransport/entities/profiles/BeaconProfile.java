@@ -32,9 +32,8 @@ import net.minecraft.tileentity.TileEntityBeacon.BeamSegment;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class BeaconProfile extends ChestProfile {
 
@@ -47,6 +46,7 @@ public class BeaconProfile extends ChestProfile {
 	}
 
 	private final Range<Double> speedRange = Range.closed(-0.14D, 0.14D);
+	private final MutableBlockPos railCenter = new MutableBlockPos();
 
 	public boolean isComplete;
 	private int levels = -1;
@@ -55,20 +55,14 @@ public class BeaconProfile extends ChestProfile {
 	private ItemStack payment = ItemStack.EMPTY;
 
 	// CLIENT-SIDE VARS
-
 	public final List<BeamSegment> beamSegments = new ArrayList<>();
-
-	@SideOnly(Side.CLIENT)
 	public long beamRenderCounter;
-
-	@SideOnly(Side.CLIENT)
 	public float beamRenderScale;
 
 	public BeaconProfile(EntityMinecart cart) {
 		super(cart, 1);
 	}
 
-	@SideOnly(Side.CLIENT)
 	public float getTextureScale(World client) {
 		if (!this.isComplete) {
 			return 0.0F;
@@ -264,6 +258,10 @@ public class BeaconProfile extends ChestProfile {
 			cart.motionX = 0;
 			cart.motionY = 0;
 			cart.motionZ = 0;
+
+			if (!cart.getPosition().equals(this.railCenter.setPos(x, y, z))) {
+				cart.setPosition(x, y, z);
+			}
 		}
 	}
 

@@ -11,6 +11,7 @@ import T145.metaltransport.api.obj.SerializersMT;
 import T145.metaltransport.client.gui.GuiHandler;
 import T145.metaltransport.client.render.entities.RenderMetalMinecart;
 import T145.metaltransport.entities.EntityMetalMinecart;
+import T145.metaltransport.entities.profiles.BeaconProfile;
 import T145.metaltransport.entities.profiles.ChestProfile;
 import T145.metaltransport.entities.profiles.DispenserProfile;
 import T145.metaltransport.entities.profiles.DropperProfile;
@@ -150,6 +151,7 @@ public class MetalTransport {
 		CartProfileRegistry.register(Blocks.JUKEBOX, new JukeboxProfile.JukeboxProfileFactory());
 		CartProfileRegistry.register(Blocks.TNT, new TNTProfile.TNTBehaviorFactory());
 		CartProfileRegistry.register(Blocks.MOB_SPAWNER, new MobSpawnerProfile.MobSpawnerProfileFactory());
+		CartProfileRegistry.register(Blocks.BEACON, new BeaconProfile.BeaconProfileFactory());
 	}
 
 	@SubscribeEvent

@@ -1,13 +1,15 @@
 package T145.metaltransport.api.profiles;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface ICartProfile extends ISerialProfile {
 
@@ -34,5 +36,6 @@ public interface ICartProfile extends ISerialProfile {
 
 	void applyDrag();
 
-	TileEntityItemStackRenderer getStackRenderer();
+	@SideOnly(Side.CLIENT)
+	void render(BlockPos pos, ItemStack stack, float partialTicks);
 }

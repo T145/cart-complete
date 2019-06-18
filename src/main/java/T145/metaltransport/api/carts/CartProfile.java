@@ -8,16 +8,18 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 import T145.metaltransport.api.consts.RegistryMT;
 import T145.metaltransport.api.profiles.ICartProfile;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class CartProfile implements ICartProfile {
 
@@ -98,8 +100,7 @@ public class CartProfile implements ICartProfile {
 	@Override
 	public void applyDrag() {}
 
+	@SideOnly(Side.CLIENT)
 	@Override
-	public TileEntityItemStackRenderer getStackRenderer() {
-		return TileEntityItemStackRenderer.instance;
-	}
+	public void render(BlockPos pos, ItemStack stack, float partialTicks) {}
 }

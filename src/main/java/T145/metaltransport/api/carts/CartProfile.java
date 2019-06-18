@@ -8,6 +8,7 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 import T145.metaltransport.api.consts.RegistryMT;
 import T145.metaltransport.api.profiles.ICartProfile;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
@@ -96,4 +97,9 @@ public class CartProfile implements ICartProfile {
 
 	@Override
 	public void applyDrag() {}
+
+	@Override
+	public TileEntityItemStackRenderer getStackRenderer() {
+		return TileEntityItemStackRenderer.instance;
+	}
 }

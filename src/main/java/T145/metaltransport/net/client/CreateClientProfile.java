@@ -12,15 +12,15 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-public class SyncProfileWithClient extends TMessage implements IWorldPositionedMessage {
+public class CreateClientProfile extends TMessage implements IWorldPositionedMessage {
 
 	private BlockPos pos;
 
-	public SyncProfileWithClient() {
+	public CreateClientProfile() {
 		// DEFAULT CONSTRUCTOR REQUIRED
 	}
 
-	public SyncProfileWithClient(BlockPos pos) {
+	public CreateClientProfile(BlockPos pos) {
 		this.pos = pos;
 	}
 

@@ -1,6 +1,7 @@
 package T145.metaltransport.api.profiles;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
@@ -32,4 +33,6 @@ public interface ICartProfile extends ISerialProfile {
 	void moveAlongTrack(BlockPos pos, IBlockState rail);
 
 	void applyDrag();
+
+	TileEntityItemStackRenderer getStackRenderer();
 }

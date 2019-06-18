@@ -15,6 +15,7 @@ import T145.metaltransport.entities.profiles.BeaconProfile;
 import T145.metaltransport.entities.profiles.ChestProfile;
 import T145.metaltransport.entities.profiles.DispenserProfile;
 import T145.metaltransport.entities.profiles.DropperProfile;
+import T145.metaltransport.entities.profiles.EnchantingTableProfile;
 import T145.metaltransport.entities.profiles.EnderChestProfile;
 import T145.metaltransport.entities.profiles.FurnaceProfile;
 import T145.metaltransport.entities.profiles.JukeboxProfile;
@@ -142,7 +143,6 @@ public class MetalTransport {
 		CartProfileRegistry.register(Blocks.FURNACE, new FurnaceProfile.FurnaceProfileFactory());
 		CartProfileRegistry.register(Blocks.LIT_FURNACE, new FurnaceProfile.FurnaceProfileFactory());
 		CartProfileRegistry.register(Blocks.CRAFTING_TABLE, new SimpleGuiProfile.SimpleGuiProfileFactory());
-		CartProfileRegistry.register(Blocks.ENCHANTING_TABLE, new SimpleGuiProfile.SimpleGuiProfileFactory());
 		CartProfileRegistry.register(Blocks.ANVIL, new SimpleGuiProfile.SimpleGuiProfileFactory());
 		CartProfileRegistry.register(Blocks.CHEST, new ChestProfile.ChestProfileFactory());
 		CartProfileRegistry.register(Blocks.TRAPPED_CHEST, new ChestProfile.ChestProfileFactory());
@@ -150,6 +150,9 @@ public class MetalTransport {
 		CartProfileRegistry.register(Blocks.DROPPER, new DropperProfile.DropperProfileFactory());
 		CartProfileRegistry.register(Blocks.JUKEBOX, new JukeboxProfile.JukeboxProfileFactory());
 		CartProfileRegistry.register(Blocks.TNT, new TNTProfile.TNTBehaviorFactory());
+
+		// have custom renders, and need packets to update them
+		CartProfileRegistry.register(Blocks.ENCHANTING_TABLE, new EnchantingTableProfile.EnchantingTableProfileFactory());
 		CartProfileRegistry.register(Blocks.MOB_SPAWNER, new MobSpawnerProfile.MobSpawnerProfileFactory());
 		CartProfileRegistry.register(Blocks.BEACON, new BeaconProfile.BeaconProfileFactory());
 	}

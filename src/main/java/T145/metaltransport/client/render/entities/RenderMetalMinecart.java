@@ -144,6 +144,13 @@ public class RenderMetalMinecart extends Render<EntityMetalMinecart> {
 			this.renderDisplayTile(cart);
 		}
 
+		cart.getCartProfile().ifPresent(profile -> {
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(-0.5, -0.25, -0.5);
+			profile.getStackRenderer().renderByItem(cart.getDisplayStack(), partialTicks);
+			GlStateManager.popMatrix();
+		});
+
 		if (this.renderOutlines) {
 			GlStateManager.disableOutlineMode();
 			GlStateManager.disableColorMaterial();

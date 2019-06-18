@@ -9,7 +9,7 @@ import T145.metaltransport.api.consts.CartType;
 import T145.metaltransport.api.obj.ItemsMT;
 import T145.metaltransport.api.obj.SerializersMT;
 import T145.metaltransport.api.profiles.ICartProfile;
-import T145.metaltransport.net.client.SyncProfileWithClient;
+import T145.metaltransport.net.client.CreateClientProfile;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockChest;
 import net.minecraft.block.BlockCommandBlock;
@@ -173,7 +173,7 @@ public class EntityMetalMinecart extends EntityMinecart implements IMetalMinecar
 			this.profile = Optional.empty();
 		}
 
-		MetalTransport.NETWORK.sendToAllAround(new SyncProfileWithClient(this.getPosition()));
+		MetalTransport.NETWORK.sendToAllAround(new CreateClientProfile(this.getPosition()));
 
 		return this;
 	}

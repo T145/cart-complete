@@ -1,5 +1,6 @@
 package T145.metaltransport.client.render.entities;
 
+import T145.metaltransport.api.client.IPositionedTEISR;
 import T145.metaltransport.entities.EntityMetalMinecart;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -10,10 +11,12 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
@@ -147,6 +150,17 @@ public class RenderMetalMinecart extends Render<EntityMetalMinecart> {
 		cart.getCartProfile().ifPresent(profile -> {
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(-0.5, -0.25, -0.5);
+			TileEntityItemStackRenderer render = profile.getStackRenderer();
+
+			if (render instanceof IPositionedTEISR) {
+				BlockPos pos = cart.getPosition();
+				IPositionedTEISR teisr = (IPositionedTEISR) render;
+
+				if (teisr.getPos() != pos) {
+					teisr.setPos(pos);
+				}
+			}
+
 			profile.getStackRenderer().renderByItem(cart.getDisplayStack(), partialTicks);
 			GlStateManager.popMatrix();
 		});

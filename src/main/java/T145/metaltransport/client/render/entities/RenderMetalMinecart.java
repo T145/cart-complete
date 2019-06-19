@@ -22,6 +22,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class RenderMetalMinecart extends Render<EntityMetalMinecart> {
 
+	private final Minecraft mc = Minecraft.getMinecraft();
 	private final ModelBase model = new ModelMinecart();
 
 	public RenderMetalMinecart(RenderManager manager) {
@@ -94,7 +95,7 @@ public class RenderMetalMinecart extends Render<EntityMetalMinecart> {
 		GlStateManager.translate(0, 0.28, 0);
 		GlStateManager.rotate(90, 0, 1, 0);
 		GlStateManager.scale(1.5, 1.5, 1.5);
-		Minecraft.getMinecraft().getRenderItem().renderItem(stack, ItemCameraTransforms.TransformType.FIXED);
+		mc.getRenderItem().renderItem(stack, ItemCameraTransforms.TransformType.FIXED);
 		GlStateManager.color(1, 1, 1, 1);
 		GlStateManager.popMatrix();
 	}
@@ -109,7 +110,7 @@ public class RenderMetalMinecart extends Render<EntityMetalMinecart> {
 			GlStateManager.translate(-0.5F, (cart.getDisplayTileOffset() - 8) / 16.0F, 0.5F);
 
 			GlStateManager.pushMatrix();
-			Minecraft.getMinecraft().getBlockRendererDispatcher().renderBlockBrightness(state, cart.getBrightness());
+			mc.getBlockRendererDispatcher().renderBlockBrightness(state, cart.getBrightness());
 			GlStateManager.popMatrix();
 
 			GlStateManager.color(1, 1, 1, 1);
@@ -146,7 +147,7 @@ public class RenderMetalMinecart extends Render<EntityMetalMinecart> {
 
 		cart.getCartProfile().ifPresent(profile -> {
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(-0.5, -0.25, -0.5);
+			GlStateManager.translate(-0.5, -0.23, -0.5);
 			profile.render(cart.getPosition(), cart.getDisplayStack(), partialTicks);
 			GlStateManager.popMatrix();
 		});

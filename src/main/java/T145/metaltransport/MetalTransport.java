@@ -10,8 +10,11 @@ import T145.metaltransport.capabilities.ModuleCartType;
 import T145.metaltransport.client.render.entities.RenderCart;
 import T145.metaltransport.entities.EntityFurnaceCart;
 import T145.metaltransport.items.ItemCart;
+import T145.metaltransport.net.PacketHandlerMT;
 import T145.tbone.core.TBone;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
+import T145.tbone.network.TPacketHandler;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -53,6 +56,7 @@ public class MetalTransport {
 
 	public static final String VERSION = "@VERSION@";
 	public static final String UPDATE_JSON = "https://raw.githubusercontent.com/T145/metaltransport/master/update.json";
+	public static final TPacketHandler NETWORK = new PacketHandlerMT();
 
 	public MetalTransport() {
 		TBone.registerMod(RegistryMT.ID, RegistryMT.NAME);
@@ -81,6 +85,7 @@ public class MetalTransport {
 		meta.url = "https://github.com/T145/metaltransport";
 		meta.useDependencyInformation = false;
 		meta.version = VERSION;
+		NETWORK.registerMessages();
 	}
 
 	@EventHandler
@@ -137,8 +142,7 @@ public class MetalTransport {
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	public static void metalchests$registerRecipes(RegistryEvent.Register<IRecipe> event) {
-	}
+	public static void metalchests$registerRecipes(RegistryEvent.Register<IRecipe> event) {}
 
 	@SubscribeEvent
 	public static void metaltransport$updateConfig(OnConfigChangedEvent event) {
@@ -146,41 +150,43 @@ public class MetalTransport {
 			ConfigManager.sync(RegistryMT.ID, Config.Type.INSTANCE);
 		}
 	}
+	
+	private static final ResourceLocation CAPABILITY_ID = RegistryMT.getResource("cart_type_cap");
 
 	@SubscribeEvent
-	public void metaltransport$attachCapabilities(AttachCapabilitiesEvent<EntityMinecart> event) {
-		EntityMinecart cart = event.getObject();
+	public static void metaltransport$attachCapabilities(AttachCapabilitiesEvent<Entity> event) {
+		if (event.getObject() instanceof EntityMinecart) {
+			event.addCapability(CAPABILITY_ID, new ICapabilitySerializable<NBTTagCompound>() {
 
-		event.addCapability(RegistryMT.getResource("cart_type"), new ICapabilitySerializable<NBTTagCompound>() {
+				final ModuleCartType moduleCartType = new ModuleCartType();
 
-			final ModuleCartType moduleCartType = new ModuleCartType();
-
-			@Override
-			public NBTTagCompound serializeNBT() {
-				return moduleCartType.serializeNBT();
-			}
-
-			@Override
-			public void deserializeNBT(NBTTagCompound tag) {
-				moduleCartType.deserializeNBT(tag);
-			}
-
-			@Override
-			public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
-				if (capability == CAP_CART_TYPE) {
-					return true;
+				@Override
+				public NBTTagCompound serializeNBT() {
+					return moduleCartType.serializeNBT();
 				}
-				return false;
-			}
 
-			@Nullable
-			@Override
-			public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
-				if (capability == CAP_CART_TYPE) {
-					return (T) moduleCartType;
+				@Override
+				public void deserializeNBT(NBTTagCompound tag) {
+					moduleCartType.deserializeNBT(tag);
 				}
-				return null;
-			}
-		});
+
+				@Override
+				public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
+					if (capability == CAP_CART_TYPE) {
+						return true;
+					}
+					return false;
+				}
+
+				@Nullable
+				@Override
+				public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
+					if (capability == CAP_CART_TYPE) {
+						return (T) moduleCartType;
+					}
+					return null;
+				}
+			});
+		}
 	}
 }

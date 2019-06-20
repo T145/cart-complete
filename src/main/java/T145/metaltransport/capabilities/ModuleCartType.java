@@ -8,6 +8,14 @@ public class ModuleCartType implements INBTSerializable<NBTTagCompound> {
 
 	private CartType type;
 
+	public ModuleCartType(CartType type) {
+		this.type = type;
+	}
+
+	public ModuleCartType() {
+		this(CartType.IRON);
+	}
+
 	public CartType getType() {
 		return type;
 	}
@@ -20,12 +28,12 @@ public class ModuleCartType implements INBTSerializable<NBTTagCompound> {
 	@Override
 	public NBTTagCompound serializeNBT() {
 		NBTTagCompound tag = new NBTTagCompound();
-		tag.setString("CartType", type.toString());
+		tag.setString("CartType", getType().toString());
 		return null;
 	}
 
 	@Override
 	public void deserializeNBT(NBTTagCompound tag) {
-		this.type = CartType.valueOf(tag.getString("CartType"));
+		setType(CartType.valueOf(tag.getString("CartType")));
 	}
 }

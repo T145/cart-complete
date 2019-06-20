@@ -8,9 +8,11 @@ import javax.annotation.Nullable;
 import T145.metaltransport.api.consts.CartType;
 import T145.metaltransport.api.consts.ItemCartType;
 import T145.metaltransport.api.consts.RegistryMT;
+import T145.metaltransport.api.obj.CapabilitiesMT;
+import T145.metaltransport.api.obj.DataParamsMT;
 import T145.metaltransport.api.obj.ItemsMT;
 import T145.metaltransport.api.obj.SerializersMT;
-import T145.metaltransport.capabilities.ModuleCartType;
+import T145.metaltransport.api.obj.caps.SerialCartType;
 import T145.metaltransport.client.render.entities.RenderCart;
 import T145.metaltransport.entities.EntityFurnaceCart;
 import T145.metaltransport.items.ItemCart;
@@ -30,7 +32,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.config.Config;
@@ -71,9 +72,6 @@ public class MetalTransport {
 		return VERSION.contentEquals("@VERSION@");
 	}
 
-	@CapabilityInject(ModuleCartType.class)
-	public static Capability<ModuleCartType> CAP_CART_TYPE;
-
 	@Instance(RegistryMT.ID)
 	public static MetalTransport instance;
 
@@ -94,16 +92,16 @@ public class MetalTransport {
 
 	@EventHandler
 	public void init(FMLInitializationEvent event) {
-		CapabilityManager.INSTANCE.register(ModuleCartType.class, new Capability.IStorage<ModuleCartType>() {
+		CapabilityManager.INSTANCE.register(SerialCartType.class, new Capability.IStorage<SerialCartType>() {
 
 			@Nullable
 			@Override
-			public NBTBase writeNBT(Capability<ModuleCartType> capability, ModuleCartType instance, EnumFacing side) {
+			public NBTBase writeNBT(Capability<SerialCartType> capability, SerialCartType instance, EnumFacing side) {
 				return null;
 			}
 
 			@Override
-			public void readNBT(Capability<ModuleCartType> capability, ModuleCartType instance, EnumFacing side, NBTBase nbt) {}
+			public void readNBT(Capability<SerialCartType> capability, SerialCartType instance, EnumFacing side, NBTBase nbt) {}
 
 		}, () -> null);
 	}
@@ -160,8 +158,11 @@ public class MetalTransport {
 	@SubscribeEvent
 	public static void metaltransport$registerEntities(final RegistryEvent.Register<EntityEntry> event) {
 		final IForgeRegistry<EntityEntry> registry = event.getRegistry();
-		registry.register(EntityEntryBuilder.create().id(new ResourceLocation("furnace_minecart"), 44)
-				.name(EntityMinecart.Type.FURNACE.getName()).entity(EntityFurnaceCart.class).tracker(80, 3, true)
+		registry.register(EntityEntryBuilder.create()
+				.id(new ResourceLocation("furnace_minecart"), 44)
+				.name(EntityMinecart.Type.FURNACE.getName())
+				.entity(EntityFurnaceCart.class)
+				.tracker(80, 3, true)
 				.build());
 	}
 
@@ -190,11 +191,11 @@ public class MetalTransport {
 		if (event.getObject() instanceof EntityMinecart) {
 			EntityMinecart cart = (EntityMinecart) event.getObject();
 
-			cart.getDataManager().register(ModuleCartType.CART_TYPE, CartType.IRON);
+			cart.getDataManager().register(DataParamsMT.CART_TYPE, CartType.IRON);
 
 			event.addCapability(RegistryMT.getResource(RegistryMT.KEY_CART_TYPE), new ICapabilitySerializable<NBTTagCompound>() {
 
-				final ModuleCartType type = new ModuleCartType(cart);
+				final SerialCartType type = new SerialCartType(cart);
 
 				@Override
 				public NBTTagCompound serializeNBT() {
@@ -208,7 +209,7 @@ public class MetalTransport {
 
 				@Override
 				public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
-					if (capability == CAP_CART_TYPE) {
+					if (capability == CapabilitiesMT.CART_TYPE) {
 						return true;
 					}
 					return false;
@@ -217,7 +218,7 @@ public class MetalTransport {
 				@Nullable
 				@Override
 				public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
-					if (capability == CAP_CART_TYPE) {
+					if (capability == CapabilitiesMT.CART_TYPE) {
 						return (T) type;
 					}
 					return null;

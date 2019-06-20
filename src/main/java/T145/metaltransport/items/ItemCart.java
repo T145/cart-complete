@@ -1,8 +1,8 @@
 package T145.metaltransport.items;
 
-import T145.metaltransport.MetalTransport;
 import T145.metaltransport.api.consts.ItemCartType;
 import T145.metaltransport.api.consts.RegistryMT;
+import T145.metaltransport.api.obj.CapabilitiesMT;
 import T145.metaltransport.entities.EntityFurnaceCart;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
 import T145.tbone.items.TItem;
@@ -25,7 +25,7 @@ public class ItemCart extends TItem {
 		public EntityMinecart getMinecartEntity(World world, double x, double y, double z, ItemStack stack) {
 			ItemCartType itemType = ItemCartType.values()[stack.getItemDamage()];
 			EntityMinecart cart = itemType.getCartType() == EntityMinecart.Type.FURNACE ? new EntityFurnaceCart(world, x, y, z) : EntityMinecart.create(world, x, y, z, itemType.getCartType());
-			cart.getCapability(MetalTransport.CAP_CART_TYPE, null).setType(itemType.getType());
+			cart.getCapability(CapabilitiesMT.CART_TYPE, null).setType(itemType.getType());
 			return cart;
 		}
 	};

@@ -1,6 +1,6 @@
 package T145.metaltransport.client.render.entities;
 
-import T145.metaltransport.MetalTransport;
+import T145.metaltransport.api.obj.CapabilitiesMT;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.entity.RenderMinecart;
 import net.minecraft.entity.item.EntityMinecart;
@@ -17,6 +17,6 @@ public class RenderCart extends RenderMinecart {
 
 	@Override
 	protected ResourceLocation getEntityTexture(EntityMinecart cart) {
-		return cart.getCapability(MetalTransport.CAP_CART_TYPE, null).getType().getResource();
+		return cart.getCapability(CapabilitiesMT.CART_TYPE, null).getType().getResource();
 	}
 }

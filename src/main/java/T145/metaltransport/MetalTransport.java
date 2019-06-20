@@ -14,12 +14,16 @@ import T145.metaltransport.api.obj.ItemsMT;
 import T145.metaltransport.api.obj.SerializersMT;
 import T145.metaltransport.api.obj.caps.SerialCartType;
 import T145.metaltransport.client.render.entities.RenderCart;
+import T145.metaltransport.client.render.entities.RenderSpawnerCart;
+import T145.metaltransport.client.render.entities.RenderTntCart;
 import T145.metaltransport.entities.EntityFurnaceCart;
 import T145.metaltransport.items.ItemCart;
 import T145.tbone.core.TBone;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
+import net.minecraft.entity.item.EntityMinecartMobSpawner;
+import net.minecraft.entity.item.EntityMinecartTNT;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipe;
@@ -174,6 +178,8 @@ public class MetalTransport {
 		}
 
 		RenderingRegistry.registerEntityRenderingHandler(EntityMinecart.class, manager -> new RenderCart(manager));
+		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartTNT.class, manager -> new RenderTntCart(manager));
+		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartMobSpawner.class, manager -> new RenderSpawnerCart(manager));
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)

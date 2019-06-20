@@ -11,9 +11,76 @@
                     "layer0": "metaltransport:items/minecarts/empty_copper"
                 }
             },
+            "copper_chest": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_copper",
+                    "layer1": "metaltransport:items/minecarts/top_chest"
+                }
+            },
+            "copper_furnace": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_copper",
+                    "layer1": "metaltransport:items/minecarts/top_furnace"
+                }
+            },
+            "copper_tnt": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_copper",
+                    "layer1": "metaltransport:items/minecarts/top_tnt"
+                }
+            },
+            "copper_spawner": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_copper",
+                    "layer1": "metaltransport:items/minecarts/top_spawner"
+                }
+            },
+            "copper_hopper": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_copper",
+                    "layer1": "metaltransport:items/minecarts/top_hopper"
+                }
+            },
+            "copper_command_block": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_copper",
+                    "layer1": "metaltransport:items/minecarts/top_command_block"
+                }
+            },
             "iron": {
                 "textures": {
                     "layer0": "minecraft:items/minecart_normal"
+                }
+            },
+            "iron_chest": {
+                "textures": {
+                    "layer0": "minecraft:items/minecart_chest"
+                }
+            },
+            "iron_furnace": {
+                "textures": {
+                    "layer0": "minecraft:items/minecart_furnace"
+                }
+            },
+            "iron_tnt": {
+                "textures": {
+                    "layer0": "minecraft:items/minecart_tnt"
+                }
+            },
+            "iron_spawner": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_iron",
+                    "layer1": "metaltransport:items/minecarts/top_spawner"
+                }
+            },
+            "iron_hopper": {
+                "textures": {
+                    "layer0": "minecraft:items/minecart_hopper"
+                }
+            },
+            "iron_command_block": {
+                "textures": {
+                    "layer0": "minecraft:items/minecart_command_block"
                 }
             },
             "silver": {
@@ -21,9 +88,81 @@
                     "layer0": "metaltransport:items/minecarts/empty_silver"
                 }
             },
+            "silver_chest": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_silver",
+                    "layer1": "metaltransport:items/minecarts/top_chest"
+                }
+            },
+            "silver_furnace": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_silver",
+                    "layer1": "metaltransport:items/minecarts/top_furnace"
+                }
+            },
+            "silver_tnt": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_silver",
+                    "layer1": "metaltransport:items/minecarts/top_tnt"
+                }
+            },
+            "silver_spawner": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_silver",
+                    "layer1": "metaltransport:items/minecarts/top_spawner"
+                }
+            },
+            "silver_hopper": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_silver",
+                    "layer1": "metaltransport:items/minecarts/top_hopper"
+                }
+            },
+            "silver_command_block": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_silver",
+                    "layer1": "metaltransport:items/minecarts/top_command_block"
+                }
+            },
             "gold": {
                 "textures": {
                     "layer0": "metaltransport:items/minecarts/empty_gold"
+                }
+            },
+            "gold_chest": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_gold",
+                    "layer1": "metaltransport:items/minecarts/top_chest"
+                }
+            },
+            "gold_furnace": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_gold",
+                    "layer1": "metaltransport:items/minecarts/top_furnace"
+                }
+            },
+            "gold_tnt": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_gold",
+                    "layer1": "metaltransport:items/minecarts/top_tnt"
+                }
+            },
+            "gold_spawner": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_gold",
+                    "layer1": "metaltransport:items/minecarts/top_spawner"
+                }
+            },
+            "gold_hopper": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_gold",
+                    "layer1": "metaltransport:items/minecarts/top_hopper"
+                }
+            },
+            "gold_command_block": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_gold",
+                    "layer1": "metaltransport:items/minecarts/top_command_block"
                 }
             },
             "diamond": {
@@ -31,9 +170,81 @@
                     "layer0": "metaltransport:items/minecarts/empty_diamond"
                 }
             },
+            "diamond_chest": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_diamond",
+                    "layer1": "metaltransport:items/minecarts/top_chest"
+                }
+            },
+            "diamond_furnace": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_diamond",
+                    "layer1": "metaltransport:items/minecarts/top_furnace"
+                }
+            },
+            "diamond_tnt": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_diamond",
+                    "layer1": "metaltransport:items/minecarts/top_tnt"
+                }
+            },
+            "diamond_spawner": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_diamond",
+                    "layer1": "metaltransport:items/minecarts/top_spawner"
+                }
+            },
+            "diamond_hopper": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_diamond",
+                    "layer1": "metaltransport:items/minecarts/top_hopper"
+                }
+            },
+            "diamond_command_block": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_diamond",
+                    "layer1": "metaltransport:items/minecarts/top_command_block"
+                }
+            },
             "obsidian": {
                 "textures": {
                     "layer0": "metaltransport:items/minecarts/empty_obsidian"
+                }
+            },
+            "obsidian_chest": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_obsidian",
+                    "layer1": "metaltransport:items/minecarts/top_chest"
+                }
+            },
+            "obsidian_furnace": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_obsidian",
+                    "layer1": "metaltransport:items/minecarts/top_furnace"
+                }
+            },
+            "obsidian_tnt": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_obsidian",
+                    "layer1": "metaltransport:items/minecarts/top_tnt"
+                }
+            },
+            "obsidian_spawner": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_obsidian",
+                    "layer1": "metaltransport:items/minecarts/top_spawner"
+                }
+            },
+            "obsidian_hopper": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_obsidian",
+                    "layer1": "metaltransport:items/minecarts/top_hopper"
+                }
+            },
+            "obsidian_command_block": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_obsidian",
+                    "layer1": "metaltransport:items/minecarts/top_command_block"
                 }
             }
         }

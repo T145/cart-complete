@@ -1,11 +1,53 @@
 itemGroup.metaltransport=MetalTransport
 
-# Since no one seems to do this
 entity.MinecartRideable.name=Minecart
+entity.MinecartFurnace.name=Minecart With Furnace
+entity.MinecartSpawner.name=Minecart With Mob Spawner
 
 item.metaltransport:metal_minecart.copper.name=Copper Minecart
+item.metaltransport:metal_minecart.copper_chest.name=Copper Minecart With Chest
+item.metaltransport:metal_minecart.copper_furnace.name=Copper Minecart With Furnace
+item.metaltransport:metal_minecart.copper_tnt.name=Copper Minecart With TNT
+item.metaltransport:metal_minecart.copper_spawner.name=Copper Minecart With Mob Spawner
+item.metaltransport:metal_minecart.copper_hopper.name=Copper Minecart With Hopper
+item.metaltransport:metal_minecart.copper_command_block.name=Copper Minecart With Command Block
+
 item.metaltransport:metal_minecart.iron.name=Iron Minecart
+item.metaltransport:metal_minecart.iron_chest.name=Iron Minecart With Chest
+item.metaltransport:metal_minecart.iron_furnace.name=Iron Minecart With Furnace
+item.metaltransport:metal_minecart.iron_tnt.name=Iron Minecart With TNT
+item.metaltransport:metal_minecart.iron_spawner.name=Iron Minecart With Mob Spawner
+item.metaltransport:metal_minecart.iron_hopper.name=Iron Minecart With Hopper
+item.metaltransport:metal_minecart.iron_command_block.name=Iron Minecart With Command Block
+
 item.metaltransport:metal_minecart.silver.name=Silver Minecart
+item.metaltransport:metal_minecart.silver_chest.name=Silver Minecart With Chest
+item.metaltransport:metal_minecart.silver_furnace.name=Silver Minecart With Furnace
+item.metaltransport:metal_minecart.silver_tnt.name=Silver Minecart With TNT
+item.metaltransport:metal_minecart.silver_spawner.name=Silver Minecart With Mob Spawner
+item.metaltransport:metal_minecart.silver_hopper.name=Silver Minecart With Hopper
+item.metaltransport:metal_minecart.silver_command_block.name=Silver Minecart With Command Block
+
 item.metaltransport:metal_minecart.gold.name=Gold Minecart
+item.metaltransport:metal_minecart.gold_chest.name=Gold Minecart With Chest
+item.metaltransport:metal_minecart.gold_furnace.name=Gold Minecart With Furnace
+item.metaltransport:metal_minecart.gold_tnt.name=Gold Minecart With TNT
+item.metaltransport:metal_minecart.gold_spawner.name=Gold Minecart With Mob Spawner
+item.metaltransport:metal_minecart.gold_hopper.name=Gold Minecart With Hopper
+item.metaltransport:metal_minecart.gold_command_block.name=Gold Minecart With Command Block
+
 item.metaltransport:metal_minecart.diamond.name=Diamond Minecart
+item.metaltransport:metal_minecart.diamond_chest.name=Diamond Minecart With Chest
+item.metaltransport:metal_minecart.diamond_furnace.name=Diamond Minecart With Furnace
+item.metaltransport:metal_minecart.diamond_tnt.name=Diamond Minecart With TNT
+item.metaltransport:metal_minecart.diamond_spawner.name=Diamond Minecart With Mob Spawner
+item.metaltransport:metal_minecart.diamond_hopper.name=Diamond Minecart With Hopper
+item.metaltransport:metal_minecart.diamond_command_block.name=Diamond Minecart With Command Block
+
 item.metaltransport:metal_minecart.obsidian.name=Obsidian Minecart
+item.metaltransport:metal_minecart.obsidian_chest.name=Obsidian Minecart With Chest
+item.metaltransport:metal_minecart.obsidian_furnace.name=Obsidian Minecart With Furnace
+item.metaltransport:metal_minecart.obsidian_tnt.name=Obsidian Minecart With TNT
+item.metaltransport:metal_minecart.obsidian_spawner.name=Obsidian Minecart With Mob Spawner
+item.metaltransport:metal_minecart.obsidian_hopper.name=Obsidian Minecart With Hopper
+item.metaltransport:metal_minecart.obsidian_command_block.name=Obsidian Minecart With Command Block

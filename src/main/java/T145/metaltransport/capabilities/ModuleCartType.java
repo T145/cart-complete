@@ -1,27 +1,29 @@
 package T145.metaltransport.capabilities;
 
 import T145.metaltransport.api.consts.CartType;
+import T145.metaltransport.api.obj.SerializersMT;
+import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraftforge.common.util.INBTSerializable;
 
 public class ModuleCartType implements INBTSerializable<NBTTagCompound> {
 
-	private CartType type;
+	public static final DataParameter<CartType> CART_TYPE = EntityDataManager.createKey(EntityMinecart.class, SerializersMT.CART_TYPE);
 
-	public ModuleCartType(CartType type) {
-		this.type = type;
-	}
+	private EntityMinecart cart;
 
-	public ModuleCartType() {
-		this(CartType.IRON);
+	public ModuleCartType(EntityMinecart cart) {
+		this.cart = cart;
 	}
 
 	public CartType getType() {
-		return type;
+		return cart.getDataManager().get(CART_TYPE);
 	}
 
 	public ModuleCartType setType(CartType type) {
-		this.type = type;
+		cart.getDataManager().set(CART_TYPE, type);
 		return this;
 	}
 
@@ -29,7 +31,7 @@ public class ModuleCartType implements INBTSerializable<NBTTagCompound> {
 	public NBTTagCompound serializeNBT() {
 		NBTTagCompound tag = new NBTTagCompound();
 		tag.setString("CartType", getType().toString());
-		return null;
+		return tag;
 	}
 
 	@Override

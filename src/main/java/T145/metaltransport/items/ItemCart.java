@@ -1,11 +1,9 @@
 package T145.metaltransport.items;
 
 import T145.metaltransport.MetalTransport;
-import T145.metaltransport.api.consts.CartType;
 import T145.metaltransport.api.consts.ItemCartType;
 import T145.metaltransport.api.consts.RegistryMT;
 import T145.metaltransport.entities.EntityFurnaceCart;
-import T145.metaltransport.net.client.SyncCartType;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
 import T145.tbone.items.TItem;
 import net.minecraft.creativetab.CreativeTabs;
@@ -25,17 +23,10 @@ public class ItemCart extends TItem {
 
 		@Override
 		public EntityMinecart getMinecartEntity(World world, double x, double y, double z, ItemStack stack) {
-			try {
-				ItemCartType itemType = ItemCartType.values()[stack.getItemDamage()];
-				EntityMinecart cart = itemType.getCartType() == EntityMinecart.Type.FURNACE ? new EntityFurnaceCart(world, x, y, z) : EntityMinecart.create(world, x, y, z, itemType.getCartType());
-				CartType type = itemType.getType();
-				cart.getCapability(MetalTransport.CAP_CART_TYPE, null).setType(type);
-				MetalTransport.NETWORK.sendToAllAround(new SyncCartType(cart.getPosition(), type));
-				return cart;
-			} catch (NullPointerException err) {
-				RegistryMT.LOG.catching(err);
-			}
-			return null;
+			ItemCartType itemType = ItemCartType.values()[stack.getItemDamage()];
+			EntityMinecart cart = itemType.getCartType() == EntityMinecart.Type.FURNACE ? new EntityFurnaceCart(world, x, y, z) : EntityMinecart.create(world, x, y, z, itemType.getCartType());
+			cart.getCapability(MetalTransport.CAP_CART_TYPE, null).setType(itemType.getType());
+			return cart;
 		}
 	};
 

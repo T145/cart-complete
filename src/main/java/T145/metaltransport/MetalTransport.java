@@ -1,19 +1,21 @@
 package T145.metaltransport;
 
+import java.io.IOException;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import T145.metaltransport.api.consts.CartType;
 import T145.metaltransport.api.consts.ItemCartType;
 import T145.metaltransport.api.consts.RegistryMT;
 import T145.metaltransport.api.obj.ItemsMT;
+import T145.metaltransport.api.obj.SerializersMT;
 import T145.metaltransport.capabilities.ModuleCartType;
 import T145.metaltransport.client.render.entities.RenderCart;
 import T145.metaltransport.entities.EntityFurnaceCart;
 import T145.metaltransport.items.ItemCart;
-import T145.metaltransport.net.PacketHandlerMT;
 import T145.tbone.core.TBone;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
-import T145.tbone.network.TPacketHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.init.Items;
@@ -21,6 +23,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelRegistryEvent;
@@ -48,6 +53,7 @@ import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.registries.DataSerializerEntry;
 import net.minecraftforge.registries.IForgeRegistry;
 
 @Mod(modid = RegistryMT.ID, name = RegistryMT.NAME, version = MetalTransport.VERSION, updateJSON = MetalTransport.UPDATE_JSON, dependencies = "required-after:tbone;after:metalchests")
@@ -56,7 +62,6 @@ public class MetalTransport {
 
 	public static final String VERSION = "@VERSION@";
 	public static final String UPDATE_JSON = "https://raw.githubusercontent.com/T145/metaltransport/master/update.json";
-	public static final TPacketHandler NETWORK = new PacketHandlerMT();
 
 	public MetalTransport() {
 		TBone.registerMod(RegistryMT.ID, RegistryMT.NAME);
@@ -85,7 +90,6 @@ public class MetalTransport {
 		meta.url = "https://github.com/T145/metaltransport";
 		meta.useDependencyInformation = false;
 		meta.version = VERSION;
-		NETWORK.registerMessages();
 	}
 
 	@EventHandler
@@ -107,6 +111,36 @@ public class MetalTransport {
 	@EventHandler
 	public void metaltransport$postInit(final FMLPostInitializationEvent event) {
 		BehaviorDispenseMinecart.register(ItemsMT.METAL_MINECART, ItemCart.DISPENSER_BEHAVIOR);
+	}
+
+	@SubscribeEvent
+	public static void metaltransport$registerSerializers(final RegistryEvent.Register<DataSerializerEntry> event) {
+		final IForgeRegistry<DataSerializerEntry> registry = event.getRegistry();
+
+		registry.register(SerializersMT.ENTRY_CART_TYPE = new DataSerializerEntry(
+				SerializersMT.CART_TYPE = new DataSerializer<CartType>() {
+
+					@Override
+					public void write(PacketBuffer buf, CartType value) {
+						buf.writeEnumValue(value);
+					}
+
+					@Override
+					public CartType read(PacketBuffer buf) throws IOException {
+						return buf.readEnumValue(CartType.class);
+					}
+
+					@Override
+					public DataParameter<CartType> createKey(int id) {
+						return new DataParameter<CartType>(id, this);
+					}
+
+					@Override
+					public CartType copyValue(CartType value) {
+						return value;
+					}
+
+				}).setRegistryName(RegistryMT.ID, RegistryMT.KEY_CART_TYPE));
 	}
 
 	@SubscribeEvent
@@ -150,24 +184,26 @@ public class MetalTransport {
 			ConfigManager.sync(RegistryMT.ID, Config.Type.INSTANCE);
 		}
 	}
-	
-	private static final ResourceLocation CAPABILITY_ID = RegistryMT.getResource("cart_type_cap");
 
 	@SubscribeEvent
 	public static void metaltransport$attachCapabilities(AttachCapabilitiesEvent<Entity> event) {
 		if (event.getObject() instanceof EntityMinecart) {
-			event.addCapability(CAPABILITY_ID, new ICapabilitySerializable<NBTTagCompound>() {
+			EntityMinecart cart = (EntityMinecart) event.getObject();
 
-				final ModuleCartType moduleCartType = new ModuleCartType();
+			cart.getDataManager().register(ModuleCartType.CART_TYPE, CartType.IRON);
+
+			event.addCapability(RegistryMT.getResource(RegistryMT.KEY_CART_TYPE), new ICapabilitySerializable<NBTTagCompound>() {
+
+				final ModuleCartType type = new ModuleCartType(cart);
 
 				@Override
 				public NBTTagCompound serializeNBT() {
-					return moduleCartType.serializeNBT();
+					return type.serializeNBT();
 				}
 
 				@Override
 				public void deserializeNBT(NBTTagCompound tag) {
-					moduleCartType.deserializeNBT(tag);
+					type.deserializeNBT(tag);
 				}
 
 				@Override
@@ -182,7 +218,7 @@ public class MetalTransport {
 				@Override
 				public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
 					if (capability == CAP_CART_TYPE) {
-						return (T) moduleCartType;
+						return (T) type;
 					}
 					return null;
 				}

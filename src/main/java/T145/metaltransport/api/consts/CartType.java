@@ -11,21 +11,24 @@ import net.minecraftforge.oredict.OreDictionary;
 public enum CartType implements IStringSerializable {
 
 	COPPER("ingotCopper"),
-	IRON("ingotIron", "textures/entity/minecart.png"),
+	IRON("ingotIron"),
 	SILVER("ingotSilver"),
 	GOLD("ingotGold"),
 	DIAMOND("gemDiamond"),
 	OBSIDIAN("obsidian");
 
-	public static final Set<CartType> VALUES = new HashSet<>(CartType.values().length);
+	private static final Set<CartType> TIERS = new HashSet<>(CartType.values().length);
+
+	static {
+		for (CartType type : CartType.values()) {
+			if (type.hasOre()) {
+				TIERS.add(type);
+			}
+		}
+	}
 
 	private final String oreName;
 	private final ResourceLocation modelResource;
-
-	CartType(String oreName, String modelPath) {
-		this.oreName = oreName;
-		this.modelResource = new ResourceLocation(modelPath);
-	}
 
 	CartType(String oreName) {
 		this.oreName = oreName;
@@ -50,7 +53,7 @@ public enum CartType implements IStringSerializable {
 	}
 
 	public boolean isRegistered() {
-		return VALUES.contains(this);
+		return TIERS.contains(this) && hasOre();
 	}
 
 	public static CartType byMetadata(int meta) {
@@ -63,13 +66,5 @@ public enum CartType implements IStringSerializable {
 
 	public String getIdName() {
 		return String.format("%s:%s_cart", RegistryMT.ID, getName());
-	}
-
-	static {
-		for (CartType type : CartType.values()) {
-			if (type.hasOre()) {
-				VALUES.add(type);
-			}
-		}
 	}
 }

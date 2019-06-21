@@ -1,13 +1,16 @@
 package T145.metaltransport.api.obj.caps;
 
 import T145.metaltransport.api.consts.CartType;
-import T145.metaltransport.api.obj.DataParamsMT;
+import T145.metaltransport.api.obj.SerializersMT;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraftforge.common.util.INBTSerializable;
 
 public class SerialCartType implements INBTSerializable<NBTTagCompound> {
 
+	public static final DataParameter<CartType> CART_TYPE = EntityDataManager.createKey(EntityMinecart.class, SerializersMT.CART_TYPE);
 	private EntityMinecart cart;
 
 	public SerialCartType(EntityMinecart cart) {
@@ -15,11 +18,11 @@ public class SerialCartType implements INBTSerializable<NBTTagCompound> {
 	}
 
 	public CartType getType() {
-		return cart.getDataManager().get(DataParamsMT.CART_TYPE);
+		return cart.getDataManager().get(CART_TYPE);
 	}
 
 	public SerialCartType setType(CartType type) {
-		cart.getDataManager().set(DataParamsMT.CART_TYPE, type);
+		cart.getDataManager().set(CART_TYPE, type);
 		return this;
 	}
 

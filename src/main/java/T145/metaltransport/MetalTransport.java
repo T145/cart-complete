@@ -9,7 +9,6 @@ import T145.metaltransport.api.consts.CartType;
 import T145.metaltransport.api.consts.ItemCartType;
 import T145.metaltransport.api.consts.RegistryMT;
 import T145.metaltransport.api.obj.CapabilitiesMT;
-import T145.metaltransport.api.obj.DataParamsMT;
 import T145.metaltransport.api.obj.ItemsMT;
 import T145.metaltransport.api.obj.SerializersMT;
 import T145.metaltransport.api.obj.caps.SerialCartType;
@@ -20,12 +19,16 @@ import T145.metaltransport.entities.EntityFurnaceCart;
 import T145.metaltransport.items.ItemCart;
 import T145.tbone.core.TBone;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
+import net.minecraft.entity.item.EntityMinecartEmpty;
 import net.minecraft.entity.item.EntityMinecartMobSpawner;
 import net.minecraft.entity.item.EntityMinecartTNT;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -34,6 +37,7 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -42,6 +46,8 @@ import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.event.entity.minecart.MinecartInteractEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
@@ -197,8 +203,6 @@ public class MetalTransport {
 		if (event.getObject() instanceof EntityMinecart) {
 			EntityMinecart cart = (EntityMinecart) event.getObject();
 
-			cart.getDataManager().register(DataParamsMT.CART_TYPE, CartType.IRON);
-
 			event.addCapability(RegistryMT.getResource(RegistryMT.KEY_CART_TYPE), new ICapabilitySerializable<NBTTagCompound>() {
 
 				final SerialCartType type = new SerialCartType(cart);
@@ -230,6 +234,47 @@ public class MetalTransport {
 					return null;
 				}
 			});
+		}
+	}
+
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	public static void metaltransport$onEntityConstruction(EntityEvent.EntityConstructing event) {
+		Entity entity = event.getEntity();
+
+		if (entity instanceof EntityMinecart) {
+			EntityMinecart cart = (EntityMinecart) entity;
+			cart.getDataManager().register(SerialCartType.CART_TYPE, CartType.IRON);
+		}
+	}
+
+	@SubscribeEvent
+	public static void metaltransport$minecartInteract(MinecartInteractEvent event) {
+		EntityMinecart cart = event.getMinecart();
+		EntityPlayer player = event.getPlayer();
+		World world = player.world;
+
+		if (cart instanceof EntityMinecartEmpty) {
+
+		} else {
+			if (player.isSneaking()) {
+				IBlockState state = cart.getDisplayTile();
+				EntityMinecartEmpty emptyCart = new EntityMinecartEmpty(cart.world, cart.posX, cart.posY, cart.posZ);
+				CartType type = cart.getCapability(CapabilitiesMT.CART_TYPE, null).getType();
+				emptyCart.getCapability(CapabilitiesMT.CART_TYPE, null).setType(type);
+				emptyCart.motionX = cart.motionX;
+				emptyCart.motionY = cart.motionY;
+				emptyCart.motionZ = cart.motionZ;
+				emptyCart.rotationPitch = cart.rotationPitch;
+				emptyCart.rotationYaw = cart.rotationYaw;
+
+				if (!world.isRemote) {
+					cart.entityDropItem(new ItemStack(state.getBlock()), 0);
+					cart.setDead();
+					world.spawnEntity(emptyCart);
+				}
+
+				event.setCanceled(true);
+			}
 		}
 	}
 }

@@ -21,7 +21,7 @@ public class EntityFurnaceCart extends EntityMinecart {
 	public static final float FORCE_DAMPEN_FACTOR = 3.5F;
 	public static final int BURN_TIME_CAP = 102400;
 
-	private static final DataParameter<Boolean> POWERED = EntityDataManager.<Boolean>createKey(EntityFurnaceCart.class, DataSerializers.BOOLEAN);
+	private static final DataParameter<Boolean> POWERED = EntityDataManager.createKey(EntityFurnaceCart.class, DataSerializers.BOOLEAN);
 	private int fuel;
 
 	public EntityFurnaceCart(World world) {
@@ -48,19 +48,19 @@ public class EntityFurnaceCart extends EntityMinecart {
 	@Override
 	protected void entityInit() {
 		super.entityInit();
-		this.dataManager.register(POWERED, Boolean.valueOf(false));
+		this.dataManager.register(POWERED, false);
 	}
 
 	@Override
 	protected void writeEntityToNBT(NBTTagCompound tag) {
 		super.writeEntityToNBT(tag);
-		tag.setShort("Fuel", (short) this.fuel);
+		tag.setInteger("Fuel", this.fuel);
 	}
 
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound tag) {
 		super.readEntityFromNBT(tag);
-		this.fuel = tag.getShort("Fuel");
+		this.fuel = tag.getInteger("Fuel");
 	}
 
 	@Override

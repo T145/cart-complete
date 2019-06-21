@@ -1,8 +1,12 @@
 itemGroup.metaltransport=MetalTransport
 
 entity.MinecartRideable.name=Minecart
+entity.MinecartChest.name=Minecart With Chest
 entity.MinecartFurnace.name=Minecart With Furnace
+entity.MinecartTNT.name=Minecart With TNT
 entity.MinecartSpawner.name=Minecart With Mob Spawner
+entity.MinecartHopper.name=Minecart With Hopper
+entity.MinecartCommandBlock.name=Minecart With Command Block
 
 item.metaltransport:metal_minecart.copper.name=Copper Minecart
 item.metaltransport:metal_minecart.copper_chest.name=Copper Minecart With Chest

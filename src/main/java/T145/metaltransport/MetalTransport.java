@@ -237,13 +237,12 @@ public class MetalTransport {
 		}
 	}
 
-	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	@SubscribeEvent
 	public static void metaltransport$onEntityConstruction(EntityEvent.EntityConstructing event) {
 		Entity entity = event.getEntity();
 
 		if (entity instanceof EntityMinecart) {
-			EntityMinecart cart = (EntityMinecart) entity;
-			cart.getDataManager().register(SerialCartType.CART_TYPE, CartType.IRON);
+			SerialCartType.registerTypes((EntityMinecart) entity);
 		}
 	}
 

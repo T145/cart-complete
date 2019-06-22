@@ -9,7 +9,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.DamageSource;
@@ -24,8 +23,9 @@ public class EntityFurnaceCart extends EntityMinecart {
 	public static final int BURN_TIME_CAP = 102400;
 
 	private static final DataParameter<CartType> CART_TYPE = EntityDataManager.createKey(EntityFurnaceCart.class, SerializersMT.CART_TYPE);
-	private static final DataParameter<Boolean> POWERED = EntityDataManager.createKey(EntityFurnaceCart.class, DataSerializers.BOOLEAN);
 	private int fuel;
+	private boolean powered;
+	private boolean prevPowered;
 
 	public EntityFurnaceCart(World world) {
 		super(world);
@@ -36,11 +36,16 @@ public class EntityFurnaceCart extends EntityMinecart {
 	}
 
 	protected boolean isBurningFuel() {
-		return this.dataManager.get(POWERED);
+		return powered;
 	}
 
 	protected void setBurningFuel(boolean powered) {
-		this.dataManager.set(POWERED, powered);
+		this.prevPowered = this.powered;
+		this.powered = powered;
+	}
+
+	public IBlockState getFurnaceState() {
+		return (this.isBurningFuel() ? Blocks.LIT_FURNACE : Blocks.FURNACE).getDefaultState();
 	}
 
 	@Override
@@ -52,19 +57,27 @@ public class EntityFurnaceCart extends EntityMinecart {
 	protected void entityInit() {
 		super.entityInit();
 		this.dataManager.register(CART_TYPE, CartType.IRON);
-		this.dataManager.register(POWERED, false);
 	}
 
 	@Override
 	protected void writeEntityToNBT(NBTTagCompound tag) {
 		super.writeEntityToNBT(tag);
 		tag.setInteger("Fuel", this.fuel);
+		tag.setBoolean("Powered", this.powered);
+		tag.setBoolean("PrevPowered", this.prevPowered);
 	}
 
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound tag) {
 		super.readEntityFromNBT(tag);
 		this.fuel = tag.getInteger("Fuel");
+		this.powered = tag.getBoolean("Powered");
+		this.prevPowered = tag.getBoolean("PrevPowered");
+	}
+
+	@Override
+	public IBlockState getDefaultDisplayTile() {
+		return Blocks.FURNACE.getDefaultState();
 	}
 
 	@Override
@@ -78,7 +91,11 @@ public class EntityFurnaceCart extends EntityMinecart {
 		this.setBurningFuel(this.fuel > 0);
 
 		if (this.isBurningFuel() && this.rand.nextInt(4) == 0) {
-			this.world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, this.posX, this.posY + 0.8D, this.posZ, 0, 0, 0);
+			world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, posX, posY + 0.8D, posZ, 0, 0, 0);
+		}
+
+		if (this.powered != this.prevPowered) {
+			this.setDisplayTile(getFurnaceState());
 		}
 	}
 
@@ -150,10 +167,5 @@ public class EntityFurnaceCart extends EntityMinecart {
 		}
 
 		return true;
-	}
-
-	@Override
-	public IBlockState getDefaultDisplayTile() {
-		return (this.isBurningFuel() ? Blocks.LIT_FURNACE : Blocks.FURNACE).getDefaultState();
 	}
 }

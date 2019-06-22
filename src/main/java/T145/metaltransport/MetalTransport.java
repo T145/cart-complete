@@ -19,13 +19,14 @@ import T145.metaltransport.entities.EntityFurnaceCart;
 import T145.metaltransport.items.ItemCart;
 import T145.tbone.core.TBone;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.item.EntityMinecartEmpty;
 import net.minecraft.entity.item.EntityMinecartMobSpawner;
 import net.minecraft.entity.item.EntityMinecartTNT;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -246,6 +247,14 @@ public class MetalTransport {
 		}
 	}
 
+	public static Block getBlockFromStack(ItemStack stack) {
+		return Block.getBlockFromItem(stack.getItem());
+	}
+
+	public static boolean isSolidBlock(ItemStack stack) {
+		return !stack.isEmpty() && getBlockFromStack(stack) != Blocks.AIR /* && block is relatively normal && in whitelist || not in blacklist */;
+	}
+
 	@SubscribeEvent
 	public static void metaltransport$minecartInteract(MinecartInteractEvent event) {
 		EntityMinecart cart = event.getMinecart();
@@ -256,7 +265,6 @@ public class MetalTransport {
 
 		} else {
 			if (player.isSneaking()) {
-				IBlockState state = cart.getDisplayTile();
 				EntityMinecartEmpty emptyCart = new EntityMinecartEmpty(cart.world, cart.posX, cart.posY, cart.posZ);
 				CartType type = cart.getCapability(CapabilitiesMT.CART_TYPE, null).getType();
 				emptyCart.getCapability(CapabilitiesMT.CART_TYPE, null).setType(type);
@@ -266,8 +274,14 @@ public class MetalTransport {
 				emptyCart.rotationPitch = cart.rotationPitch;
 				emptyCart.rotationYaw = cart.rotationYaw;
 
+				if (EntityFurnaceCart.isSpeeding(cart)) {
+					emptyCart.lastTickPosX = cart.lastTickPosX;
+					emptyCart.lastTickPosY = cart.lastTickPosY;
+					emptyCart.lastTickPosZ = cart.lastTickPosZ;
+				}
+
 				if (!world.isRemote) {
-					cart.entityDropItem(new ItemStack(state.getBlock()), 0);
+					cart.entityDropItem(new ItemStack(cart.getDefaultDisplayTile().getBlock()), 0);
 					cart.setDead();
 					world.spawnEntity(emptyCart);
 				}

@@ -113,14 +113,14 @@ public class EntityFurnaceCart extends EntityMinecart {
 		}
 	}
 
-	private boolean isSpeeding() {
-		if (Math.abs(motionX) > MAX_SPEED) {
-			motionX = Math.copySign(MAX_SPEED, motionX);
+	public static boolean isSpeeding(EntityMinecart cart) {
+		if (Math.abs(cart.motionX) > MAX_SPEED) {
+			cart.motionX = Math.copySign(MAX_SPEED, cart.motionX);
 			return true;
 		}
 
-		if (Math.abs(motionZ) > MAX_SPEED) {
-			motionZ = Math.copySign(MAX_SPEED, motionZ);
+		if (Math.abs(cart.motionZ) > MAX_SPEED) {
+			cart.motionZ = Math.copySign(MAX_SPEED, cart.motionZ);
 			return true;
 		}
 
@@ -136,7 +136,7 @@ public class EntityFurnaceCart extends EntityMinecart {
 		if (this.isBurningFuel()) {
 			float force = 0.15F;
 
-			if (isSpeeding()) {
+			if (isSpeeding(this)) {
 				force *= FORCE_DAMPEN_FACTOR;
 			}
 

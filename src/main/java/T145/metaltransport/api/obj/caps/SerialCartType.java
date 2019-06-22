@@ -33,7 +33,7 @@ public class SerialCartType implements INBTSerializable<NBTTagCompound> {
 		put(EntityMinecartHopper.class, createKey(EntityMinecartHopper.class));
 		put(EntityMinecartMobSpawner.class, createKey(EntityMinecartMobSpawner.class));
 		put(EntityMinecartTNT.class, createKey(EntityMinecartTNT.class));
-		put(EntityFurnaceCart.class, createKey(EntityFurnaceCart.class));
+		put(EntityFurnaceCart.class, EntityFurnaceCart.CART_TYPE);
 	}};
 
 	private final EntityMinecart cart;

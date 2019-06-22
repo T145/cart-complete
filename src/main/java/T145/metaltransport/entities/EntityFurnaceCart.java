@@ -22,7 +22,7 @@ public class EntityFurnaceCart extends EntityMinecart {
 	public static final float FORCE_DAMPEN_FACTOR = 3.5F;
 	public static final int BURN_TIME_CAP = 102400;
 
-	private static final DataParameter<CartType> CART_TYPE = EntityDataManager.createKey(EntityFurnaceCart.class, SerializersMT.CART_TYPE);
+	public static final DataParameter<CartType> CART_TYPE = EntityDataManager.createKey(EntityFurnaceCart.class, SerializersMT.CART_TYPE);
 	private int fuel;
 	private boolean powered;
 	private boolean prevPowered;

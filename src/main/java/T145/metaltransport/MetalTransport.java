@@ -213,7 +213,9 @@ public class MetalTransport {
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	public static void metalchests$registerRecipes(RegistryEvent.Register<IRecipe> event) {}
+	public static void metalchests$registerRecipes(RegistryEvent.Register<IRecipe> event) {
+		ItemCartType.registerRecipes();
+	}
 
 	@SubscribeEvent
 	public static void metaltransport$updateConfig(OnConfigChangedEvent event) {

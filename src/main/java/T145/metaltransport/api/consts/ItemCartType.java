@@ -1,7 +1,15 @@
 package T145.metaltransport.api.consts;
 
+import org.apache.commons.lang3.text.WordUtils;
+
+import T145.metaltransport.api.obj.ItemsMT;
+import net.minecraft.block.Block;
 import net.minecraft.entity.item.EntityMinecart;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public enum ItemCartType implements IStringSerializable {
 
@@ -72,5 +80,62 @@ public enum ItemCartType implements IStringSerializable {
 	@Override
 	public String getName() {
 		return this.name().toLowerCase();
+	}
+
+	public static ItemCartType getEmptyType(ItemCartType type) {
+		switch (type.getType()) {
+		case COPPER:
+			return COPPER;
+		case SILVER:
+			return SILVER;
+		case GOLD:
+			return GOLD;
+		case DIAMOND:
+			return DIAMOND;
+		case OBSIDIAN:
+			return OBSIDIAN;
+		default:
+			return IRON;
+		}
+	}
+
+	public static Block getTypeBlock(ItemCartType type) {
+		switch (type.getCartType()) {
+		case CHEST:
+			return Blocks.CHEST;
+		case COMMAND_BLOCK:
+			return Blocks.COMMAND_BLOCK;
+		case FURNACE:
+			return Blocks.FURNACE;
+		case HOPPER:
+			return Blocks.HOPPER;
+		case SPAWNER:
+			return Blocks.MOB_SPAWNER;
+		case TNT:
+			return Blocks.TNT;
+		default:
+			return Blocks.AIR;
+		}
+	}
+
+	public static void registerRecipes() {
+		for (ItemCartType type : values()) {
+			String recipeName = String.format("%s%s", type.getType().getName(), type.getCartType().getName());
+
+			if (type.getCartType() == EntityMinecart.Type.RIDEABLE) {
+				GameRegistry.addShapedRecipe(new ResourceLocation(RegistryMT.ID, WordUtils.capitalize(recipeName)), RegistryMT.RECIPE_GROUP,
+						new ItemStack(ItemsMT.METAL_MINECART, 1, type.ordinal()),
+						"a a", "aaa",
+						'a', type.getType().getOreName());
+			} else {
+				GameRegistry.addShapedRecipe(new ResourceLocation(RegistryMT.ID, WordUtils.capitalize(recipeName)), RegistryMT.RECIPE_GROUP,
+						new ItemStack(ItemsMT.METAL_MINECART, 1, type.ordinal()),
+						"a", "b",
+						'a', new ItemStack(getTypeBlock(type)),
+						'b', new ItemStack(ItemsMT.METAL_MINECART, 1, getEmptyType(type).ordinal()));
+			}
+
+			// register to oredict?
+		}
 	}
 }

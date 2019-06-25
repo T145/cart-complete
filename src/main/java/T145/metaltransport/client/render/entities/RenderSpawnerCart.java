@@ -20,7 +20,11 @@ public class RenderSpawnerCart extends RenderMinecartMobSpawner {
 
 	@Override
 	protected ResourceLocation getEntityTexture(EntityMinecartMobSpawner cart) {
-		return cart.getCapability(CapabilitiesMT.CART_TYPE, null).getType().getResource();
+		if (cart.hasCapability(CapabilitiesMT.CART_TYPE, null)) {
+			return cart.getCapability(CapabilitiesMT.CART_TYPE, null).getType().getResource();
+		} else {
+			return super.getEntityTexture(cart);
+		}
 	}
 
 	@Override

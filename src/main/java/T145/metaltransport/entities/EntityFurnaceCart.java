@@ -1,15 +1,11 @@
 package T145.metaltransport.entities;
 
-import T145.metaltransport.api.consts.CartType;
-import T145.metaltransport.api.obj.SerializersMT;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
@@ -22,7 +18,6 @@ public class EntityFurnaceCart extends EntityMinecart {
 	public static final float FORCE_DAMPEN_FACTOR = 3.5F;
 	public static final int BURN_TIME_CAP = 102400;
 
-	public static final DataParameter<CartType> CART_TYPE = EntityDataManager.createKey(EntityFurnaceCart.class, SerializersMT.CART_TYPE);
 	private int fuel;
 	private boolean powered;
 	private boolean prevPowered;
@@ -51,12 +46,6 @@ public class EntityFurnaceCart extends EntityMinecart {
 	@Override
 	public Type getType() {
 		return Type.FURNACE;
-	}
-
-	@Override
-	protected void entityInit() {
-		super.entityInit();
-		this.dataManager.register(CART_TYPE, CartType.IRON);
 	}
 
 	@Override

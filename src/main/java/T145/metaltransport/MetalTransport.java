@@ -2,9 +2,9 @@ package T145.metaltransport;
 
 import java.io.IOException;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import T145.metaltransport.api.config.ConfigMT;
 import T145.metaltransport.api.consts.CartType;
 import T145.metaltransport.api.consts.ItemCartType;
 import T145.metaltransport.api.consts.RegistryMT;
@@ -19,10 +19,20 @@ import T145.metaltransport.entities.EntityFurnaceCart;
 import T145.metaltransport.items.ItemCart;
 import T145.tbone.core.TBone;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
+import mods.railcraft.common.carts.CartBase;
+import mods.railcraft.common.carts.CartBaseMaintenance;
+import mods.railcraft.common.carts.EntityCartBasic;
+import mods.railcraft.common.carts.EntityCartChest;
+import mods.railcraft.common.carts.EntityCartHopper;
+import mods.railcraft.common.carts.EntityCartWorldspike;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
+import net.minecraft.entity.item.EntityMinecartChest;
+import net.minecraft.entity.item.EntityMinecartCommandBlock;
 import net.minecraft.entity.item.EntityMinecartEmpty;
+import net.minecraft.entity.item.EntityMinecartFurnace;
+import net.minecraft.entity.item.EntityMinecartHopper;
 import net.minecraft.entity.item.EntityMinecartMobSpawner;
 import net.minecraft.entity.item.EntityMinecartTNT;
 import net.minecraft.entity.player.EntityPlayer;
@@ -32,7 +42,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializer;
@@ -42,7 +51,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -184,9 +192,24 @@ public class MetalTransport {
 			TBone.registerModel(RegistryMT.ID, ItemsMT.METAL_MINECART, "item_minecart", type.ordinal(),	String.format("item=%s", type.getName()));
 		}
 
-		RenderingRegistry.registerEntityRenderingHandler(EntityMinecart.class, manager -> new RenderCart(manager));
+		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartEmpty.class, manager -> new RenderCart(manager));
+		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartChest.class, manager -> new RenderCart(manager));
+		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartCommandBlock.class, manager -> new RenderCart(manager));
+		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartHopper.class, manager -> new RenderCart(manager));
 		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartTNT.class, manager -> new RenderTntCart(manager));
 		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartMobSpawner.class, manager -> new RenderSpawnerCart(manager));
+
+		if (ConfigMT.hasRailcraft()) {
+			RenderingRegistry.registerEntityRenderingHandler(EntityMinecartFurnace.class, manager -> new RenderCart(manager));
+			RenderingRegistry.registerEntityRenderingHandler(EntityCartBasic.class, manager -> new RenderCart(manager));
+			RenderingRegistry.registerEntityRenderingHandler(EntityCartChest.class, manager -> new RenderCart(manager));
+			RenderingRegistry.registerEntityRenderingHandler(EntityCartHopper.class, manager -> new RenderCart(manager));
+			RenderingRegistry.registerEntityRenderingHandler(CartBase.class, manager -> new RenderCart(manager));
+			RenderingRegistry.registerEntityRenderingHandler(CartBaseMaintenance.class, manager -> new RenderCart(manager));
+			RenderingRegistry.registerEntityRenderingHandler(EntityCartWorldspike.class, manager -> new RenderCart(manager));
+		} else {
+			RenderingRegistry.registerEntityRenderingHandler(EntityFurnaceCart.class, manager -> new RenderCart(manager));
+		}
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -200,50 +223,18 @@ public class MetalTransport {
 	}
 
 	@SubscribeEvent
-	public static void metaltransport$attachCapabilities(AttachCapabilitiesEvent<Entity> event) {
-		if (event.getObject() instanceof EntityMinecart) {
-			EntityMinecart cart = (EntityMinecart) event.getObject();
-
-			event.addCapability(RegistryMT.getResource(RegistryMT.KEY_CART_TYPE), new ICapabilitySerializable<NBTTagCompound>() {
-
-				final SerialCartType type = new SerialCartType(cart);
-
-				@Override
-				public NBTTagCompound serializeNBT() {
-					return type.serializeNBT();
-				}
-
-				@Override
-				public void deserializeNBT(NBTTagCompound tag) {
-					type.deserializeNBT(tag);
-				}
-
-				@Override
-				public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
-					if (capability == CapabilitiesMT.CART_TYPE) {
-						return true;
-					}
-					return false;
-				}
-
-				@Nullable
-				@Override
-				public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
-					if (capability == CapabilitiesMT.CART_TYPE) {
-						return (T) type;
-					}
-					return null;
-				}
-			});
-		}
-	}
-
-	@SubscribeEvent
 	public static void metaltransport$onEntityConstruction(EntityEvent.EntityConstructing event) {
 		Entity entity = event.getEntity();
 
 		if (entity instanceof EntityMinecart) {
-			SerialCartType.registerTypes((EntityMinecart) entity);
+			SerialCartType.registerType((EntityMinecart) entity);
+		}
+	}
+
+	@SubscribeEvent
+	public static void metaltransport$attachCapabilities(AttachCapabilitiesEvent<Entity> event) {
+		if (event.getObject() instanceof EntityMinecart) {
+			SerialCartType.attach((EntityMinecart) event.getObject(), event);
 		}
 	}
 
@@ -262,7 +253,7 @@ public class MetalTransport {
 		World world = player.world;
 
 		if (cart instanceof EntityMinecartEmpty) {
-
+			// will be replaced w/ capability check for Display Stack
 		} else {
 			if (player.isSneaking()) {
 				EntityMinecartEmpty emptyCart = new EntityMinecartEmpty(cart.world, cart.posX, cart.posY, cart.posZ);

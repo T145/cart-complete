@@ -17,6 +17,10 @@ public class RenderTntCart extends RenderTntMinecart {
 
 	@Override
 	protected ResourceLocation getEntityTexture(EntityMinecartTNT cart) {
-		return cart.getCapability(CapabilitiesMT.CART_TYPE, null).getType().getResource();
+		if (cart.hasCapability(CapabilitiesMT.CART_TYPE, null)) {
+			return cart.getCapability(CapabilitiesMT.CART_TYPE, null).getType().getResource();
+		} else {
+			return super.getEntityTexture(cart);
+		}
 	}
 }

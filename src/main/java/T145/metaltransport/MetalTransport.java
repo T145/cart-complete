@@ -8,7 +8,6 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
-import T145.metaltransport.api.config.ConfigMT;
 import T145.metaltransport.api.consts.CartType;
 import T145.metaltransport.api.consts.ItemCartType;
 import T145.metaltransport.api.consts.RegistryMT;
@@ -23,20 +22,10 @@ import T145.metaltransport.entities.EntityFurnaceCart;
 import T145.metaltransport.items.ItemCart;
 import T145.tbone.core.TBone;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
-import mods.railcraft.common.carts.CartBase;
-import mods.railcraft.common.carts.CartBaseMaintenance;
-import mods.railcraft.common.carts.EntityCartBasic;
-import mods.railcraft.common.carts.EntityCartChest;
-import mods.railcraft.common.carts.EntityCartHopper;
-import mods.railcraft.common.carts.EntityCartWorldspike;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
-import net.minecraft.entity.item.EntityMinecartChest;
-import net.minecraft.entity.item.EntityMinecartCommandBlock;
 import net.minecraft.entity.item.EntityMinecartEmpty;
-import net.minecraft.entity.item.EntityMinecartFurnace;
-import net.minecraft.entity.item.EntityMinecartHopper;
 import net.minecraft.entity.item.EntityMinecartMobSpawner;
 import net.minecraft.entity.item.EntityMinecartTNT;
 import net.minecraft.entity.player.EntityPlayer;
@@ -199,24 +188,15 @@ public class MetalTransport {
 			TBone.registerModel(RegistryMT.ID, ItemsMT.METAL_MINECART, "item_minecart", type.ordinal(),	String.format("item=%s", type.getName()));
 		}
 
-		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartEmpty.class, manager -> new RenderCart(manager));
-		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartChest.class, manager -> new RenderCart(manager));
-		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartCommandBlock.class, manager -> new RenderCart(manager));
-		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartHopper.class, manager -> new RenderCart(manager));
+		// TODO: Figure out a proper way to handle custom renderers
+		for (Class c : SerialCartType.WHITELIST) {
+			if (c != EntityMinecartTNT.class && c != EntityMinecartMobSpawner.class) {
+				RenderingRegistry.registerEntityRenderingHandler(c, manager -> new RenderCart(manager));
+			}
+		}
+
 		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartTNT.class, manager -> new RenderTntCart(manager));
 		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartMobSpawner.class, manager -> new RenderSpawnerCart(manager));
-
-		if (ConfigMT.hasRailcraft()) {
-			RenderingRegistry.registerEntityRenderingHandler(EntityMinecartFurnace.class, manager -> new RenderCart(manager));
-			RenderingRegistry.registerEntityRenderingHandler(EntityCartBasic.class, manager -> new RenderCart(manager));
-			RenderingRegistry.registerEntityRenderingHandler(EntityCartChest.class, manager -> new RenderCart(manager));
-			RenderingRegistry.registerEntityRenderingHandler(EntityCartHopper.class, manager -> new RenderCart(manager));
-			RenderingRegistry.registerEntityRenderingHandler(CartBase.class, manager -> new RenderCart(manager));
-			RenderingRegistry.registerEntityRenderingHandler(CartBaseMaintenance.class, manager -> new RenderCart(manager));
-			RenderingRegistry.registerEntityRenderingHandler(EntityCartWorldspike.class, manager -> new RenderCart(manager));
-		} else {
-			RenderingRegistry.registerEntityRenderingHandler(EntityFurnaceCart.class, manager -> new RenderCart(manager));
-		}
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)

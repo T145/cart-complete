@@ -13,16 +13,16 @@ import T145.metaltransport.api.consts.CartType;
 import T145.metaltransport.api.consts.RegistryMT;
 import T145.metaltransport.api.obj.CapabilitiesMT;
 import T145.metaltransport.api.obj.SerializersMT;
-import mods.railcraft.common.carts.EntityCartGift;
-import mods.railcraft.common.carts.EntityCartPumpkin;
-import mods.railcraft.common.carts.EntityCartTNTWood;
-import mods.railcraft.common.carts.EntityLocomotive;
-import mods.railcraft.common.carts.EntityLocomotiveCreative;
-import mods.railcraft.common.carts.EntityLocomotiveElectric;
-import mods.railcraft.common.carts.EntityLocomotiveSteam;
-import mods.railcraft.common.carts.EntityLocomotiveSteamSolid;
+import T145.metaltransport.entities.EntityFurnaceCart;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
+import net.minecraft.entity.item.EntityMinecartChest;
+import net.minecraft.entity.item.EntityMinecartCommandBlock;
+import net.minecraft.entity.item.EntityMinecartEmpty;
+import net.minecraft.entity.item.EntityMinecartFurnace;
+import net.minecraft.entity.item.EntityMinecartHopper;
+import net.minecraft.entity.item.EntityMinecartMobSpawner;
+import net.minecraft.entity.item.EntityMinecartTNT;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -34,21 +34,19 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 
 public class SerialCartType implements INBTSerializable<NBTTagCompound> {
 
-	public static final Set<Class<? extends EntityMinecart>> BLACKLIST = new HashSet() {{
-		if (ConfigMT.hasRailcraft()) {
-			add(EntityLocomotiveCreative.class);
-			add(EntityLocomotiveElectric.class);
-			add(EntityLocomotiveSteam.class);
-			add(EntityLocomotiveSteamSolid.class);
-			add(EntityLocomotive.class);
-			add(EntityCartGift.class);
-			add(EntityCartPumpkin.class);
-			add(EntityCartTNTWood.class);
-		}
+	public static final Set<Class<? extends EntityMinecart>> WHITELIST = new HashSet() {{
+		add(EntityMinecartEmpty.class);
+		add(EntityMinecartChest.class);
+		add(EntityMinecartFurnace.class);
+		add(EntityMinecartCommandBlock.class);
+		add(EntityMinecartHopper.class);
+		add(EntityMinecartTNT.class);
+		add(EntityMinecartMobSpawner.class);
+		add(EntityFurnaceCart.class);
 
-		for (String className : ConfigMT.blacklist) {
+		for (String className : ConfigMT.whitelist) {
 			try {
-				BLACKLIST.add((Class<? extends EntityMinecart>) Class.forName(className));
+				WHITELIST.add((Class<? extends EntityMinecart>) Class.forName(className));
 			} catch (ClassNotFoundException err) {
 				RegistryMT.LOG.catching(err);
 			}
@@ -56,7 +54,6 @@ public class SerialCartType implements INBTSerializable<NBTTagCompound> {
 	}};
 
 	public static final Map<Class<? extends EntityMinecart>, DataParameter<CartType>> PARAMS = new HashMap<>();
-
 	public static final DataParameter<CartType> CART_TYPE = EntityDataManager.createKey(EntityMinecart.class, SerializersMT.CART_TYPE);
 
 	private static DataParameter<CartType> createKey(Class<? extends EntityMinecart> cartClass) {
@@ -70,7 +67,7 @@ public class SerialCartType implements INBTSerializable<NBTTagCompound> {
 		if (data.getAll().size() == 13) {
 			// the cart has no custom data parameters, so it can just get the default
 			data.register(CART_TYPE, CartType.IRON);
-		} else if (!BLACKLIST.contains(cartClass)) {
+		} else if (WHITELIST.contains(cartClass)) {
 			if (PARAMS.containsKey(cartClass)) {
 				data.register(PARAMS.get(cartClass), CartType.IRON);
 			} else {
@@ -82,7 +79,7 @@ public class SerialCartType implements INBTSerializable<NBTTagCompound> {
 	}
 
 	public static void attach(EntityMinecart cart, AttachCapabilitiesEvent<Entity> event) {
-		if (!BLACKLIST.contains(cart.getClass())) {
+		if (WHITELIST.contains(cart.getClass())) {
 			event.addCapability(RegistryMT.getResource(RegistryMT.KEY_CART_TYPE), new ICapabilitySerializable<NBTTagCompound>() {
 
 				final SerialCartType type = new SerialCartType(cart);
@@ -126,24 +123,13 @@ public class SerialCartType implements INBTSerializable<NBTTagCompound> {
 	public CartType getType() {
 		EntityDataManager data = cart.getDataManager();
 		Class<? extends EntityMinecart> cartClass = cart.getClass();
-
-		if (PARAMS.containsKey(cartClass)) {
-			return data.get(PARAMS.get(cartClass));
-		} else {
-			return data.get(CART_TYPE);
-		}
+		return data.get(PARAMS.containsKey(cartClass) ? PARAMS.get(cartClass) : CART_TYPE);
 	}
 
 	public SerialCartType setType(CartType type) {
 		EntityDataManager data = cart.getDataManager();
 		Class<? extends EntityMinecart> cartClass = cart.getClass();
-
-		if (PARAMS.containsKey(cartClass)) {
-			data.set(PARAMS.get(cartClass), type);
-		} else {
-			data.set(CART_TYPE, type);
-		}
-
+		data.set(PARAMS.containsKey(cartClass) ? PARAMS.get(cartClass) : CART_TYPE, type);
 		return this;
 	}
 

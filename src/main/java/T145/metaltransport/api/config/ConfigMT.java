@@ -13,9 +13,9 @@ public class ConfigMT {
 	@Config.Comment("Whether or not all vanilla minecarts are removed (entities & items).")
 	public static boolean replaceVanillaMinecarts = true;
 
-	@Config.Comment("Cart classes which should be ignored by the MetalTransport system. NOTE: Railcraft handled internally.")
+	@Config.Comment("Cart classes which should be modified by the MetalTransport system. NOTE: Vanilla handled internally.")
 	@Config.RequiresMcRestart
-	public static String[] blacklist = new String[] {};
+	public static String[] whitelist = new String[] {};
 
 	public static boolean hasRailcraft() {
 		return Loader.isModLoaded("railcraft");

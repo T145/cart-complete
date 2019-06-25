@@ -1,6 +1,10 @@
 package T145.metaltransport;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
@@ -46,6 +50,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelRegistryEvent;
@@ -59,6 +64,7 @@ import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.minecart.MinecartInteractEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -71,6 +77,7 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.DataSerializerEntry;
@@ -248,6 +255,37 @@ public class MetalTransport {
 		return !stack.isEmpty() && getBlockFromStack(stack) != Blocks.AIR /* && block is relatively normal && in whitelist || not in blacklist */;
 	}
 
+	/**
+	 * Copied from Quark:
+	 * https://github.com/Vazkii/Quark/blob/master/src/main/java/vazkii/quark/tweaks/feature/MinecartInteraction.java#L57
+	 */
+	private static EntityMinecart getMinecart(ResourceLocation rl, World world, double x, double y, double z) {
+		try {
+			EntityEntry entry = ForgeRegistries.ENTITIES.getValue(rl);
+			if (entry != null) {
+				Class<? extends Entity> minecartClass = entry.getEntityClass();
+				return (EntityMinecart) minecartClass
+						.getConstructor(World.class, double.class, double.class, double.class)
+						.newInstance(world, x, y, z);
+			}
+		} catch (InstantiationException | IllegalAccessException | InvocationTargetException
+				| NoSuchMethodException err) {
+			RegistryMT.LOG.catching(err);
+		}
+		return null;
+	}
+
+	public static final Map<Item, Function<EntityMinecartEmpty, EntityMinecart>> INSERTERS = new HashMap<>();
+
+	static {
+		INSERTERS.put(Item.getItemFromBlock(Blocks.CHEST), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "chest_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
+		INSERTERS.put(Item.getItemFromBlock(Blocks.TNT), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "tnt_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
+		INSERTERS.put(Item.getItemFromBlock(Blocks.FURNACE), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "furnace_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
+		INSERTERS.put(Item.getItemFromBlock(Blocks.HOPPER), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "hopper_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
+		INSERTERS.put(Item.getItemFromBlock(Blocks.COMMAND_BLOCK), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "commandblock_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
+		INSERTERS.put(Item.getItemFromBlock(Blocks.MOB_SPAWNER), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "spawner_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
+	}
+
 	@SubscribeEvent
 	public static void metaltransport$minecartInteract(MinecartInteractEvent event) {
 		EntityMinecart cart = event.getMinecart();
@@ -256,6 +294,40 @@ public class MetalTransport {
 
 		if (cart instanceof EntityMinecartEmpty) {
 			// will be replaced w/ capability check for Display Stack
+			if (!cart.isBeingRidden() && !Loader.isModLoaded("quark")) {
+				EnumHand hand = EnumHand.MAIN_HAND;
+				ItemStack stack = player.getHeldItemMainhand();
+
+				if (stack.isEmpty() || !INSERTERS.containsKey(stack.getItem())) {
+					stack = player.getHeldItemOffhand();
+					hand = EnumHand.OFF_HAND;
+				}
+
+				if (!stack.isEmpty() && INSERTERS.containsKey(stack.getItem())) {
+					if (!world.isRemote) {
+						EntityMinecart minecart = INSERTERS.get(stack.getItem()).apply((EntityMinecartEmpty) cart);
+
+						if (minecart != null) {
+							CartType type = cart.getCapability(CapabilitiesMT.CART_TYPE, null).getType();
+							minecart.getCapability(CapabilitiesMT.CART_TYPE, null).setType(type);
+
+							cart.setDead();
+							world.spawnEntity(minecart);
+
+							if (!player.capabilities.isCreativeMode) {
+								stack.shrink(1);
+
+								if (stack.getCount() <= 0) {
+									player.setHeldItem(hand, ItemStack.EMPTY);
+								}
+							}
+						}
+					}
+
+					player.swingArm(hand);
+					event.setCanceled(true);
+				}
+			}
 		} else {
 			if (player.isSneaking()) {
 				EntityMinecartEmpty emptyCart = new EntityMinecartEmpty(cart.world, cart.posX, cart.posY, cart.posZ);

@@ -216,7 +216,7 @@ public class MetalTransport {
 		Entity entity = event.getEntity();
 
 		if (entity instanceof EntityMinecart) {
-			SerialCartType.registerType((EntityMinecart) entity);
+			SerialCartType.register((EntityMinecart) entity);
 		}
 	}
 

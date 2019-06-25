@@ -47,7 +47,7 @@ public class SerialCartType implements INBTSerializable<NBTTagCompound> {
 		for (String className : ConfigMT.whitelist) {
 			try {
 				WHITELIST.add((Class<? extends EntityMinecart>) Class.forName(className));
-			} catch (ClassNotFoundException err) {
+			} catch (ClassNotFoundException | ClassCastException err) {
 				RegistryMT.LOG.catching(err);
 			}
 		}
@@ -60,7 +60,7 @@ public class SerialCartType implements INBTSerializable<NBTTagCompound> {
 		return EntityDataManager.createKey(cartClass, SerializersMT.CART_TYPE);
 	}
 
-	public static void registerType(EntityMinecart cart) {
+	public static void register(EntityMinecart cart) {
 		EntityDataManager data = cart.getDataManager();
 		Class<? extends EntityMinecart> cartClass = cart.getClass();
 

@@ -1,9 +1,5 @@
-package T145.metaltransport.items;
+package t145.metaltransport.items;
 
-import T145.metaltransport.api.consts.ItemCartType;
-import T145.metaltransport.api.consts.RegistryMT;
-import T145.metaltransport.api.obj.CapabilitiesMT;
-import T145.metaltransport.entities.EntityFurnaceCart;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
 import T145.tbone.items.TItem;
 import net.minecraft.creativetab.CreativeTabs;
@@ -16,22 +12,37 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import t145.metaltransport.api.caps.CapabilityCartType;
+import t145.metaltransport.api.consts.ItemCartType;
+import t145.metaltransport.api.consts.RegistryMT;
+import t145.metaltransport.entities.EntityFurnaceCart;
 
 public class ItemCart extends TItem {
 
 	public static final BehaviorDispenseMinecart DISPENSER_BEHAVIOR = new BehaviorDispenseMinecart() {
 
+		private EntityMinecart getCartInstance(World world, double x, double y, double z, EntityMinecart.Type type) {
+			switch (type) {
+			//case RIDEABLE:
+				//return new EntityMetalCart(world, x, y, z);
+			case FURNACE:
+				return new EntityFurnaceCart(world, x, y, z);
+			default:
+				return EntityMinecart.create(world, x, y, z, type);
+			}
+		}
+
 		@Override
 		public EntityMinecart getMinecartEntity(World world, double x, double y, double z, ItemStack stack) {
 			ItemCartType itemType = ItemCartType.values()[stack.getItemDamage()];
-			EntityMinecart cart = itemType.getCartType() == EntityMinecart.Type.FURNACE ? new EntityFurnaceCart(world, x, y, z) : EntityMinecart.create(world, x, y, z, itemType.getCartType());
-			cart.getCapability(CapabilitiesMT.CART_TYPE, null).setType(itemType.getType());
+			EntityMinecart cart = getCartInstance(world, x, y, z, itemType.getCartType());
+			cart.getCapability(CapabilityCartType.instance, null).setType(itemType.getType());
 			return cart;
 		}
 	};
 
 	public ItemCart() {
-		super(RegistryMT.RESOURCE_METAL_MINECART, ItemCartType.values(), CreativeTabs.TRANSPORTATION);
+		super(ItemCartType.values(), RegistryMT.RESOURCE_METAL_MINECART, CreativeTabs.TRANSPORTATION);
 		this.setMaxStackSize(new ItemStack(Items.MINECART).getMaxStackSize());
 	}
 

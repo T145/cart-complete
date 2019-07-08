@@ -1,27 +1,14 @@
-package T145.metaltransport;
+package t145.metaltransport.core;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
-import T145.metaltransport.api.consts.CartType;
-import T145.metaltransport.api.consts.ItemCartType;
-import T145.metaltransport.api.consts.RegistryMT;
-import T145.metaltransport.api.obj.CapabilitiesMT;
-import T145.metaltransport.api.obj.ItemsMT;
-import T145.metaltransport.api.obj.SerializersMT;
-import T145.metaltransport.api.obj.caps.SerialCartType;
-import T145.metaltransport.client.render.entities.RenderCart;
-import T145.metaltransport.client.render.entities.RenderSpawnerCart;
-import T145.metaltransport.client.render.entities.RenderTntCart;
-import T145.metaltransport.entities.EntityFurnaceCart;
-import T145.metaltransport.items.ItemCart;
 import T145.tbone.core.TBone;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
@@ -45,13 +32,11 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.config.Config;
-import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.minecart.MinecartInteractEvent;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
@@ -71,19 +56,38 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.DataSerializerEntry;
 import net.minecraftforge.registries.IForgeRegistry;
+import t145.metaltransport.api.caps.CapabilityCartType;
+import t145.metaltransport.api.consts.CartType;
+import t145.metaltransport.api.consts.ItemCartType;
+import t145.metaltransport.api.consts.RegistryMT;
+import t145.metaltransport.api.objs.ItemsMT;
+import t145.metaltransport.api.objs.SerializersMT;
+import t145.metaltransport.client.render.entities.RenderCart;
+import t145.metaltransport.client.render.entities.RenderSpawnerCart;
+import t145.metaltransport.client.render.entities.RenderTntCart;
+import t145.metaltransport.entities.EntityFurnaceCart;
+import t145.metaltransport.items.ItemCart;
 
 @Mod(modid = RegistryMT.ID, name = RegistryMT.NAME, version = MetalTransport.VERSION, updateJSON = MetalTransport.UPDATE_JSON, dependencies = "required-after:tbone;after:metalchests")
-@EventBusSubscriber(modid = RegistryMT.ID)
+@EventBusSubscriber
 public class MetalTransport {
 
 	public static final String VERSION = "@VERSION@";
 	public static final String UPDATE_JSON = "https://raw.githubusercontent.com/T145/metaltransport/master/update.json";
+	private static final Object2ObjectOpenHashMap<Item, Function<EntityMinecartEmpty, EntityMinecart>> CARTS = new Object2ObjectOpenHashMap() {{
+		CARTS.put(Item.getItemFromBlock(Blocks.CHEST), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "chest_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
+		CARTS.put(Item.getItemFromBlock(Blocks.TNT), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "tnt_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
+		CARTS.put(Item.getItemFromBlock(Blocks.FURNACE), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "furnace_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
+		CARTS.put(Item.getItemFromBlock(Blocks.HOPPER), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "hopper_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
+		CARTS.put(Item.getItemFromBlock(Blocks.COMMAND_BLOCK), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "commandblock_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
+		CARTS.put(Item.getItemFromBlock(Blocks.MOB_SPAWNER), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "spawner_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
+	}};
 
 	public MetalTransport() {
 		TBone.registerMod(RegistryMT.ID, RegistryMT.NAME);
 	}
 
-	public static boolean inDevMode() {
+	public static boolean isDeobfuscated() {
 		return VERSION.contentEquals("@VERSION@");
 	}
 
@@ -106,17 +110,17 @@ public class MetalTransport {
 	}
 
 	@EventHandler
-	public void init(FMLInitializationEvent event) {
-		CapabilityManager.INSTANCE.register(SerialCartType.class, new Capability.IStorage<SerialCartType>() {
+	public void metaltransport$init(final FMLInitializationEvent event) {
+		CapabilityManager.INSTANCE.register(CapabilityCartType.class, new Capability.IStorage<CapabilityCartType>() {
 
 			@Nullable
 			@Override
-			public NBTBase writeNBT(Capability<SerialCartType> capability, SerialCartType instance, EnumFacing side) {
+			public NBTBase writeNBT(Capability<CapabilityCartType> capability, CapabilityCartType instance, EnumFacing side) {
 				return null;
 			}
 
 			@Override
-			public void readNBT(Capability<SerialCartType> capability, SerialCartType instance, EnumFacing side, NBTBase nbt) {}
+			public void readNBT(Capability<CapabilityCartType> capability, CapabilityCartType instance, EnumFacing side, NBTBase nbt) {}
 
 		}, () -> null);
 	}
@@ -124,36 +128,6 @@ public class MetalTransport {
 	@EventHandler
 	public void metaltransport$postInit(final FMLPostInitializationEvent event) {
 		BehaviorDispenseMinecart.register(ItemsMT.METAL_MINECART, ItemCart.DISPENSER_BEHAVIOR);
-	}
-
-	@SubscribeEvent
-	public static void metaltransport$registerSerializers(final RegistryEvent.Register<DataSerializerEntry> event) {
-		final IForgeRegistry<DataSerializerEntry> registry = event.getRegistry();
-
-		registry.register(SerializersMT.ENTRY_CART_TYPE = new DataSerializerEntry(
-				SerializersMT.CART_TYPE = new DataSerializer<CartType>() {
-
-					@Override
-					public void write(PacketBuffer buf, CartType value) {
-						buf.writeEnumValue(value);
-					}
-
-					@Override
-					public CartType read(PacketBuffer buf) throws IOException {
-						return buf.readEnumValue(CartType.class);
-					}
-
-					@Override
-					public DataParameter<CartType> createKey(int id) {
-						return new DataParameter<CartType>(id, this);
-					}
-
-					@Override
-					public CartType copyValue(CartType value) {
-						return value;
-					}
-
-				}).setRegistryName(RegistryMT.ID, RegistryMT.KEY_CART_TYPE));
 	}
 
 	@SubscribeEvent
@@ -188,8 +162,9 @@ public class MetalTransport {
 			TBone.registerModel(RegistryMT.ID, ItemsMT.METAL_MINECART, "item_minecart", type.ordinal(),	String.format("item=%s", type.getName()));
 		}
 
-		// TODO: Figure out a proper way to handle custom renderers
-		for (Class c : SerialCartType.WHITELIST) {
+		// TODO: Find a better way to register custom renders
+		// - iterate over difference of whitelist and blacklist
+		for (Class c : CapabilityCartType.WHITELIST) {
 			if (c != EntityMinecartTNT.class && c != EntityMinecartMobSpawner.class) {
 				RenderingRegistry.registerEntityRenderingHandler(c, manager -> new RenderCart(manager));
 			}
@@ -205,25 +180,82 @@ public class MetalTransport {
 	}
 
 	@SubscribeEvent
-	public static void metaltransport$updateConfig(OnConfigChangedEvent event) {
-		if (event.getModID().equals(RegistryMT.ID)) {
-			ConfigManager.sync(RegistryMT.ID, Config.Type.INSTANCE);
-		}
+	public static void metaltransport$registerSerializers(final RegistryEvent.Register<DataSerializerEntry> event) {
+		final IForgeRegistry<DataSerializerEntry> registry = event.getRegistry();
+
+		registry.register(SerializersMT.ENTRY_CART_TYPE = new DataSerializerEntry(
+				SerializersMT.CART_TYPE = new DataSerializer<CartType>() {
+
+					@Override
+					public void write(PacketBuffer buf, CartType value) {
+						buf.writeEnumValue(value);
+					}
+
+					@Override
+					public CartType read(PacketBuffer buf) throws IOException {
+						return buf.readEnumValue(CartType.class);
+					}
+
+					@Override
+					public DataParameter<CartType> createKey(int id) {
+						return new DataParameter<CartType>(id, this);
+					}
+
+					@Override
+					public CartType copyValue(CartType value) {
+						return value;
+					}
+
+				}).setRegistryName(RegistryMT.ID, RegistryMT.KEY_CART_TYPE));
 	}
 
 	@SubscribeEvent
-	public static void metaltransport$onEntityConstruction(EntityEvent.EntityConstructing event) {
+	public static void metaltransport$constructEntity(final EntityEvent.EntityConstructing event) {
 		Entity entity = event.getEntity();
 
 		if (entity instanceof EntityMinecart) {
-			SerialCartType.register((EntityMinecart) entity);
+			CapabilityCartType.register((EntityMinecart) entity);
 		}
 	}
 
 	@SubscribeEvent
-	public static void metaltransport$attachCapabilities(AttachCapabilitiesEvent<Entity> event) {
-		if (event.getObject() instanceof EntityMinecart) {
-			SerialCartType.attach((EntityMinecart) event.getObject(), event);
+	public static void metaltransport$attachCapabilities(final AttachCapabilitiesEvent<Entity> event) {
+		Entity entity = event.getObject();
+
+		if (entity instanceof EntityMinecart) {
+			CapabilityCartType.attach((EntityMinecart) entity, event);
+		}
+	}
+
+	// TODO: Compensate for death by explosions
+	@SubscribeEvent
+	public static void metaltransport$entityAttacked(final AttackEntityEvent event) {
+		Entity target = event.getTarget();
+
+		if (target instanceof EntityMinecart) {
+			EntityMinecart cart = (EntityMinecart) target;
+			World world = cart.world;
+
+			if (!world.isRemote && !cart.getIsInvulnerable() && cart.hasCapability(CapabilityCartType.instance, null)) {
+				CartType type = cart.getCapability(CapabilityCartType.instance, null).getType();
+
+				if (type.getKillRange().contains(cart.getDamage()) && world.getGameRules().getBoolean("doEntityDrops")) {
+					ItemStack cartStack = new ItemStack(ItemsMT.METAL_MINECART, 1, ItemCartType.getEmptyType(type).ordinal());
+
+					if (cart.hasCustomName()) {
+						cartStack.setStackDisplayName(cart.getCustomNameTag());
+					}
+
+					cart.entityDropItem(cartStack, 0.0F);
+
+					if (cart.getType() != EntityMinecart.Type.RIDEABLE) {
+						cart.entityDropItem(new ItemStack(cart.getDisplayTile().getBlock()), 0.0F);
+					}
+
+					cart.setDead();
+					event.setCanceled(true);
+				}
+			}
 		}
 	}
 
@@ -255,17 +287,6 @@ public class MetalTransport {
 		return null;
 	}
 
-	public static final Map<Item, Function<EntityMinecartEmpty, EntityMinecart>> INSERTERS = new HashMap<>();
-
-	static {
-		INSERTERS.put(Item.getItemFromBlock(Blocks.CHEST), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "chest_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
-		INSERTERS.put(Item.getItemFromBlock(Blocks.TNT), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "tnt_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
-		INSERTERS.put(Item.getItemFromBlock(Blocks.FURNACE), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "furnace_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
-		INSERTERS.put(Item.getItemFromBlock(Blocks.HOPPER), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "hopper_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
-		INSERTERS.put(Item.getItemFromBlock(Blocks.COMMAND_BLOCK), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "commandblock_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
-		INSERTERS.put(Item.getItemFromBlock(Blocks.MOB_SPAWNER), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "spawner_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
-	}
-
 	@SubscribeEvent
 	public static void metaltransport$minecartInteract(MinecartInteractEvent event) {
 		EntityMinecart cart = event.getMinecart();
@@ -278,18 +299,18 @@ public class MetalTransport {
 				EnumHand hand = EnumHand.MAIN_HAND;
 				ItemStack stack = player.getHeldItemMainhand();
 
-				if (stack.isEmpty() || !INSERTERS.containsKey(stack.getItem())) {
+				if (stack.isEmpty() || !CARTS.containsKey(stack.getItem())) {
 					stack = player.getHeldItemOffhand();
 					hand = EnumHand.OFF_HAND;
 				}
 
-				if (!stack.isEmpty() && INSERTERS.containsKey(stack.getItem())) {
+				if (!stack.isEmpty() && CARTS.containsKey(stack.getItem())) {
 					if (!world.isRemote) {
-						EntityMinecart minecart = INSERTERS.get(stack.getItem()).apply((EntityMinecartEmpty) cart);
+						EntityMinecart minecart = CARTS.get(stack.getItem()).apply((EntityMinecartEmpty) cart);
 
 						if (minecart != null) {
-							CartType type = cart.getCapability(CapabilitiesMT.CART_TYPE, null).getType();
-							minecart.getCapability(CapabilitiesMT.CART_TYPE, null).setType(type);
+							CartType type = cart.getCapability(CapabilityCartType.instance, null).getType();
+							minecart.getCapability(CapabilityCartType.instance, null).setType(type);
 
 							cart.setDead();
 							world.spawnEntity(minecart);
@@ -311,8 +332,8 @@ public class MetalTransport {
 		} else {
 			if (player.isSneaking()) {
 				EntityMinecartEmpty emptyCart = new EntityMinecartEmpty(cart.world, cart.posX, cart.posY, cart.posZ);
-				CartType type = cart.getCapability(CapabilitiesMT.CART_TYPE, null).getType();
-				emptyCart.getCapability(CapabilitiesMT.CART_TYPE, null).setType(type);
+				CartType type = cart.getCapability(CapabilityCartType.instance, null).getType();
+				emptyCart.getCapability(CapabilityCartType.instance, null).setType(type);
 				emptyCart.motionX = cart.motionX;
 				emptyCart.motionY = cart.motionY;
 				emptyCart.motionZ = cart.motionZ;

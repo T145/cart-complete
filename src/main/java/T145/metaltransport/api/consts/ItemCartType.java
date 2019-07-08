@@ -1,8 +1,7 @@
-package T145.metaltransport.api.consts;
+package t145.metaltransport.api.consts;
 
 import org.apache.commons.lang3.text.WordUtils;
 
-import T145.metaltransport.api.obj.ItemsMT;
 import net.minecraft.block.Block;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.init.Blocks;
@@ -10,6 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import t145.metaltransport.api.objs.ItemsMT;
 
 public enum ItemCartType implements IStringSerializable {
 
@@ -82,8 +82,8 @@ public enum ItemCartType implements IStringSerializable {
 		return this.name().toLowerCase();
 	}
 
-	public static ItemCartType getEmptyType(ItemCartType type) {
-		switch (type.getType()) {
+	public static ItemCartType getEmptyType(CartType type) {
+		switch (type) {
 		case COPPER:
 			return COPPER;
 		case SILVER:
@@ -99,8 +99,8 @@ public enum ItemCartType implements IStringSerializable {
 		}
 	}
 
-	public static Block getTypeBlock(ItemCartType type) {
-		switch (type.getCartType()) {
+	public static Block getTypeBlock(EntityMinecart.Type type) {
+		switch (type) {
 		case CHEST:
 			return Blocks.CHEST;
 		case COMMAND_BLOCK:
@@ -126,13 +126,13 @@ public enum ItemCartType implements IStringSerializable {
 				GameRegistry.addShapedRecipe(new ResourceLocation(RegistryMT.ID, WordUtils.capitalize(recipeName)), RegistryMT.RECIPE_GROUP,
 						new ItemStack(ItemsMT.METAL_MINECART, 1, type.ordinal()),
 						"a a", "aaa",
-						'a', type.getType().getOreName());
+						'a', type.getType().getOre());
 			} else {
 				GameRegistry.addShapedRecipe(new ResourceLocation(RegistryMT.ID, WordUtils.capitalize(recipeName)), RegistryMT.RECIPE_GROUP,
 						new ItemStack(ItemsMT.METAL_MINECART, 1, type.ordinal()),
 						"a", "b",
-						'a', new ItemStack(getTypeBlock(type)),
-						'b', new ItemStack(ItemsMT.METAL_MINECART, 1, getEmptyType(type).ordinal()));
+						'a', new ItemStack(getTypeBlock(type.cartType)),
+						'b', new ItemStack(ItemsMT.METAL_MINECART, 1, getEmptyType(type.type).ordinal()));
 			}
 
 			// register to oredict?

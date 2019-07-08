@@ -1,38 +1,27 @@
-package T145.metaltransport.api.consts;
+package t145.metaltransport.api.consts;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import com.google.common.collect.Range;
 
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.oredict.OreDictionary;
 
 public enum CartType implements IStringSerializable {
 
-	COPPER("ingotCopper"),
-	IRON("ingotIron"),
-	SILVER("ingotSilver"),
-	GOLD("ingotGold"),
-	DIAMOND("gemDiamond"),
-	OBSIDIAN("obsidian");
+	COPPER("ingotCopper", Range.closed(11F, 20F)),
+	IRON("ingotIron", Range.closed(31F, 40F)),
+	SILVER("ingotSilver", Range.closed(21F, 30F)),
+	GOLD("ingotGold", Range.closed(21F, 30F)),
+	DIAMOND("gemDiamond", Range.closed(61F, 70F)),
+	OBSIDIAN("obsidian", Range.closed(91F, 100F));
 
-	private static final Set<CartType> TIERS = new HashSet<>(CartType.values().length);
+	private final String ore;
+	private final Range killRange;
+	private final ResourceLocation model;
 
-	static {
-		for (CartType type : CartType.values()) {
-			if (type.hasOre()) {
-				TIERS.add(type);
-			}
-		}
-	}
-
-	private final String oreName;
-	private final ResourceLocation modelResource;
-
-	CartType(String oreName) {
-		this.oreName = oreName;
-		this.modelResource = RegistryMT.getResource(String.format("textures/entity/minecart/%s.png", getName()));
+	CartType(String ore, Range killRange) {
+		this.ore = ore;
+		this.killRange = killRange;
+		this.model = RegistryMT.getResource(String.format("textures/entity/minecart/%s.png", getName()));
 	}
 
 	@Override
@@ -40,31 +29,15 @@ public enum CartType implements IStringSerializable {
 		return name().toLowerCase();
 	}
 
-	public ResourceLocation getResource() {
-		return modelResource;
+	public String getOre() {
+		return ore;
 	}
 
-	public String getOreName() {
-		return oreName;
+	public Range getKillRange() {
+		return killRange;
 	}
 
-	public boolean hasOre() {
-		return OreDictionary.doesOreNameExist(oreName);
-	}
-
-	public boolean isRegistered() {
-		return TIERS.contains(this) && hasOre();
-	}
-
-	public static CartType byMetadata(int meta) {
-		return values()[meta];
-	}
-
-	public static CartType byOreName(String oreName) {
-		return Arrays.stream(values()).filter(type -> type.getOreName() == oreName).findFirst().get();
-	}
-
-	public String getIdName() {
-		return String.format("%s:%s_cart", RegistryMT.ID, getName());
+	public ResourceLocation getModel() {
+		return model;
 	}
 }

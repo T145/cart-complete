@@ -1,4 +1,4 @@
-package T145.metaltransport.entities;
+package t145.metaltransport.entities;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityMinecart;

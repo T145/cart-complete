@@ -74,14 +74,16 @@ public class MetalTransport {
 
 	public static final String VERSION = "@VERSION@";
 	public static final String UPDATE_JSON = "https://raw.githubusercontent.com/T145/metaltransport/master/update.json";
-	private static final Object2ObjectOpenHashMap<Item, Function<EntityMinecartEmpty, EntityMinecart>> CARTS = new Object2ObjectOpenHashMap() {{
+	private static final Object2ObjectOpenHashMap<Item, Function<EntityMinecartEmpty, EntityMinecart>> CARTS = new Object2ObjectOpenHashMap<>();
+
+	static {
 		CARTS.put(Item.getItemFromBlock(Blocks.CHEST), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "chest_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
 		CARTS.put(Item.getItemFromBlock(Blocks.TNT), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "tnt_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
 		CARTS.put(Item.getItemFromBlock(Blocks.FURNACE), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "furnace_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
 		CARTS.put(Item.getItemFromBlock(Blocks.HOPPER), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "hopper_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
 		CARTS.put(Item.getItemFromBlock(Blocks.COMMAND_BLOCK), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "commandblock_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
 		CARTS.put(Item.getItemFromBlock(Blocks.MOB_SPAWNER), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "spawner_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
-	}};
+	}
 
 	public MetalTransport() {
 		TBone.registerMod(RegistryMT.ID, RegistryMT.NAME);

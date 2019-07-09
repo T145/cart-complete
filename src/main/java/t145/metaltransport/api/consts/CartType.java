@@ -12,6 +12,7 @@ public enum CartType implements IStringSerializable {
 	SILVER("ingotSilver", Range.closed(21F, 30F)),
 	GOLD("ingotGold", Range.closed(21F, 30F)),
 	DIAMOND("gemDiamond", Range.closed(61F, 70F)),
+	EMERALD("gemEmerald", Range.closed(61F, 70F)),
 	OBSIDIAN("obsidian", Range.closed(91F, 100F));
 
 	private final String ore;

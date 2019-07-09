@@ -282,8 +282,7 @@ public class MetalTransport {
 						.getConstructor(World.class, double.class, double.class, double.class)
 						.newInstance(world, x, y, z);
 			}
-		} catch (InstantiationException | IllegalAccessException | InvocationTargetException
-				| NoSuchMethodException err) {
+		} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException err) {
 			RegistryMT.LOG.catching(err);
 		}
 		return null;

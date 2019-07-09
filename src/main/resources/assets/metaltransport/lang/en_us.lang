@@ -48,6 +48,14 @@ item.metaltransport:metal_minecart.diamond_spawner.name=Diamond Minecart With Mo
 item.metaltransport:metal_minecart.diamond_hopper.name=Diamond Minecart With Hopper
 item.metaltransport:metal_minecart.diamond_command_block.name=Diamond Minecart With Command Block
 
+item.metaltransport:metal_minecart.emerald.name=Emerald Minecart
+item.metaltransport:metal_minecart.emerald_chest.name=Emerald Minecart With Chest
+item.metaltransport:metal_minecart.emerald_furnace.name=Emerald Minecart With Furnace
+item.metaltransport:metal_minecart.emerald_tnt.name=Emerald Minecart With TNT
+item.metaltransport:metal_minecart.emerald_spawner.name=Emerald Minecart With Mob Spawner
+item.metaltransport:metal_minecart.emerald_hopper.name=Emerald Minecart With Hopper
+item.metaltransport:metal_minecart.emerald_command_block.name=Emerald Minecart With Command Block
+
 item.metaltransport:metal_minecart.obsidian.name=Obsidian Minecart
 item.metaltransport:metal_minecart.obsidian_chest.name=Obsidian Minecart With Chest
 item.metaltransport:metal_minecart.obsidian_furnace.name=Obsidian Minecart With Furnace

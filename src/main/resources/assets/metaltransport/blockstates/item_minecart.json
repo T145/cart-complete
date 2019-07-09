@@ -206,6 +206,47 @@
                     "layer1": "metaltransport:items/minecarts/top_command_block"
                 }
             },
+            "emerald": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/empty_emerald"
+                }
+            },
+            "emerald_chest": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_emerald",
+                    "layer1": "metaltransport:items/minecarts/top_chest"
+                }
+            },
+            "emerald_furnace": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_emerald",
+                    "layer1": "metaltransport:items/minecarts/top_furnace"
+                }
+            },
+            "emerald_tnt": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_emerald",
+                    "layer1": "metaltransport:items/minecarts/top_tnt"
+                }
+            },
+            "emerald_spawner": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_emerald",
+                    "layer1": "metaltransport:items/minecarts/top_spawner"
+                }
+            },
+            "emerald_hopper": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_emerald",
+                    "layer1": "metaltransport:items/minecarts/top_hopper"
+                }
+            },
+            "emerald_command_block": {
+                "textures": {
+                    "layer0": "metaltransport:items/minecarts/base_emerald",
+                    "layer1": "metaltransport:items/minecarts/top_command_block"
+                }
+            },
             "obsidian": {
                 "textures": {
                     "layer0": "metaltransport:items/minecarts/empty_obsidian"

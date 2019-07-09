@@ -53,6 +53,14 @@ public enum ItemCartType implements IStringSerializable {
 	DIAMOND_HOPPER(CartType.DIAMOND, EntityMinecart.Type.HOPPER),
 	DIAMOND_COMMAND_BLOCK(CartType.DIAMOND, EntityMinecart.Type.COMMAND_BLOCK),
 
+	EMERALD(CartType.EMERALD, EntityMinecart.Type.RIDEABLE),
+	EMERALD_CHEST(CartType.EMERALD, EntityMinecart.Type.CHEST),
+	EMERALD_FURNACE(CartType.EMERALD, EntityMinecart.Type.FURNACE),
+	EMERALD_TNT(CartType.EMERALD, EntityMinecart.Type.TNT),
+	EMERALD_SPAWNER(CartType.EMERALD, EntityMinecart.Type.SPAWNER),
+	EMERALD_HOPPER(CartType.EMERALD, EntityMinecart.Type.HOPPER),
+	EMERALD_COMMAND_BLOCK(CartType.EMERALD, EntityMinecart.Type.COMMAND_BLOCK),
+
 	OBSIDIAN(CartType.OBSIDIAN, EntityMinecart.Type.RIDEABLE),
 	OBSIDIAN_CHEST(CartType.OBSIDIAN, EntityMinecart.Type.CHEST),
 	OBSIDIAN_FURNACE(CartType.OBSIDIAN, EntityMinecart.Type.FURNACE),
@@ -92,6 +100,8 @@ public enum ItemCartType implements IStringSerializable {
 			return GOLD;
 		case DIAMOND:
 			return DIAMOND;
+		case EMERALD:
+			return EMERALD;
 		case OBSIDIAN:
 			return OBSIDIAN;
 		default:

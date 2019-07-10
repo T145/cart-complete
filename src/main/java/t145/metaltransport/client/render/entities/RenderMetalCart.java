@@ -47,7 +47,6 @@ public class RenderMetalCart extends Render<EntityMetalCart> {
 		double d0 = cart.lastTickPosX + (cart.posX - cart.lastTickPosX) * (double) partialTicks;
 		double d1 = cart.lastTickPosY + (cart.posY - cart.lastTickPosY) * (double) partialTicks;
 		double d2 = cart.lastTickPosZ + (cart.posZ - cart.lastTickPosZ) * (double) partialTicks;
-		double d3 = 0.3D;
 		Vec3d vec3d = cart.getPos(d0, d1, d2);
 		float f3 = cart.prevRotationPitch + (cart.rotationPitch - cart.prevRotationPitch) * partialTicks;
 

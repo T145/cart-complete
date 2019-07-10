@@ -32,24 +32,24 @@ import t145.metaltransport.entities.EntityMetalCart;
 
 public class CapabilityCartType implements INBTSerializable<NBTTagCompound> {
 
-	public static final ObjectOpenHashSet<Class<? extends EntityMinecart>> WHITELIST = new ObjectOpenHashSet() {{
-		add(EntityMinecartEmpty.class);
-		add(EntityMinecartChest.class);
-		add(EntityMinecartFurnace.class);
-		add(EntityMinecartCommandBlock.class);
-		add(EntityMinecartHopper.class);
-		add(EntityMinecartTNT.class);
-		add(EntityMinecartMobSpawner.class);
+	public static final ObjectOpenHashSet<Class<? extends EntityMinecart>> WHITELIST = new ObjectOpenHashSet<>();
+	public static final ObjectOpenHashSet<Class<? extends EntityMinecart>> BLACKLIST = new ObjectOpenHashSet<>();
 
-		add(EntityMetalCart.class);
-		add(EntityFurnaceCart.class);
+	static {
+		WHITELIST.add(EntityMinecartEmpty.class);
+		WHITELIST.add(EntityMinecartChest.class);
+		WHITELIST.add(EntityMinecartFurnace.class);
+		WHITELIST.add(EntityMinecartCommandBlock.class);
+		WHITELIST.add(EntityMinecartHopper.class);
+		WHITELIST.add(EntityMinecartTNT.class);
+		WHITELIST.add(EntityMinecartMobSpawner.class);
 
-		loadFromConfig(ConfigMT.whitelist, this);
-	}};
+		WHITELIST.add(EntityMetalCart.class);
+		WHITELIST.add(EntityFurnaceCart.class);
 
-	public static final ObjectOpenHashSet<Class<? extends EntityMinecart>> BLACKLIST = new ObjectOpenHashSet() {{
-		loadFromConfig(ConfigMT.blacklist, this);
-	}};
+		loadFromConfig(ConfigMT.whitelist, WHITELIST);
+		loadFromConfig(ConfigMT.blacklist, BLACKLIST);
+	}
 
 	@CapabilityInject(CapabilityCartType.class)
 	public static Capability<CapabilityCartType> instance;

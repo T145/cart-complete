@@ -3,7 +3,6 @@ package t145.metaltransport.entities.profiles;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;

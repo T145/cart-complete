@@ -28,7 +28,9 @@ public class ProfileEnderChest implements IServerProfile {
 
 	@Override
 	public void activate(EntityPlayer player, EnumHand hand) {
-		player.displayGUIChest(player.getInventoryEnderChest());
+		if (!player.world.isRemote) {
+			player.displayGUIChest(player.getInventoryEnderChest());
+		}
 	}
 
 	@Override

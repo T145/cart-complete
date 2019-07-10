@@ -303,7 +303,7 @@ public class MetalTransport {
 				}
 			}
 		} else if (!(cart instanceof EntityMetalCart) && player.isSneaking()) {
-			EntityMetalCart emptyCart = new EntityMetalCart(cart.world, cart.posX, cart.posY, cart.posZ);
+			EntityMetalCart emptyCart = new EntityMetalCart(cart);
 
 			if (EntityFurnaceCart.isSpeeding(cart)) {
 				emptyCart.lastTickPosX = cart.lastTickPosX;

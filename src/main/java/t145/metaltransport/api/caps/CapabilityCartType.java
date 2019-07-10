@@ -28,6 +28,7 @@ import t145.metaltransport.api.consts.CartType;
 import t145.metaltransport.api.consts.RegistryMT;
 import t145.metaltransport.api.objs.SerializersMT;
 import t145.metaltransport.entities.EntityFurnaceCart;
+import t145.metaltransport.entities.EntityMetalCart;
 
 public class CapabilityCartType implements INBTSerializable<NBTTagCompound> {
 
@@ -39,7 +40,10 @@ public class CapabilityCartType implements INBTSerializable<NBTTagCompound> {
 		add(EntityMinecartHopper.class);
 		add(EntityMinecartTNT.class);
 		add(EntityMinecartMobSpawner.class);
+
+		add(EntityMetalCart.class);
 		add(EntityFurnaceCart.class);
+
 		loadFromConfig(ConfigMT.whitelist, this);
 	}};
 

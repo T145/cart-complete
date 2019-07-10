@@ -16,6 +16,7 @@ import t145.metaltransport.api.caps.CapabilityCartType;
 import t145.metaltransport.api.consts.ItemCartType;
 import t145.metaltransport.api.consts.RegistryMT;
 import t145.metaltransport.entities.EntityFurnaceCart;
+import t145.metaltransport.entities.EntityMetalCart;
 
 public class ItemCart extends TItem {
 
@@ -23,8 +24,8 @@ public class ItemCart extends TItem {
 
 		private EntityMinecart getCartInstance(World world, double x, double y, double z, EntityMinecart.Type type) {
 			switch (type) {
-			//case RIDEABLE:
-				//return new EntityMetalCart(world, x, y, z);
+			case RIDEABLE:
+				return new EntityMetalCart(world, x, y, z);
 			case FURNACE:
 				return new EntityFurnaceCart(world, x, y, z);
 			default:

@@ -7,21 +7,21 @@ import net.minecraft.util.ResourceLocation;
 
 public enum CartType implements IStringSerializable {
 
-	COPPER("ingotCopper", Range.closed(11F, 20F)),
-	IRON("ingotIron", Range.closed(31F, 40F)),
-	SILVER("ingotSilver", Range.closed(21F, 30F)),
-	GOLD("ingotGold", Range.closed(21F, 30F)),
-	DIAMOND("gemDiamond", Range.closed(61F, 70F)),
-	EMERALD("gemEmerald", Range.closed(61F, 70F)),
-	OBSIDIAN("obsidian", Range.closed(91F, 100F));
+	COPPER("ingotCopper", CartWeight.BANTAM),
+	IRON("ingotIron", CartWeight.LIGHT),
+	SILVER("ingotSilver", CartWeight.FEATHER),
+	GOLD("ingotGold", CartWeight.FEATHER),
+	DIAMOND("gemDiamond", CartWeight.MIDDLE),
+	EMERALD("gemEmerald", CartWeight.WELTER),
+	OBSIDIAN("obsidian", CartWeight.HEAVY);
 
 	private final String ore;
-	private final Range killRange;
+	private final CartWeight weight;
 	private final ResourceLocation model;
 
-	CartType(String ore, Range killRange) {
+	CartType(String ore, CartWeight weight) {
 		this.ore = ore;
-		this.killRange = killRange;
+		this.weight = weight;
 		this.model = RegistryMT.getResource(String.format("textures/entity/minecart/%s.png", getName()));
 	}
 
@@ -34,8 +34,8 @@ public enum CartType implements IStringSerializable {
 		return ore;
 	}
 
-	public Range getKillRange() {
-		return killRange;
+	public Range<Float> getDurability() {
+		return weight.getDurability();
 	}
 
 	public ResourceLocation getModel() {

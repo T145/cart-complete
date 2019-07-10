@@ -14,5 +14,4 @@ public class SerializersMT {
 	public static DataSerializer<CartType> CART_TYPE;
 
 	private SerializersMT() {}
-
 }

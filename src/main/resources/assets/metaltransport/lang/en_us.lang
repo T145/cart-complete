@@ -1,5 +1,9 @@
 itemGroup.metaltransport=MetalTransport
 
+# Placed between metal cart display name & the block display name, i.e. "Gold Minecart With Ender Chest"
+# Note the spacing before and after the word
+com.metaltransport.info.with= With 
+
 entity.MinecartRideable.name=Minecart
 entity.MinecartChest.name=Minecart With Chest
 entity.MinecartFurnace.name=Minecart With Furnace

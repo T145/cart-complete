@@ -1,15 +1,11 @@
 package t145.metaltransport.core;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
 import T145.tbone.core.TBone;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.item.EntityMinecartEmpty;
@@ -51,7 +47,6 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.DataSerializerEntry;
@@ -62,10 +57,14 @@ import t145.metaltransport.api.consts.ItemCartType;
 import t145.metaltransport.api.consts.RegistryMT;
 import t145.metaltransport.api.objs.ItemsMT;
 import t145.metaltransport.api.objs.SerializersMT;
+import t145.metaltransport.api.profiles.ProfileRegistry;
 import t145.metaltransport.client.render.entities.RenderCart;
+import t145.metaltransport.client.render.entities.RenderMetalCart;
 import t145.metaltransport.client.render.entities.RenderSpawnerCart;
 import t145.metaltransport.client.render.entities.RenderTntCart;
 import t145.metaltransport.entities.EntityFurnaceCart;
+import t145.metaltransport.entities.EntityMetalCart;
+import t145.metaltransport.entities.profiles.ProfileEnderChest.ProfileFactoryEnderChest;
 import t145.metaltransport.items.ItemCart;
 
 @Mod(modid = RegistryMT.ID, name = RegistryMT.NAME, version = MetalTransport.VERSION, updateJSON = MetalTransport.UPDATE_JSON, dependencies = "required-after:tbone;after:metalchests")
@@ -74,16 +73,6 @@ public class MetalTransport {
 
 	public static final String VERSION = "@VERSION@";
 	public static final String UPDATE_JSON = "https://raw.githubusercontent.com/T145/metaltransport/master/update.json";
-	private static final Object2ObjectOpenHashMap<Item, Function<EntityMinecartEmpty, EntityMinecart>> CARTS = new Object2ObjectOpenHashMap<>();
-
-	static {
-		CARTS.put(Item.getItemFromBlock(Blocks.CHEST), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "chest_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
-		CARTS.put(Item.getItemFromBlock(Blocks.TNT), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "tnt_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
-		CARTS.put(Item.getItemFromBlock(Blocks.FURNACE), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "furnace_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
-		CARTS.put(Item.getItemFromBlock(Blocks.HOPPER), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "hopper_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
-		CARTS.put(Item.getItemFromBlock(Blocks.COMMAND_BLOCK), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "commandblock_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
-		CARTS.put(Item.getItemFromBlock(Blocks.MOB_SPAWNER), (EntityMinecartEmpty e) -> getMinecart(new ResourceLocation("minecraft", "spawner_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
-	}
 
 	public MetalTransport() {
 		TBone.registerMod(RegistryMT.ID, RegistryMT.NAME);
@@ -130,6 +119,7 @@ public class MetalTransport {
 	@EventHandler
 	public void metaltransport$postInit(final FMLPostInitializationEvent event) {
 		BehaviorDispenseMinecart.register(ItemsMT.METAL_MINECART, ItemCart.DISPENSER_BEHAVIOR);
+		ProfileRegistry.register(Blocks.ENDER_CHEST, new ProfileFactoryEnderChest());
 	}
 
 	@SubscribeEvent
@@ -155,6 +145,12 @@ public class MetalTransport {
 				.entity(EntityFurnaceCart.class)
 				.tracker(80, 3, true)
 				.build());
+		registry.register(EntityEntryBuilder.create()
+				.id(RegistryMT.getResource(RegistryMT.KEY_METAL_MINECART), 0)
+				.name(RegistryMT.KEY_METAL_MINECART)
+				.entity(EntityMetalCart.class)
+				.tracker(80, 3, true)
+				.build());
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -174,6 +170,7 @@ public class MetalTransport {
 
 		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartTNT.class, manager -> new RenderTntCart(manager));
 		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartMobSpawner.class, manager -> new RenderSpawnerCart(manager));
+		RenderingRegistry.registerEntityRenderingHandler(EntityMetalCart.class, manager -> new RenderMetalCart(manager));
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -234,14 +231,14 @@ public class MetalTransport {
 	public static void metaltransport$entityAttacked(final AttackEntityEvent event) {
 		Entity target = event.getTarget();
 
-		if (target instanceof EntityMinecart) {
+		if (target instanceof EntityMinecart && !(target instanceof EntityMetalCart)) {
 			EntityMinecart cart = (EntityMinecart) target;
 			World world = cart.world;
 
 			if (!world.isRemote && !cart.getIsInvulnerable() && cart.hasCapability(CapabilityCartType.instance, null)) {
 				CartType type = cart.getCapability(CapabilityCartType.instance, null).getType();
 
-				if (type.getKillRange().contains(cart.getDamage()) && world.getGameRules().getBoolean("doEntityDrops")) {
+				if (type.getDurability().contains(cart.getDamage()) && world.getGameRules().getBoolean("doEntityDrops")) {
 					ItemStack cartStack = new ItemStack(ItemsMT.METAL_MINECART, 1, ItemCartType.getEmptyType(type).ordinal());
 
 					if (cart.hasCustomName()) {
@@ -261,55 +258,30 @@ public class MetalTransport {
 		}
 	}
 
-	public static Block getBlockFromStack(ItemStack stack) {
-		return Block.getBlockFromItem(stack.getItem());
-	}
-
-	public static boolean isSolidBlock(ItemStack stack) {
-		return !stack.isEmpty() && getBlockFromStack(stack) != Blocks.AIR /* && block is relatively normal && in whitelist || not in blacklist */;
-	}
-
-	/**
-	 * Copied from Quark:
-	 * https://github.com/Vazkii/Quark/blob/master/src/main/java/vazkii/quark/tweaks/feature/MinecartInteraction.java#L57
-	 */
-	private static EntityMinecart getMinecart(ResourceLocation rl, World world, double x, double y, double z) {
-		try {
-			EntityEntry entry = ForgeRegistries.ENTITIES.getValue(rl);
-			if (entry != null) {
-				Class<? extends Entity> minecartClass = entry.getEntityClass();
-				return (EntityMinecart) minecartClass
-						.getConstructor(World.class, double.class, double.class, double.class)
-						.newInstance(world, x, y, z);
-			}
-		} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException err) {
-			RegistryMT.LOG.catching(err);
-		}
-		return null;
-	}
-
 	@SubscribeEvent
 	public static void metaltransport$minecartInteract(MinecartInteractEvent event) {
 		EntityMinecart cart = event.getMinecart();
 		EntityPlayer player = event.getPlayer();
 		World world = player.world;
 
+		// Creation from EntityMetalCart to another vanilla cart is handled by itself
+
 		if (cart instanceof EntityMinecartEmpty) {
-			// will be replaced w/ capability check for Display Stack
 			if (!cart.isBeingRidden() && !Loader.isModLoaded("quark")) {
 				EnumHand hand = EnumHand.MAIN_HAND;
 				ItemStack stack = player.getHeldItemMainhand();
 
-				if (stack.isEmpty() || !CARTS.containsKey(stack.getItem())) {
+				if (stack.isEmpty() || !EntityMetalCart.CARTS.containsKey(stack.getItem())) {
 					stack = player.getHeldItemOffhand();
 					hand = EnumHand.OFF_HAND;
 				}
 
-				if (!stack.isEmpty() && CARTS.containsKey(stack.getItem())) {
+				if (!stack.isEmpty() && EntityMetalCart.CARTS.containsKey(stack.getItem())) {
 					if (!world.isRemote) {
-						EntityMinecart minecart = CARTS.get(stack.getItem()).apply((EntityMinecartEmpty) cart);
+						EntityMinecart minecart = EntityMetalCart.CARTS.get(stack.getItem()).apply(cart);
 
 						if (minecart != null) {
+							// TODO: The cart is assumed to be registered; fix this to not do so
 							CartType type = cart.getCapability(CapabilityCartType.instance, null).getType();
 							minecart.getCapability(CapabilityCartType.instance, null).setType(type);
 
@@ -330,31 +302,22 @@ public class MetalTransport {
 					event.setCanceled(true);
 				}
 			}
-		} else {
-			if (player.isSneaking()) {
-				EntityMinecartEmpty emptyCart = new EntityMinecartEmpty(cart.world, cart.posX, cart.posY, cart.posZ);
-				CartType type = cart.getCapability(CapabilityCartType.instance, null).getType();
-				emptyCart.getCapability(CapabilityCartType.instance, null).setType(type);
-				emptyCart.motionX = cart.motionX;
-				emptyCart.motionY = cart.motionY;
-				emptyCart.motionZ = cart.motionZ;
-				emptyCart.rotationPitch = cart.rotationPitch;
-				emptyCart.rotationYaw = cart.rotationYaw;
+		} else if (!(cart instanceof EntityMetalCart) && player.isSneaking()) {
+			EntityMetalCart emptyCart = new EntityMetalCart(cart.world, cart.posX, cart.posY, cart.posZ);
 
-				if (EntityFurnaceCart.isSpeeding(cart)) {
-					emptyCart.lastTickPosX = cart.lastTickPosX;
-					emptyCart.lastTickPosY = cart.lastTickPosY;
-					emptyCart.lastTickPosZ = cart.lastTickPosZ;
-				}
-
-				if (!world.isRemote) {
-					cart.entityDropItem(new ItemStack(cart.getDefaultDisplayTile().getBlock()), 0);
-					cart.setDead();
-					world.spawnEntity(emptyCart);
-				}
-
-				event.setCanceled(true);
+			if (EntityFurnaceCart.isSpeeding(cart)) {
+				emptyCart.lastTickPosX = cart.lastTickPosX;
+				emptyCart.lastTickPosY = cart.lastTickPosY;
+				emptyCart.lastTickPosZ = cart.lastTickPosZ;
 			}
+
+			if (!world.isRemote) {
+				cart.entityDropItem(new ItemStack(cart.getDefaultDisplayTile().getBlock()), 0);
+				cart.setDead();
+				world.spawnEntity(emptyCart);
+			}
+
+			event.setCanceled(true);
 		}
 	}
 }

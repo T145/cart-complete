@@ -117,15 +117,15 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 			IProfile update = ProfileRegistry.get(key).create(this);
 
 			if (tag.hasKey(TAG_UNIVERSAL_PROFILE)) {
-				this.dataManager.set(UNIVERSAL_PROFILE_DATA, tag.getCompoundTag(TAG_UNIVERSAL_PROFILE));
-				update.deserializeNBT(this.dataManager.get(UNIVERSAL_PROFILE_DATA));
-				RegistryMT.LOG.info("Reading Universal Profile!");
+				NBTTagCompound profileTag = tag.getCompoundTag(TAG_UNIVERSAL_PROFILE);
+				this.dataManager.set(UNIVERSAL_PROFILE_DATA, profileTag);
+				update.deserializeNBT(profileTag);
 			} else if (tag.hasKey(TAG_PROFILE)) {
 				update.deserializeNBT(tag.getCompoundTag(TAG_PROFILE));
-				RegistryMT.LOG.info("Reading Server Profile!");
+				this.profile = Optional.of(update);
+			} else {
+				this.profile = Optional.of(update);
 			}
-
-			this.profile = Optional.of(update);
 		}
 	}
 
@@ -148,6 +148,20 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 				}
 			}
 		});
+	}
+
+	@Override
+	public void notifyDataManagerChange(DataParameter<?> key) {
+		if (key == UNIVERSAL_PROFILE_DATA && !profile.isPresent()) {
+			Block block = this.getDisplayBlock();
+			ResourceLocation reg = block.getRegistryName();
+
+			if (ProfileRegistry.contains(reg)) {
+				IUniversalProfile update = (IUniversalProfile) ProfileRegistry.get(reg).create(this);
+				update.deserializeNBT(this.dataManager.get(UNIVERSAL_PROFILE_DATA));
+				this.profile = Optional.of(update);
+			}
+		}
 	}
 
 	@Override

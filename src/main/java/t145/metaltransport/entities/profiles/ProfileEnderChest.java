@@ -1,6 +1,7 @@
 package t145.metaltransport.entities.profiles;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -23,7 +24,11 @@ public class ProfileEnderChest implements IUniversalProfile {
 		}
 	}
 
-	public ProfileEnderChest(EntityMinecart cart) {}
+	private final EntityMinecart cart;
+
+	public ProfileEnderChest(EntityMinecart cart) {
+		this.cart = cart;
+	}
 
 	@Override
 	public void tick(World world, BlockPos pos) {
@@ -74,6 +79,5 @@ public class ProfileEnderChest implements IUniversalProfile {
 	public void deserializeNBT(NBTTagCompound nbt) {}
 
 	@Override
-	public void render(BlockPos pos, ItemStack stack, float partialTicks) {}
-
+	public void render(Render renderer, EntityMinecart cart, ItemStack stack, float partialTicks) {}
 }

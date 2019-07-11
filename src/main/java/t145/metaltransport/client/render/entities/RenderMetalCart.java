@@ -150,8 +150,8 @@ public class RenderMetalCart extends Render<EntityMetalCart> {
 		cart.getProfile().ifPresent(profile -> {
 			if (profile instanceof IUniversalProfile) {
 				GlStateManager.pushMatrix();
-				GlStateManager.translate(-0.5, -0.23, -0.5);
-				((IUniversalProfile) profile).render(cart.getPosition(), cart.getDisplayStack(), partialTicks);
+				//GlStateManager.translate(-0.5, -0.23, -0.5);
+				((IUniversalProfile) profile).render(this, cart, cart.getDisplayStack(), partialTicks);
 				GlStateManager.popMatrix();
 			}
 		});

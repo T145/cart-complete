@@ -64,6 +64,7 @@ import t145.metaltransport.client.render.entities.RenderSpawnerCart;
 import t145.metaltransport.client.render.entities.RenderTntCart;
 import t145.metaltransport.entities.EntityFurnaceCart;
 import t145.metaltransport.entities.EntityMetalCart;
+import t145.metaltransport.entities.profiles.EnchantingTableProfile.ProfileFactoryEnchantingTable;
 import t145.metaltransport.entities.profiles.ProfileEnderChest.ProfileFactoryEnderChest;
 import t145.metaltransport.items.ItemCart;
 
@@ -120,6 +121,7 @@ public class MetalTransport {
 	public void metaltransport$postInit(final FMLPostInitializationEvent event) {
 		BehaviorDispenseMinecart.register(ItemsMT.METAL_MINECART, ItemCart.DISPENSER_BEHAVIOR);
 		ProfileRegistry.register(Blocks.ENDER_CHEST, new ProfileFactoryEnderChest());
+		ProfileRegistry.register(Blocks.ENCHANTING_TABLE, new ProfileFactoryEnchantingTable());
 	}
 
 	@SubscribeEvent

@@ -2,7 +2,9 @@ package t145.metaltransport.api.profiles;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.util.ResourceLocation;
+import t145.metaltransport.api.consts.RegistryMT;
 
 public class ProfileRegistry {
 
@@ -10,12 +12,12 @@ public class ProfileRegistry {
 
 	private ProfileRegistry() {}
 
-	public static void register(ResourceLocation resource, IProfileFactory factory) {
-		PROFILES.put(resource, factory);
-	}
-
 	public static void register(Block block, IProfileFactory factory) {
-		PROFILES.put(block.getRegistryName(), factory);
+		if (block.getDefaultState().getMaterial() != Material.AIR) {
+			PROFILES.put(block.getRegistryName(), factory);
+		} else {
+			RegistryMT.LOG.warn("An airy block registration was attempted, and has been blocked.");
+		}
 	}
 
 	public static IProfileFactory get(ResourceLocation resource) {

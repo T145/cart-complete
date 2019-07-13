@@ -65,6 +65,7 @@ import t145.metaltransport.client.render.entities.RenderSpawnerCart;
 import t145.metaltransport.client.render.entities.RenderTntCart;
 import t145.metaltransport.entities.EntityFurnaceCart;
 import t145.metaltransport.entities.EntityMetalCart;
+import t145.metaltransport.entities.profiles.CraftingTableProfile.CraftingTableProfileFactory;
 import t145.metaltransport.entities.profiles.EnchantingTableProfile.ProfileFactoryEnchantingTable;
 import t145.metaltransport.entities.profiles.EnderChestProfile.ProfileFactoryEnderChest;
 import t145.metaltransport.items.ItemCart;
@@ -126,6 +127,10 @@ public class MetalTransport {
 		ProfileFactoryEnchantingTable enchantingFactory = new ProfileFactoryEnchantingTable();
 		ProfileRegistry.register(Blocks.ENCHANTING_TABLE, enchantingFactory);
 		NetworkRegistry.INSTANCE.registerGuiHandler(instance, enchantingFactory);
+
+		CraftingTableProfileFactory craftingFactory = new CraftingTableProfileFactory();
+		ProfileRegistry.register(Blocks.CRAFTING_TABLE, craftingFactory);
+		NetworkRegistry.INSTANCE.registerGuiHandler(instance, craftingFactory);
 	}
 
 	@SubscribeEvent

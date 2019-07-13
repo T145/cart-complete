@@ -1,39 +1,89 @@
 package t145.metaltransport.entities.profiles;
 
+import java.util.List;
 import java.util.Random;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.gui.GuiEnchantment;
 import net.minecraft.client.model.ModelBook;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.tileentity.TileEntityEnchantmentTableRenderer;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
+import net.minecraft.inventory.ContainerEnchantment;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.IWorldNameable;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import t145.metaltransport.api.consts.RegistryMT;
 import t145.metaltransport.api.profiles.IProfileFactory;
 import t145.metaltransport.api.profiles.IUniversalProfile;
+import t145.metaltransport.entities.EntityMetalCart;
 
-public class EnchantingTableProfile implements IUniversalProfile {
+public class EnchantingTableProfile implements IUniversalProfile, IWorldNameable {
 
-	public static class ProfileFactoryEnchantingTable implements IProfileFactory {
+	public static class ProfileFactoryEnchantingTable implements IProfileFactory, IGuiHandler {
 
 		@Override
 		public EnchantingTableProfile create(EntityMinecart cart) {
 			return new EnchantingTableProfile(cart);
 		}
+
+		@Override
+		public ContainerEnchantment getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+			Entity entity = world.getEntityByID(ID);
+
+			if (entity instanceof EntityMetalCart) {
+				EntityMetalCart cart = (EntityMetalCart) entity;
+				return new ContainerEnchantment(player.inventory, world, cart.getPosition()) {
+
+					@Override
+					public void onCraftMatrixChanged(IInventory inventory) {
+						super.onCraftMatrixChanged(inventory);
+						// TODO: Tweak this to get influenced by cart contents that increase enchant power
+					}
+
+					@Override
+					public boolean canInteractWith(EntityPlayer player) {
+						return cart.isEntityAlive() && player.getDistanceSq(cart.posX + 0.5D, cart.posY + 0.5D, cart.posZ + 0.5D) <= 64.0D;
+					}
+				};
+			}
+
+			return null;
+		}
+
+		@SideOnly(Side.CLIENT)
+		@Override
+		public GuiEnchantment getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+			Entity entity = world.getEntityByID(ID);
+
+			if (entity instanceof EntityMetalCart) {
+				EntityMetalCart cart = (EntityMetalCart) entity;
+				return new GuiEnchantment(player.inventory, world, (IWorldNameable) cart.getProfile().get());
+			}
+
+			return null;
+		}
 	}
 
 	private static final Random rand = new Random();
-	private static final ResourceLocation TEXTURE_BOOK = new ResourceLocation("textures/entity/enchanting_table_book.png");
 	private final ModelBook book = new ModelBook();
 	private final EntityMinecart cart;
 	public int tickCount;
@@ -122,12 +172,53 @@ public class EnchantingTableProfile implements IUniversalProfile {
 		this.pageFlip += this.flipA;
 
 		if (world.isRemote && world.getTotalWorldTime() % 5L == 0L) {
-			Blocks.ENCHANTING_TABLE.randomDisplayTick(null, world, pos, world.rand);
+			for (short i = -2; i <= 2; ++i) {
+				for (short j = -2; j <= 2; ++j) {
+					if (i > -2 && i < 2 && j == -1) {
+						j = 2;
+					}
+
+					if (rand.nextInt(16) == 0) {
+						for (short k = 0; k <= 1; ++k) {
+							BlockPos blockpos = pos.add(i, k, j);
+							List<EntityMinecart> carts = world.getEntitiesWithinAABB(EntityMinecart.class, new AxisAlignedBB(blockpos));
+							float enchantPower = 0F;
+
+							if (carts.isEmpty()) {
+								enchantPower = ForgeHooks.getEnchantPower(world, blockpos);
+							} else {
+								EntityMinecart cart = carts.get(0);
+								Block block = cart instanceof EntityMetalCart ? ((EntityMetalCart) cart).getDisplayBlock() : cart.getDisplayTile().getBlock();
+								enchantPower = block.getEnchantPowerBonus(world, blockpos);
+							}
+
+							if (enchantPower > 0F) {
+								if (carts.isEmpty() && !world.isAirBlock(pos.add(i / 2, 0, j / 2))) {
+									break;
+								}
+
+								world.spawnParticle(EnumParticleTypes.ENCHANTMENT_TABLE, pos.getX() + 0.5D,
+										pos.getY() + 2.0D, pos.getZ() + 0.5D,
+										i + rand.nextFloat() - 0.5D,
+										k - rand.nextFloat() - 1,
+										j + rand.nextFloat() - 0.5D);
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 
 	@Override
-	public void activate(EntityPlayer player, EnumHand hand) {}
+	public void activate(EntityPlayer player, EnumHand hand) {
+		World world = cart.world;
+
+		if (!world.isRemote) {
+			BlockPos pos = cart.getPosition();
+			player.openGui(RegistryMT.ID, cart.hashCode(), world, pos.getX(), pos.getY(), pos.getZ());
+		}
+	}
 
 	@Override
 	public boolean attackCart(DamageSource source, float amount) {
@@ -168,7 +259,6 @@ public class EnchantingTableProfile implements IUniversalProfile {
 		float rot = 180F;
 
 		if (player != null) {
-			// TODO: Fix book rotation 
 		}
 
 		float f2 = bookRotationPrev + this.calcBookRotation(bookRotation - bookRotationPrev) * partialTicks;
@@ -179,14 +269,13 @@ public class EnchantingTableProfile implements IUniversalProfile {
 	@Override
 	public void render(Render renderer, EntityMinecart cart, ItemStack stack, float partialTicks) {
 		GlStateManager.pushMatrix();
-		GlStateManager.scale(0.75F, 0.75F, 0.75F);
 		GlStateManager.rotate(computeYRotation(cart, partialTicks), 0, 1, 0);
 		GlStateManager.translate(0, 0.65, 0);
 
 		float f = tickCount + partialTicks;
-		GlStateManager.translate(0.0F, 0.1F + MathHelper.sin(f * 0.1F) * 0.01F, 0.0F);
-		GlStateManager.rotate(80.0F, 0.0F, 0.0F, 1.0F);
-		renderer.bindTexture(TEXTURE_BOOK);
+		GlStateManager.translate(0, 0.1F + MathHelper.sin(f * 0.1F) * 0.01F, 0);
+		GlStateManager.rotate(80F, 0, 0, 1);
+		renderer.bindTexture(TileEntityEnchantmentTableRenderer.TEXTURE_BOOK);
 
 		float f3 = pageFlipPrev + (pageFlip - pageFlipPrev) * partialTicks + 0.25F;
 		float f4 = pageFlipPrev + (pageFlip - pageFlipPrev) * partialTicks + 0.75F;
@@ -215,5 +304,20 @@ public class EnchantingTableProfile implements IUniversalProfile {
 		GlStateManager.enableCull();
 		book.render(cart, f, f3, f4, f5, 0.0F, 0.0625F);
 		GlStateManager.popMatrix();
+	}
+
+	@Override
+	public String getName() {
+		return "container.enchant";
+	}
+
+	@Override
+	public boolean hasCustomName() {
+		return false;
+	}
+
+	@Override
+	public ITextComponent getDisplayName() {
+		return new TextComponentTranslation(this.getName(), new Object[0]);
 	}
 }

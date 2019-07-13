@@ -45,6 +45,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 import net.minecraftforge.fml.relauncher.Side;
@@ -121,7 +122,10 @@ public class MetalTransport {
 	public void metaltransport$postInit(final FMLPostInitializationEvent event) {
 		BehaviorDispenseMinecart.register(ItemsMT.METAL_MINECART, ItemCart.DISPENSER_BEHAVIOR);
 		ProfileRegistry.register(Blocks.ENDER_CHEST, new ProfileFactoryEnderChest());
-		ProfileRegistry.register(Blocks.ENCHANTING_TABLE, new ProfileFactoryEnchantingTable());
+
+		ProfileFactoryEnchantingTable enchantingFactory = new ProfileFactoryEnchantingTable();
+		ProfileRegistry.register(Blocks.ENCHANTING_TABLE, enchantingFactory);
+		NetworkRegistry.INSTANCE.registerGuiHandler(instance, enchantingFactory);
 	}
 
 	@SubscribeEvent

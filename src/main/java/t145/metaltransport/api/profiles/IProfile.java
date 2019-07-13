@@ -11,23 +11,33 @@ import net.minecraftforge.common.util.INBTSerializable;
 
 public interface IProfile extends INBTSerializable<NBTTagCompound> {
 
-	void tick(World world, BlockPos pos);
+	@Override
+	default NBTTagCompound serializeNBT() {
+		return null;
+	}
 
-	void activate(EntityPlayer player, EnumHand hand);
+	@Override
+	default void deserializeNBT(NBTTagCompound tag) {}
 
-	boolean attackCart(DamageSource source, float amount);
+	default void tick(World world, BlockPos pos) {}
 
-	void killCart(DamageSource source, boolean dropItems);
+	default void activate(EntityPlayer player, EnumHand hand) {}
 
-	void onProfileDeletion();
+	default boolean attackCart(DamageSource source, float amount) {
+		return false;
+	}
 
-	void onCartDeath();
+	default void killCart(DamageSource source, boolean dropItems) {}
 
-	void fall(float distance, float damageMultiplier);
+	default void onProfileDeletion() {}
 
-	void onActivatorRailPass(int x, int y, int z, boolean powered);
+	default void onCartDeath() {}
 
-	void moveAlongTrack(BlockPos pos, IBlockState rail);
+	default void fall(float distance, float damageMultiplier) {}
 
-	void applyDrag();
+	default void onActivatorRailPass(int x, int y, int z, boolean powered) {}
+
+	default void moveAlongTrack(BlockPos pos, IBlockState rail) {}
+
+	default void applyDrag() {}
 }

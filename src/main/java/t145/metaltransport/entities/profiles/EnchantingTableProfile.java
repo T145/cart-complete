@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.gui.GuiEnchantment;
 import net.minecraft.client.model.ModelBook;
 import net.minecraft.client.renderer.GlStateManager;
@@ -16,8 +15,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ContainerEnchantment;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -219,40 +216,6 @@ public class EnchantingTableProfile implements IUniversalProfile, IWorldNameable
 			player.openGui(RegistryMT.ID, cart.hashCode(), world, pos.getX(), pos.getY(), pos.getZ());
 		}
 	}
-
-	@Override
-	public boolean attackCart(DamageSource source, float amount) {
-		return false;
-	}
-
-	@Override
-	public void killCart(DamageSource source, boolean dropItems) {}
-
-	@Override
-	public void onProfileDeletion() {}
-
-	@Override
-	public void onCartDeath() {}
-
-	@Override
-	public void fall(float distance, float damageMultiplier) {}
-
-	@Override
-	public void onActivatorRailPass(int x, int y, int z, boolean powered) {}
-
-	@Override
-	public void moveAlongTrack(BlockPos pos, IBlockState rail) {}
-
-	@Override
-	public void applyDrag() {}
-
-	@Override
-	public NBTTagCompound serializeNBT() {
-		return null;
-	}
-
-	@Override
-	public void deserializeNBT(NBTTagCompound nbt) {}
 
 	private float computeYRotation(EntityMinecart cart, float partialTicks) {
 		EntityPlayer player = getClosePlayer(cart.world);

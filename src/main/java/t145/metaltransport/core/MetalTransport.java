@@ -66,7 +66,7 @@ import t145.metaltransport.client.render.entities.RenderTntCart;
 import t145.metaltransport.entities.EntityFurnaceCart;
 import t145.metaltransport.entities.EntityMetalCart;
 import t145.metaltransport.entities.profiles.EnchantingTableProfile.ProfileFactoryEnchantingTable;
-import t145.metaltransport.entities.profiles.ProfileEnderChest.ProfileFactoryEnderChest;
+import t145.metaltransport.entities.profiles.EnderChestProfile.ProfileFactoryEnderChest;
 import t145.metaltransport.items.ItemCart;
 
 @Mod(modid = RegistryMT.ID, name = RegistryMT.NAME, version = MetalTransport.VERSION, updateJSON = MetalTransport.UPDATE_JSON, dependencies = "required-after:tbone;after:metalchests")

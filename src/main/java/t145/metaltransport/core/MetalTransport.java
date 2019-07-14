@@ -68,6 +68,7 @@ import t145.metaltransport.entities.EntityMetalCart;
 import t145.metaltransport.entities.profiles.CraftingTableProfile.CraftingTableProfileFactory;
 import t145.metaltransport.entities.profiles.EnchantingTableProfile.ProfileFactoryEnchantingTable;
 import t145.metaltransport.entities.profiles.EnderChestProfile.ProfileFactoryEnderChest;
+import t145.metaltransport.entities.profiles.JukeboxProfile.JukeboxProfileFactory;
 import t145.metaltransport.items.ItemCart;
 
 @Mod(modid = RegistryMT.ID, name = RegistryMT.NAME, version = MetalTransport.VERSION, updateJSON = MetalTransport.UPDATE_JSON, dependencies = "required-after:tbone;after:metalchests")
@@ -131,6 +132,8 @@ public class MetalTransport {
 		CraftingTableProfileFactory craftingFactory = new CraftingTableProfileFactory();
 		ProfileRegistry.register(Blocks.CRAFTING_TABLE, craftingFactory);
 		NetworkRegistry.INSTANCE.registerGuiHandler(instance, craftingFactory);
+
+		ProfileRegistry.register(Blocks.JUKEBOX, new JukeboxProfileFactory());
 	}
 
 	@SubscribeEvent

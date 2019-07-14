@@ -50,7 +50,7 @@ public class JukeboxProfile implements IServerProfile {
 		}
 	}
 
-	private void dropRecord() {
+	private void dropRecord(float yOffset) {
 		World world = cart.world;
 		BlockPos pos = cart.getPosition();
 
@@ -58,7 +58,7 @@ public class JukeboxProfile implements IServerProfile {
 		world.playRecord(pos, null);
 
 		if (!world.isRemote) {
-			cart.entityDropItem(record, 0);
+			cart.entityDropItem(record, yOffset);
 		}
 
 		record = ItemStack.EMPTY;
@@ -77,19 +77,19 @@ public class JukeboxProfile implements IServerProfile {
 				player.addStat(StatList.RECORD_PLAYED);
 			}
 		} else {
-			dropRecord();
+			dropRecord(0.75F);
 		}
 	}
 
 	@Override
 	public void onProfileDeletion() {
-		dropRecord();
+		dropRecord(0F);
 	}
 
 	@Override
 	public void killCart(DamageSource source, boolean dropItems) {
 		if (dropItems) {
-			dropRecord();
+			dropRecord(0F);
 		}
 	}
 }

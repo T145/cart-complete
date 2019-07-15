@@ -22,7 +22,7 @@ import t145.metaltransport.api.profiles.IProfileFactory;
 import t145.metaltransport.api.profiles.IUniversalProfile;
 import t145.metaltransport.entities.EntityMetalCart;
 
-public class BeaconProfile implements IUniversalProfile {
+public class BeaconProfile extends TileResponsiveBeacon implements IUniversalProfile {
 
 	public static class ProfileFactoryBeacon implements IProfileFactory, IGuiHandler {
 
@@ -37,7 +37,7 @@ public class BeaconProfile implements IUniversalProfile {
 
 			if (entity instanceof EntityMetalCart) {
 				EntityMetalCart cart = (EntityMetalCart) entity;
-				return new ContainerBeacon(player.inventory, ((BeaconProfile) cart.getProfile().get()).beacon) {
+				return new ContainerBeacon(player.inventory, (BeaconProfile) cart.getProfile().get()) {
 
 					@Override
 					public boolean canInteractWith(EntityPlayer player) {
@@ -56,46 +56,35 @@ public class BeaconProfile implements IUniversalProfile {
 
 			if (entity instanceof EntityMetalCart) {
 				EntityMetalCart cart = (EntityMetalCart) entity;
-				return new GuiBeacon(player.inventory, ((BeaconProfile) cart.getProfile().get()).beacon);
+				return new GuiBeacon(player.inventory, (BeaconProfile) cart.getProfile().get());
 			}
 
 			return null;
 		}
 	}
 
-	private final TileResponsiveBeacon beacon;
 	private final EntityMinecart cart;
 
 	public BeaconProfile(EntityMinecart cart) {
 		this.cart = cart;
-		this.beacon = new TileResponsiveBeacon();
-		beacon.setWorld(cart.world);
-		beacon.setPos(cart.getPosition());
+		this.world = cart.world;
 	}
 
 	@Override
-	public NBTTagCompound serializeNBT() {
-		NBTTagCompound tag = new NBTTagCompound();
-		tag.setInteger("Levels", beacon.getField(0));
-		tag.setInteger("PrimaryEffect", beacon.getField(1));
-		tag.setInteger("SecondaryEffect", beacon.getField(2));
+	public NBTTagCompound writeToNBT(NBTTagCompound tag) {
+		tag.setInteger("x", pos.getX());
+		tag.setInteger("y", pos.getY());
+		tag.setInteger("z", pos.getZ());
+		tag.setInteger("Primary", this.getField(1));
+		tag.setInteger("Secondary", this.getField(2));
+		tag.setInteger("Levels", this.getField(0));
 		return tag;
 	}
 
 	@Override
-	public void deserializeNBT(NBTTagCompound tag) {
-		beacon.setField(0, tag.getInteger("Levels"));
-		beacon.setField(1, tag.getInteger("PrimaryEffect"));
-		beacon.setField(2, tag.getInteger("SecondaryEffect"));
-	}
-
-	@Override
 	public void tick(World world, BlockPos pos) {
-		if (!beacon.getPos().equals(pos)) {
-			beacon.setPos(pos);
-		}
-
-		beacon.update();
+		this.pos = cart.getPosition();
+		this.update();
 	}
 
 	@Override
@@ -112,6 +101,6 @@ public class BeaconProfile implements IUniversalProfile {
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void render(Render renderer, EntityMinecart cart, ItemStack stack, float partialTicks) {
-		TileEntityRendererDispatcher.instance.render(beacon, -0.5, 0, -0.5, partialTicks);
+		TileEntityRendererDispatcher.instance.render(this, -0.5, 0, -0.5, partialTicks);
 	}
 }

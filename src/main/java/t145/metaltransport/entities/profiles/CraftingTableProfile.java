@@ -65,8 +65,12 @@ public class CraftingTableProfile implements IServerProfile {
 
 	@Override
 	public void activate(EntityPlayer player, EnumHand hand) {
-		BlockPos pos = cart.getPosition();
-		player.openGui(RegistryMT.ID, cart.hashCode(), cart.world, pos.getX(), pos.getY(), pos.getZ());
-		player.addStat(StatList.CRAFTING_TABLE_INTERACTION);
+		World world = cart.world;
+
+		if (!world.isRemote) {
+			BlockPos pos = cart.getPosition();
+			player.openGui(RegistryMT.ID, cart.hashCode(), world, pos.getX(), pos.getY(), pos.getZ());
+			player.addStat(StatList.CRAFTING_TABLE_INTERACTION);
+		}
 	}
 }

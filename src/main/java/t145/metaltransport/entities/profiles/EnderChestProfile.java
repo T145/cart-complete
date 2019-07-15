@@ -34,7 +34,7 @@ public class EnderChestProfile implements IUniversalProfile {
 
 	@Override
 	public void activate(EntityPlayer player, EnumHand hand) {
-		if (!player.world.isRemote) {
+		if (!cart.world.isRemote) {
 			player.displayGUIChest(player.getInventoryEnderChest());
 		}
 	}

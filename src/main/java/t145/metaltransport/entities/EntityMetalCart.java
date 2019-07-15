@@ -486,9 +486,7 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 		super.setDead();
 
 		this.profile.ifPresent(profile -> {
-			if (!world.isRemote) {
-				profile.onProfileDeletion();
-			}
+			profile.onProfileDeletion();
 			profile.onCartDeath();
 		});
 	}

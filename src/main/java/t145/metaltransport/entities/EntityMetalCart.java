@@ -442,7 +442,6 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 
 				if (!world.isRemote) {
 					this.entityDropItem(stack, 0);
-					this.profile.ifPresent(profile -> profile.onProfileDeletion());
 				}
 
 				this.setProfile();

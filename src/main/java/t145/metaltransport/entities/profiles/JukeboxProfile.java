@@ -16,7 +16,7 @@ import t145.metaltransport.api.profiles.IServerProfile;
 
 public class JukeboxProfile implements IServerProfile {
 
-	public static class JukeboxProfileFactory implements IProfileFactory {
+	public static class ProfileFactoryJukebox implements IProfileFactory {
 
 		@Override
 		public JukeboxProfile create(EntityMinecart cart) {

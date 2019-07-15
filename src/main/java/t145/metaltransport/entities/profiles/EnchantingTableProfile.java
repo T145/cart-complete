@@ -4,15 +4,11 @@ import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.Block;
-import net.minecraft.client.gui.GuiEnchantment;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ContainerEnchantment;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityEnchantmentTable;
@@ -23,7 +19,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorldNameable;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import t145.metaltransport.api.consts.RegistryMT;
@@ -33,48 +28,11 @@ import t145.metaltransport.entities.EntityMetalCart;
 
 public class EnchantingTableProfile extends TileEntityEnchantmentTable implements IUniversalProfile, IWorldNameable {
 
-	public static class ProfileFactoryEnchantingTable implements IProfileFactory, IGuiHandler {
+	public static class ProfileFactoryEnchantingTable implements IProfileFactory {
 
 		@Override
 		public EnchantingTableProfile create(EntityMinecart cart) {
 			return new EnchantingTableProfile(cart);
-		}
-
-		@Override
-		public ContainerEnchantment getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-			Entity entity = world.getEntityByID(ID);
-
-			if (entity instanceof EntityMetalCart) {
-				EntityMetalCart cart = (EntityMetalCart) entity;
-				return new ContainerEnchantment(player.inventory, world, cart.getPosition()) {
-
-					@Override
-					public void onCraftMatrixChanged(IInventory inventory) {
-						super.onCraftMatrixChanged(inventory);
-						// TODO: Tweak this to get influenced by cart contents that increase enchant power
-					}
-
-					@Override
-					public boolean canInteractWith(EntityPlayer player) {
-						return cart.isEntityAlive() && player.getDistanceSq(cart.posX + 0.5D, cart.posY + 0.5D, cart.posZ + 0.5D) <= 64.0D;
-					}
-				};
-			}
-
-			return null;
-		}
-
-		@SideOnly(Side.CLIENT)
-		@Override
-		public GuiEnchantment getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-			Entity entity = world.getEntityByID(ID);
-
-			if (entity instanceof EntityMetalCart) {
-				EntityMetalCart cart = (EntityMetalCart) entity;
-				return new GuiEnchantment(player.inventory, world, (IWorldNameable) cart.getProfile().get());
-			}
-
-			return null;
 		}
 	}
 

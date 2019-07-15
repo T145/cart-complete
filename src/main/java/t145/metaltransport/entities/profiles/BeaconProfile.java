@@ -98,6 +98,11 @@ public class BeaconProfile extends TileResponsiveBeacon implements IUniversalPro
 		}
 	}
 
+	@Override
+	public void onProfileDeletion() {
+		this.invalidate();
+	}
+
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void render(Render renderer, EntityMinecart cart, ItemStack stack, float partialTicks) {

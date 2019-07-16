@@ -360,9 +360,9 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 	}
 
 	public void removeDisplayBlock() {
+		this.profile.ifPresent(profile -> profile.onProfileDeletion());
 		this.setDisplayStack(ItemStack.EMPTY);
 		this.setHasDisplayTile(false);
-		this.profile.ifPresent(profile -> profile.onProfileDeletion());
 	}
 
 	/**

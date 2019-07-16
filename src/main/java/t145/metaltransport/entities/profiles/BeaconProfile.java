@@ -35,6 +35,11 @@ public class BeaconProfile extends TileResponsiveBeacon implements IUniversalPro
 	}
 
 	@Override
+	public boolean isUsableByPlayer(EntityPlayer player) {
+		return cart.isEntityAlive() && player.getDistanceSq(cart.posX + 0.5D, cart.posY + 0.5D, cart.posZ + 0.5D) <= 64.0D;
+	}
+
+	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound tag) {
 		tag.setInteger("x", pos.getX());
 		tag.setInteger("y", pos.getY());

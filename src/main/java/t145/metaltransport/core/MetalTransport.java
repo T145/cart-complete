@@ -9,10 +9,12 @@ import T145.tbone.dispenser.BehaviorDispenseMinecart;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBeacon;
 import net.minecraft.block.BlockEnchantmentTable;
+import net.minecraft.block.BlockShulkerBox;
 import net.minecraft.block.BlockWorkbench;
 import net.minecraft.client.gui.GuiEnchantment;
 import net.minecraft.client.gui.inventory.GuiBeacon;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.gui.inventory.GuiShulkerBox;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.item.EntityMinecartEmpty;
@@ -24,7 +26,9 @@ import net.minecraft.init.Items;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerBeacon;
 import net.minecraft.inventory.ContainerEnchantment;
+import net.minecraft.inventory.ContainerShulkerBox;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -86,6 +90,8 @@ import t145.metaltransport.entities.profiles.CraftingTableProfile.ProfileFactory
 import t145.metaltransport.entities.profiles.EnchantingTableProfile.ProfileFactoryEnchantingTable;
 import t145.metaltransport.entities.profiles.EnderChestProfile.ProfileFactoryEnderChest;
 import t145.metaltransport.entities.profiles.JukeboxProfile.ProfileFactoryJukebox;
+import t145.metaltransport.entities.profiles.ShulkerBoxProfile;
+import t145.metaltransport.entities.profiles.ShulkerBoxProfile.ProfileFactoryShulkerBox;
 import t145.metaltransport.items.ItemCart;
 
 @Mod(modid = RegistryMT.ID, name = RegistryMT.NAME, version = MetalTransport.VERSION, updateJSON = MetalTransport.UPDATE_JSON, dependencies = "required-after:tbone;after:metalchests")
@@ -140,13 +146,11 @@ public class MetalTransport implements IGuiHandler {
 			}
 
 			if (block instanceof BlockBeacon) {
-				return new ContainerBeacon(player.inventory, (BeaconProfile) cart.getProfile().get()) {
+				return new ContainerBeacon(player.inventory, (BeaconProfile) cart.getProfile().get());
+			}
 
-					@Override
-					public boolean canInteractWith(EntityPlayer player) {
-						return cart.isEntityAlive() && player.getDistanceSq(cart.posX + 0.5D, cart.posY + 0.5D, cart.posZ + 0.5D) <= 64.0D;
-					}
-				};
+			if (block instanceof BlockShulkerBox) {
+				return new ContainerShulkerBox(player.inventory, (ShulkerBoxProfile) cart.getProfile().get(), player);
 			}
 		}
 
@@ -171,6 +175,10 @@ public class MetalTransport implements IGuiHandler {
 
 			if (block instanceof BlockBeacon) {
 				return new GuiBeacon(player.inventory, (BeaconProfile) cart.getProfile().get());
+			}
+
+			if (block instanceof BlockShulkerBox) {
+				return new GuiShulkerBox(player.inventory, (ShulkerBoxProfile) cart.getProfile().get());
 			}
 		}
 
@@ -217,6 +225,10 @@ public class MetalTransport implements IGuiHandler {
 		ProfileRegistry.register(Blocks.CRAFTING_TABLE, new ProfileFactoryCraftingTable());
 		ProfileRegistry.register(Blocks.BEACON, new ProfileFactoryBeacon());
 		ProfileRegistry.register(Blocks.JUKEBOX, new ProfileFactoryJukebox());
+
+		for (EnumDyeColor color : EnumDyeColor.values()) {
+			ProfileRegistry.register(BlockShulkerBox.getBlockByColor(color), new ProfileFactoryShulkerBox());
+		}
 	}
 
 	@SubscribeEvent

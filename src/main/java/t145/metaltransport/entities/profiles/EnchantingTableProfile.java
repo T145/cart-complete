@@ -48,7 +48,6 @@ public class EnchantingTableProfile extends TileEntityEnchantmentTable implement
 		tag.setInteger("x", pos.getX());
 		tag.setInteger("y", pos.getY());
 		tag.setInteger("z", pos.getZ());
-		RegistryMT.LOG.info(tag);
 		return tag;
 	}
 

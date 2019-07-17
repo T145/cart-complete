@@ -148,11 +148,15 @@ public class EntityFurnaceCart extends EntityMinecart {
 		ItemStack stack = player.getHeldItem(hand);
 
 		if (!stack.isEmpty() && fuel < BURN_TIME_CAP) {
-			if (!player.capabilities.isCreativeMode) {
-				stack.shrink(1);
-			}
+			int burnTime = TileEntityFurnace.getItemBurnTime(stack);
 
-			fuel += TileEntityFurnace.getItemBurnTime(stack);
+			if (burnTime > 0) {
+				if (!player.capabilities.isCreativeMode) {
+					stack.shrink(1);
+				}
+
+				fuel += burnTime;
+			}
 		}
 
 		return true;

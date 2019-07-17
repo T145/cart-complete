@@ -275,6 +275,14 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 
 			if (ProfileRegistry.contains(key)) {
 				this.profile = Optional.of(ProfileRegistry.get(key).create(this));
+
+				//				IProfile update = ProfileRegistry.get(key).create(this);
+				//
+				//				if (update instanceof IServerProfile && !world.isRemote) {
+				//					this.profile = Optional.of(update);
+				//				} else if (!(update instanceof IServerProfile && world.isRemote)) {
+				//					this.profile = Optional.of(update);
+				//				}
 			} else {
 				this.profile = Optional.empty();
 			}
@@ -283,6 +291,10 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 		}
 
 		return this;
+	}
+
+	public boolean canRun(IProfile profile) {
+		return (profile instanceof IServerProfile && !world.isRemote) || !(profile instanceof IServerProfile && world.isRemote);
 	}
 
 	private ItemStack getDropStack() {
@@ -333,9 +345,7 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 		super.onUpdate();
 
 		this.profile.ifPresent(profile -> {
-			if (profile instanceof IUniversalProfile) {
-				profile.tick(world, getPosition());
-			} else if (profile instanceof IServerProfile && !world.isRemote) {
+			if (canRun(profile)) {
 				profile.tick(world, getPosition());
 			}
 		});
@@ -344,23 +354,47 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 	@Override
 	protected void moveAlongTrack(BlockPos pos, IBlockState rail) {
 		super.moveAlongTrack(pos, rail);
-		this.profile.ifPresent(profile -> profile.moveAlongTrack(pos, rail));
+
+		this.profile.ifPresent(profile -> {
+			if (canRun(profile)) {
+				profile.moveAlongTrack(pos, rail);
+			}
+		});
 	}
 
 	@Override
 	protected void applyDrag() {
-		this.profile.ifPresent(profile -> profile.applyDrag());
+		this.profile.ifPresent(profile -> {
+			if (canRun(profile)) {
+				profile.applyDrag();
+			}
+		});
+
 		super.applyDrag();
 	}
 
 	@Override
 	public void fall(float distance, float damageMultiplier) {
-		this.profile.ifPresent(profile -> profile.fall(distance, damageMultiplier));
+		this.profile.ifPresent(profile -> {
+			if (canRun(profile)) {
+				profile.fall(distance, damageMultiplier);
+			}
+		});
+
 		super.fall(distance, damageMultiplier);
 	}
 
-	public void removeDisplayBlock() {
-		this.profile.ifPresent(profile -> profile.onProfileDeletion());
+	public void removeDisplayBlock(boolean dying) {
+		this.profile.ifPresent(profile -> {
+			if (canRun(profile)) {
+				profile.onProfileDeletion();
+
+				if (dying) {
+					profile.onCartDeath();
+				}
+			}
+		});
+
 		this.setDisplayStack(ItemStack.EMPTY);
 		this.setHasDisplayTile(false);
 	}
@@ -438,7 +472,7 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 		} else if (this.hasDisplayBlock()) {
 			if (player.isSneaking()) {
 				ItemStack stack = this.getDisplayStack();
-				this.removeDisplayBlock();
+				this.removeDisplayBlock(false);
 
 				if (!world.isRemote) {
 					this.entityDropItem(stack, 0);
@@ -449,7 +483,11 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 				return true;
 			}
 
-			this.profile.ifPresent(profile -> profile.activate(player, hand));
+			this.profile.ifPresent(profile -> {
+				if (canRun(profile)) {
+					profile.activate(player, hand);
+				}
+			});
 		}
 
 		return true;
@@ -458,7 +496,11 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 	@Override
 	public void onActivatorRailPass(int x, int y, int z, boolean receivingPower) {
 		if (this.hasDisplayBlock()) {
-			this.profile.ifPresent(profile -> profile.onActivatorRailPass(x, y, z, receivingPower));
+			this.profile.ifPresent(profile -> {
+				if (canRun(profile)) {
+					profile.onActivatorRailPass(x, y, z, receivingPower);
+				}
+			});
 		} else if (receivingPower) {
 			if (this.isBeingRidden()) {
 				this.removePassengers();
@@ -484,18 +526,19 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 	@Override
 	public void setDead() {
 		super.setDead();
-
-		this.profile.ifPresent(profile -> {
-			profile.onProfileDeletion();
-			profile.onCartDeath();
-		});
+		this.removeDisplayBlock(true);
 	}
 
 	@Override
 	public void killMinecart(DamageSource source) {
 		boolean dropItems = this.world.getGameRules().getBoolean("doEntityDrops");
 
-		this.profile.ifPresent(profile -> profile.killCart(source, dropItems));
+		this.profile.ifPresent(profile -> {
+			if (canRun(profile)) {
+				profile.killCart(source, dropItems);
+			}
+		});
+
 		this.setDead();
 
 		if (dropItems) {

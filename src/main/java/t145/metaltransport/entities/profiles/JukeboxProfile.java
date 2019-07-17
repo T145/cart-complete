@@ -11,10 +11,10 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import t145.metaltransport.api.profiles.IProfile;
 import t145.metaltransport.api.profiles.IProfileFactory;
-import t145.metaltransport.api.profiles.IServerProfile;
 
-public class JukeboxProfile implements IServerProfile {
+public class JukeboxProfile implements IProfile {
 
 	public static class ProfileFactoryJukebox implements IProfileFactory {
 

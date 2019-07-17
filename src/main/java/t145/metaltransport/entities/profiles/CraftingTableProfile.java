@@ -5,7 +5,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import t145.metaltransport.api.consts.RegistryMT;
 import t145.metaltransport.api.profiles.IProfileFactory;
 import t145.metaltransport.api.profiles.IServerProfile;
@@ -28,12 +27,8 @@ public class CraftingTableProfile implements IServerProfile {
 
 	@Override
 	public void activate(EntityPlayer player, EnumHand hand) {
-		World world = cart.world;
-
-		if (!world.isRemote) {
-			BlockPos pos = cart.getPosition();
-			player.openGui(RegistryMT.ID, cart.hashCode(), world, pos.getX(), pos.getY(), pos.getZ());
-			player.addStat(StatList.CRAFTING_TABLE_INTERACTION);
-		}
+		BlockPos pos = cart.getPosition();
+		player.openGui(RegistryMT.ID, cart.hashCode(), cart.world, pos.getX(), pos.getY(), pos.getZ());
+		player.addStat(StatList.CRAFTING_TABLE_INTERACTION);
 	}
 }

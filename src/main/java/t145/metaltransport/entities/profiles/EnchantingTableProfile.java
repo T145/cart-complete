@@ -16,7 +16,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorldNameable;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.relauncher.Side;
@@ -26,7 +25,7 @@ import t145.metaltransport.api.profiles.IProfileFactory;
 import t145.metaltransport.api.profiles.IUniversalProfile;
 import t145.metaltransport.entities.EntityMetalCart;
 
-public class EnchantingTableProfile extends TileEntityEnchantmentTable implements IUniversalProfile, IWorldNameable {
+public class EnchantingTableProfile extends TileEntityEnchantmentTable implements IUniversalProfile {
 
 	public static class ProfileFactoryEnchantingTable implements IProfileFactory {
 

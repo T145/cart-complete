@@ -92,6 +92,7 @@ import t145.metaltransport.entities.profiles.BeaconProfile.ProfileFactoryBeacon;
 import t145.metaltransport.entities.profiles.CraftingTableProfile.ProfileFactoryCraftingTable;
 import t145.metaltransport.entities.profiles.DispenserProfile;
 import t145.metaltransport.entities.profiles.DispenserProfile.ProfileFactoryDispenser;
+import t145.metaltransport.entities.profiles.DropperProfile.ProfileFactoryDropper;
 import t145.metaltransport.entities.profiles.EnchantingTableProfile.ProfileFactoryEnchantingTable;
 import t145.metaltransport.entities.profiles.EnderChestProfile.ProfileFactoryEnderChest;
 import t145.metaltransport.entities.profiles.JukeboxProfile.ProfileFactoryJukebox;
@@ -244,6 +245,7 @@ public class MetalTransport implements IGuiHandler {
 		}
 
 		ProfileRegistry.register(Blocks.DISPENSER, new ProfileFactoryDispenser());
+		ProfileRegistry.register(Blocks.DROPPER, new ProfileFactoryDropper());
 	}
 
 	@SubscribeEvent

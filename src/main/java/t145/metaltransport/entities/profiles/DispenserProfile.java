@@ -30,6 +30,44 @@ public class DispenserProfile extends TileEntityDispenser implements IServerProf
 		}
 	}
 
+	protected final class DispenserSource implements IBlockSource {
+
+		@Override
+		public World getWorld() {
+			return cart.world;
+		}
+
+		@Override
+		public double getX() {
+			return this.getBlockPos().getX();
+		}
+
+		@Override
+		public double getY() {
+			return this.getBlockPos().getY();
+		}
+
+		@Override
+		public double getZ() {
+			return this.getBlockPos().getZ();
+		}
+
+		@Override
+		public BlockPos getBlockPos() {
+			return cart.getPosition().add(0.5D, 0, 0.5D);
+		}
+
+		@Override
+		public IBlockState getBlockState() {
+			return Blocks.DISPENSER.getDefaultState();
+		}
+
+		@Override
+		public DispenserProfile getBlockTileEntity() {
+			return DispenserProfile.this;
+		}
+	}
+
 	protected final EntityMinecart cart;
 
 	public DispenserProfile(EntityMinecart cart) {
@@ -76,58 +114,27 @@ public class DispenserProfile extends TileEntityDispenser implements IServerProf
 		InventoryHelper.dropInventoryItems(cart.world, cart, this);
 	}
 
-	private final class DispenserSource implements IBlockSource {
+	protected void dispenseStack(int slot, ItemStack stack) {
+		IBehaviorDispenseItem behavior = BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.getObject(stack.getItem());
 
-		@Override
-		public World getWorld() {
-			return cart.world;
-		}
-
-		@Override
-		public double getX() {
-			return this.getBlockPos().getX();
-		}
-
-		@Override
-		public double getY() {
-			return this.getBlockPos().getY();
-		}
-
-		@Override
-		public double getZ() {
-			return this.getBlockPos().getZ();
-		}
-
-		@Override
-		public BlockPos getBlockPos() {
-			return cart.getPosition();
-		}
-
-		@Override
-		public IBlockState getBlockState() {
-			return Blocks.DISPENSER.getDefaultState();
-		}
-
-		@Override
-		public DispenserProfile getBlockTileEntity() {
-			return DispenserProfile.this;
+		if (behavior != IBehaviorDispenseItem.DEFAULT_BEHAVIOR) {
+			this.setInventorySlotContents(slot, behavior.dispense(new DispenserSource(), stack));
 		}
 	}
 
 	@Override
 	public void onActivatorRailPass(int x, int y, int z, boolean powered) {
+		if (world.getTotalWorldTime() % 5L != 0L) {
+			return;
+		}
+
 		this.pos = cart.getPosition();
 		int slot = this.getDispenseSlot();
 
 		if (slot < 0) {
 			world.playEvent(1001, pos, 0);
 		} else {
-			ItemStack stack = this.getStackInSlot(slot);
-			IBehaviorDispenseItem behavior = BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.getObject(stack.getItem());
-
-			if (behavior != IBehaviorDispenseItem.DEFAULT_BEHAVIOR) {
-				this.setInventorySlotContents(slot, behavior.dispense(new DispenserSource(), stack));
-			}
+			this.dispenseStack(slot, this.getStackInSlot(slot));
 		}
 	}
 }

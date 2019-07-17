@@ -532,6 +532,7 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 	@Override
 	public void killMinecart(DamageSource source) {
 		boolean dropItems = this.world.getGameRules().getBoolean("doEntityDrops");
+		ItemStack drop = this.getDropStack();
 
 		this.profile.ifPresent(profile -> {
 			if (canRun(profile)) {
@@ -542,16 +543,16 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 		this.setDead();
 
 		if (dropItems) {
-			ItemStack stack = this.getCartItem();
+			ItemStack cart = this.getCartItem();
 
 			if (this.hasCustomName()) {
-				stack.setStackDisplayName(this.getCustomNameTag());
+				cart.setStackDisplayName(this.getCustomNameTag());
 			}
 
-			this.entityDropItem(stack, 0);
+			this.entityDropItem(cart, 0);
 
-			if (!world.isRemote && (!source.isExplosion() || this.getCartType() == CartType.OBSIDIAN) && this.hasDisplayTile()) {
-				this.entityDropItem(this.getDropStack(), 0);
+			if (!world.isRemote && (!source.isExplosion() || this.getCartType() == CartType.OBSIDIAN) && !drop.isEmpty()) {
+				this.entityDropItem(drop, 0);
 			}
 		}
 	}

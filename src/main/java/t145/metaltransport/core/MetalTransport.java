@@ -8,12 +8,14 @@ import T145.tbone.core.TBone;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBeacon;
+import net.minecraft.block.BlockDispenser;
 import net.minecraft.block.BlockEnchantmentTable;
 import net.minecraft.block.BlockShulkerBox;
 import net.minecraft.block.BlockWorkbench;
 import net.minecraft.client.gui.GuiEnchantment;
 import net.minecraft.client.gui.inventory.GuiBeacon;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.gui.inventory.GuiDispenser;
 import net.minecraft.client.gui.inventory.GuiShulkerBox;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
@@ -25,6 +27,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerBeacon;
+import net.minecraft.inventory.ContainerDispenser;
 import net.minecraft.inventory.ContainerEnchantment;
 import net.minecraft.inventory.ContainerShulkerBox;
 import net.minecraft.inventory.IInventory;
@@ -87,6 +90,8 @@ import t145.metaltransport.entities.EntityMetalCart;
 import t145.metaltransport.entities.profiles.BeaconProfile;
 import t145.metaltransport.entities.profiles.BeaconProfile.ProfileFactoryBeacon;
 import t145.metaltransport.entities.profiles.CraftingTableProfile.ProfileFactoryCraftingTable;
+import t145.metaltransport.entities.profiles.DispenserProfile;
+import t145.metaltransport.entities.profiles.DispenserProfile.ProfileFactoryDispenser;
 import t145.metaltransport.entities.profiles.EnchantingTableProfile.ProfileFactoryEnchantingTable;
 import t145.metaltransport.entities.profiles.EnderChestProfile.ProfileFactoryEnderChest;
 import t145.metaltransport.entities.profiles.JukeboxProfile.ProfileFactoryJukebox;
@@ -152,6 +157,10 @@ public class MetalTransport implements IGuiHandler {
 			if (block instanceof BlockShulkerBox) {
 				return new ContainerShulkerBox(player.inventory, (ShulkerBoxProfile) cart.getProfile().get(), player);
 			}
+
+			if (block instanceof BlockDispenser) {
+				return new ContainerDispenser(player.inventory, (DispenserProfile) cart.getProfile().get());
+			}
 		}
 
 		return null;
@@ -179,6 +188,10 @@ public class MetalTransport implements IGuiHandler {
 
 			if (block instanceof BlockShulkerBox) {
 				return new GuiShulkerBox(player.inventory, (ShulkerBoxProfile) cart.getProfile().get());
+			}
+
+			if (block instanceof BlockDispenser) {
+				return new GuiDispenser(player.inventory, (DispenserProfile) cart.getProfile().get());
 			}
 		}
 
@@ -229,6 +242,8 @@ public class MetalTransport implements IGuiHandler {
 		for (EnumDyeColor color : EnumDyeColor.values()) {
 			ProfileRegistry.register(BlockShulkerBox.getBlockByColor(color), new ProfileFactoryShulkerBox());
 		}
+
+		ProfileRegistry.register(Blocks.DISPENSER, new ProfileFactoryDispenser());
 	}
 
 	@SubscribeEvent

@@ -7,12 +7,14 @@ import javax.annotation.Nullable;
 import T145.tbone.core.TBone;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockAnvil;
 import net.minecraft.block.BlockBeacon;
 import net.minecraft.block.BlockDispenser;
 import net.minecraft.block.BlockEnchantmentTable;
 import net.minecraft.block.BlockShulkerBox;
 import net.minecraft.block.BlockWorkbench;
 import net.minecraft.client.gui.GuiEnchantment;
+import net.minecraft.client.gui.GuiRepair;
 import net.minecraft.client.gui.inventory.GuiBeacon;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiDispenser;
@@ -29,8 +31,10 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerBeacon;
 import net.minecraft.inventory.ContainerDispenser;
 import net.minecraft.inventory.ContainerEnchantment;
+import net.minecraft.inventory.ContainerRepair;
 import net.minecraft.inventory.ContainerShulkerBox;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -42,9 +46,11 @@ import net.minecraft.network.datasync.DataSerializer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorldNameable;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -87,6 +93,7 @@ import t145.metaltransport.client.render.entities.RenderSpawnerCart;
 import t145.metaltransport.client.render.entities.RenderTntCart;
 import t145.metaltransport.entities.EntityFurnaceCart;
 import t145.metaltransport.entities.EntityMetalCart;
+import t145.metaltransport.entities.profiles.AnvilProfile.ProfileFactoryAnvil;
 import t145.metaltransport.entities.profiles.BeaconProfile;
 import t145.metaltransport.entities.profiles.BeaconProfile.ProfileFactoryBeacon;
 import t145.metaltransport.entities.profiles.CraftingTableProfile.ProfileFactoryCraftingTable;
@@ -162,6 +169,87 @@ public class MetalTransport implements IGuiHandler {
 			if (block instanceof BlockDispenser) {
 				return new ContainerDispenser(player.inventory, (DispenserProfile) cart.getProfile().get());
 			}
+
+			if (block instanceof BlockAnvil) {
+				return new ContainerRepair(player.inventory, world, cart.getPosition(), player) {
+
+					protected Slot setSlotInContainer(int index, Slot slot) {
+						slot.slotNumber = this.inventorySlots.size();
+						this.inventorySlots.set(index, slot);
+						this.inventoryItemStacks.set(index, ItemStack.EMPTY);
+						return slot;
+					}
+
+					{
+						this.setSlotInContainer(2, new Slot(this.outputSlot, 2, 134, 47)
+						{
+							@Override
+							public boolean isItemValid(ItemStack stack) {
+								return false;
+							}
+
+							@Override
+							public boolean canTakeStack(EntityPlayer playerIn) {
+								return (playerIn.capabilities.isCreativeMode
+										|| playerIn.experienceLevel >= maximumCost)
+										&& maximumCost > 0 && this.getHasStack();
+							}
+
+							@Override
+							public ItemStack onTake(EntityPlayer thePlayer, ItemStack stack) {
+								if (!thePlayer.capabilities.isCreativeMode) {
+									thePlayer.addExperienceLevel(-maximumCost);
+								}
+
+								float breakChance = ForgeHooks.onAnvilRepair(thePlayer, stack, inputSlots.getStackInSlot(0), inputSlots.getStackInSlot(1));
+
+								inputSlots.setInventorySlotContents(0, ItemStack.EMPTY);
+
+								if (materialCost > 0) {
+									ItemStack itemstack = inputSlots.getStackInSlot(1);
+
+									if (!itemstack.isEmpty() && itemstack.getCount() > materialCost) {
+										itemstack.shrink(materialCost);
+										inputSlots.setInventorySlotContents(1, itemstack);
+									} else {
+										inputSlots.setInventorySlotContents(1, ItemStack.EMPTY);
+									}
+								} else {
+									inputSlots.setInventorySlotContents(1, ItemStack.EMPTY);
+								}
+
+								maximumCost = 0;
+
+								if (!world.isRemote) {
+									BlockPos pos = cart.getPosition();
+
+									if (!thePlayer.capabilities.isCreativeMode && thePlayer.getRNG().nextFloat() < breakChance) {
+										int l = cart.getDisplayStack().getMetadata();
+										++l;
+
+										if (l > 2) {
+											cart.removeDisplayBlock(false);
+											world.playEvent(1029, pos, 0);
+										} else {
+											cart.setDisplayStack(new ItemStack(Blocks.ANVIL, 1, l));
+											world.playEvent(1030, pos, 0);
+										}
+									} else {
+										world.playEvent(1030, pos, 0);
+									}
+								}
+
+								return stack;
+							}
+						});
+					}
+
+					@Override
+					public boolean canInteractWith(EntityPlayer player) {
+						return cart.isEntityAlive() && player.getDistanceSq(cart.posX + 0.5D, cart.posY + 0.5D, cart.posZ + 0.5D) <= 64.0D;
+					}
+				};
+			}
 		}
 
 		return null;
@@ -193,6 +281,10 @@ public class MetalTransport implements IGuiHandler {
 
 			if (block instanceof BlockDispenser) {
 				return new GuiDispenser(player.inventory, (DispenserProfile) cart.getProfile().get());
+			}
+
+			if (block instanceof BlockAnvil) {
+				return new GuiRepair(player.inventory, world);
 			}
 		}
 
@@ -246,6 +338,7 @@ public class MetalTransport implements IGuiHandler {
 
 		ProfileRegistry.register(Blocks.DISPENSER, new ProfileFactoryDispenser());
 		ProfileRegistry.register(Blocks.DROPPER, new ProfileFactoryDropper());
+		ProfileRegistry.register(Blocks.ANVIL, new ProfileFactoryAnvil());
 	}
 
 	@SubscribeEvent

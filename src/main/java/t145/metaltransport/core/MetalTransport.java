@@ -4,7 +4,8 @@ import java.io.IOException;
 
 import javax.annotation.Nullable;
 
-import T145.tbone.core.TBone;
+import T145.tbone.core.ClientRegistrationHelper;
+import T145.tbone.core.RegistrationHelper;
 import T145.tbone.dispenser.BehaviorDispenseMinecart;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAnvil;
@@ -33,6 +34,7 @@ import net.minecraft.inventory.ContainerDispenser;
 import net.minecraft.inventory.ContainerEnchantment;
 import net.minecraft.inventory.ContainerRepair;
 import net.minecraft.inventory.ContainerShulkerBox;
+import net.minecraft.inventory.ContainerWorkbench;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.EnumDyeColor;
@@ -115,7 +117,7 @@ public class MetalTransport implements IGuiHandler {
 	public static final String UPDATE_JSON = "https://raw.githubusercontent.com/T145/metaltransport/master/update.json";
 
 	public MetalTransport() {
-		TBone.registerMod(RegistryMT.ID, RegistryMT.NAME);
+		RegistrationHelper.registerMod(RegistryMT.ID, RegistryMT.NAME);
 	}
 
 	public static boolean isDeobfuscated() {
@@ -133,13 +135,23 @@ public class MetalTransport implements IGuiHandler {
 			Block block = cart.getDisplayBlock();
 
 			if (block instanceof BlockWorkbench) {
-				return new ContainerFastBench(player, world, cart.getPosition()) {
+				if (Loader.isModLoaded("fastbench")) {
+					return new ContainerFastBench(player, world, cart.getPosition()) {
 
-					@Override
-					public boolean canInteractWith(EntityPlayer player) {
-						return cart.isEntityAlive() && player.getDistanceSq(cart.posX + 0.5D, cart.posY + 0.5D, cart.posZ + 0.5D) <= 64.0D;
-					}
-				};
+						@Override
+						public boolean canInteractWith(EntityPlayer player) {
+							return cart.isEntityAlive() && player.getDistanceSq(cart.posX + 0.5D, cart.posY + 0.5D, cart.posZ + 0.5D) <= 64.0D;
+						}
+					};
+				} else {
+					return new ContainerWorkbench(player.inventory, world, cart.getPosition()) {
+
+						@Override
+						public boolean canInteractWith(EntityPlayer player) {
+							return cart.isEntityAlive() && player.getDistanceSq(cart.posX + 0.5D, cart.posY + 0.5D, cart.posZ + 0.5D) <= 64.0D;
+						}
+					};
+				}
 			}
 
 			if (block instanceof BlockEnchantmentTable) {
@@ -376,7 +388,7 @@ public class MetalTransport implements IGuiHandler {
 	@SubscribeEvent
 	public static void metaltransport$registerModels(final ModelRegistryEvent event) {
 		for (ItemCartType type : ItemCartType.values()) {
-			TBone.registerModel(RegistryMT.ID, ItemsMT.METAL_MINECART, "item_minecart", type.ordinal(),	String.format("item=%s", type.getName()));
+			ClientRegistrationHelper.registerModel(RegistryMT.ID, ItemsMT.METAL_MINECART, "item_minecart", type.ordinal(), String.format("item=%s", type.getName()));
 		}
 
 		// TODO: Find a better way to register custom renders

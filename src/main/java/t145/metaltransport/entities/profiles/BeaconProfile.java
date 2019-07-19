@@ -1,6 +1,5 @@
 package t145.metaltransport.entities.profiles;
 
-import me.paulf.rbeacons.server.block.TileResponsiveBeacon;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.item.EntityMinecart;
@@ -8,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.StatList;
+import net.minecraft.tileentity.TileEntityBeacon;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -17,7 +17,7 @@ import t145.metaltransport.api.consts.RegistryMT;
 import t145.metaltransport.api.profiles.IProfileFactory;
 import t145.metaltransport.api.profiles.IUniversalProfile;
 
-public class BeaconProfile extends TileResponsiveBeacon implements IUniversalProfile {
+public class BeaconProfile extends TileEntityBeacon implements IUniversalProfile {
 
 	public static class ProfileFactoryBeacon implements IProfileFactory {
 

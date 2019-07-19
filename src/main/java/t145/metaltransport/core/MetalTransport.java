@@ -18,6 +18,7 @@ import net.minecraft.client.gui.GuiEnchantment;
 import net.minecraft.client.gui.GuiRepair;
 import net.minecraft.client.gui.inventory.GuiBeacon;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.gui.inventory.GuiCrafting;
 import net.minecraft.client.gui.inventory.GuiDispenser;
 import net.minecraft.client.gui.inventory.GuiShulkerBox;
 import net.minecraft.entity.Entity;
@@ -276,7 +277,11 @@ public class MetalTransport implements IGuiHandler {
 			Block block = cart.getDisplayBlock();
 
 			if (block instanceof BlockWorkbench) {
-				return new GuiFastBench(player.inventory, world, cart.getPosition());
+				if (Loader.isModLoaded("fastbench")) {
+					return new GuiFastBench(player.inventory, world, cart.getPosition());
+				} else {
+					return new GuiCrafting(player.inventory, world);
+				}
 			}
 
 			if (block instanceof BlockEnchantmentTable) {

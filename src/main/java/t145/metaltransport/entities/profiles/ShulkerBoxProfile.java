@@ -1,9 +1,15 @@
 package t145.metaltransport.entities.profiles;
 
+import javax.annotation.Nonnull;
+
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.gui.inventory.GuiShulkerBox;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.ContainerShulkerBox;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -48,17 +54,30 @@ public class ShulkerBoxProfile extends TileEntityShulkerBox implements IUniversa
 	}
 
 	@Override
-	public boolean isUsableByPlayer(EntityPlayer player) {
-		return cart.isEntityAlive() && player.getDistanceSq(cart.posX + 0.5D, cart.posY + 0.5D, cart.posZ + 0.5D) <= 64.0D;
-	}
-
-	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound tag) {
 		tag.setInteger("x", pos.getX());
 		tag.setInteger("y", pos.getY());
 		tag.setInteger("z", pos.getZ());
 		this.saveToNbt(tag);
 		return tag;
+	}
+
+	@Nonnull
+	@Override
+	public Container getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+		return new ContainerShulkerBox(player.inventory, this, player);
+	}
+
+	@SideOnly(Side.CLIENT)
+	@Nonnull
+	@Override
+	public GuiContainer getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+		return new GuiShulkerBox(player.inventory, this);
+	}
+
+	@Override
+	public boolean isUsableByPlayer(EntityPlayer player) {
+		return cart.isEntityAlive() && player.getDistanceSq(cart.posX + 0.5D, cart.posY + 0.5D, cart.posZ + 0.5D) <= 64.0D;
 	}
 
 	@Override

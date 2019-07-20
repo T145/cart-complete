@@ -1,9 +1,15 @@
 package t145.metaltransport.entities.profiles;
 
+import javax.annotation.Nonnull;
+
+import net.minecraft.client.gui.inventory.GuiBeacon;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.ContainerBeacon;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.StatList;
@@ -13,9 +19,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import t145.metaltransport.api.consts.RegistryMT;
 import t145.metaltransport.api.profiles.IProfileFactory;
 import t145.metaltransport.api.profiles.IUniversalProfile;
+import t145.metaltransport.core.MetalTransport;
 
 public class BeaconProfile extends TileEntityBeacon implements IUniversalProfile {
 
@@ -32,6 +38,19 @@ public class BeaconProfile extends TileEntityBeacon implements IUniversalProfile
 	public BeaconProfile(EntityMinecart cart) {
 		this.cart = cart;
 		this.world = cart.world;
+	}
+
+	@Nonnull
+	@Override
+	public Container getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+		return new ContainerBeacon(player.inventory, this);
+	}
+
+	@SideOnly(Side.CLIENT)
+	@Nonnull
+	@Override
+	public GuiContainer getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+		return new GuiBeacon(player.inventory, this);
 	}
 
 	@Override
@@ -58,18 +77,10 @@ public class BeaconProfile extends TileEntityBeacon implements IUniversalProfile
 
 	@Override
 	public void activate(EntityPlayer player, EnumHand hand) {
-		World world = cart.world;
-
 		if (!world.isRemote) {
-			BlockPos pos = cart.getPosition();
-			player.openGui(RegistryMT.ID, cart.hashCode(), world, pos.getX(), pos.getY(), pos.getZ());
+			MetalTransport.openGui(player, cart);
 			player.addStat(StatList.BEACON_INTERACTION);
 		}
-	}
-
-	@Override
-	public void onProfileDeletion() {
-		this.invalidate();
 	}
 
 	@SideOnly(Side.CLIENT)

@@ -3,12 +3,19 @@ package t145.metaltransport.entities.profiles;
 import java.util.List;
 import java.util.Random;
 
+import javax.annotation.Nonnull;
+
 import net.minecraft.block.Block;
+import net.minecraft.client.gui.GuiEnchantment;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.ContainerEnchantment;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityEnchantmentTable;
@@ -20,9 +27,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import t145.metaltransport.api.consts.RegistryMT;
 import t145.metaltransport.api.profiles.IProfileFactory;
 import t145.metaltransport.api.profiles.IUniversalProfile;
+import t145.metaltransport.core.MetalTransport;
 import t145.metaltransport.entities.EntityMetalCart;
 
 public class EnchantingTableProfile extends TileEntityEnchantmentTable implements IUniversalProfile {
@@ -48,6 +55,31 @@ public class EnchantingTableProfile extends TileEntityEnchantmentTable implement
 		tag.setInteger("y", pos.getY());
 		tag.setInteger("z", pos.getZ());
 		return tag;
+	}
+
+	@Nonnull
+	@Override
+	public Container getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+		return new ContainerEnchantment(player.inventory, world, cart.getPosition()) {
+
+			@Override
+			public void onCraftMatrixChanged(IInventory inventory) {
+				super.onCraftMatrixChanged(inventory);
+				// TODO: Tweak this to get influenced by cart contents that increase enchant power
+			}
+
+			@Override
+			public boolean canInteractWith(EntityPlayer player) {
+				return cart.isEntityAlive() && player.getDistanceSq(cart.posX + 0.5D, cart.posY + 0.5D, cart.posZ + 0.5D) <= 64.0D;
+			}
+		};
+	}
+
+	@SideOnly(Side.CLIENT)
+	@Nonnull
+	@Override
+	public GuiContainer getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+		return new GuiEnchantment(player.inventory, world, this);
 	}
 
 	@Override
@@ -94,11 +126,8 @@ public class EnchantingTableProfile extends TileEntityEnchantmentTable implement
 
 	@Override
 	public void activate(EntityPlayer player, EnumHand hand) {
-		World world = cart.world;
-
 		if (!world.isRemote) {
-			BlockPos pos = cart.getPosition();
-			player.openGui(RegistryMT.ID, cart.hashCode(), world, pos.getX(), pos.getY(), pos.getZ());
+			MetalTransport.openGui(player, cart);
 		}
 	}
 

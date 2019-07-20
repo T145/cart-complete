@@ -6,10 +6,10 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import t145.metaltransport.api.profiles.IProfile;
 import t145.metaltransport.api.profiles.IProfileFactory;
-import t145.metaltransport.api.profiles.IUniversalProfile;
 
-public class EnderChestProfile implements IUniversalProfile {
+public class EnderChestProfile implements IProfile {
 
 	public static class ProfileFactoryEnderChest implements IProfileFactory {
 

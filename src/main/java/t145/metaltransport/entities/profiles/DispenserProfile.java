@@ -1,12 +1,18 @@
 package t145.metaltransport.entities.profiles;
 
+import javax.annotation.Nonnull;
+
 import net.minecraft.block.BlockDispenser;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.gui.inventory.GuiDispenser;
 import net.minecraft.dispenser.IBehaviorDispenseItem;
 import net.minecraft.dispenser.IBlockSource;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.ContainerDispenser;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
@@ -16,6 +22,8 @@ import net.minecraft.tileentity.TileEntityDispenser;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import t145.metaltransport.api.consts.RegistryMT;
 import t145.metaltransport.api.profiles.IProfileFactory;
 import t145.metaltransport.api.profiles.IServerProfile;
@@ -90,6 +98,19 @@ public class DispenserProfile extends TileEntityDispenser implements IServerProf
 		}
 
 		return tag;
+	}
+
+	@Nonnull
+	@Override
+	public Container getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+		return new ContainerDispenser(player.inventory, this);
+	}
+
+	@SideOnly(Side.CLIENT)
+	@Nonnull
+	@Override
+	public GuiContainer getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+		return new GuiDispenser(player.inventory, this);
 	}
 
 	@Override

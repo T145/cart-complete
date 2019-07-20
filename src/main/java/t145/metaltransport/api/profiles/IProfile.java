@@ -1,15 +1,35 @@
 package t145.metaltransport.api.profiles;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.fml.common.network.IGuiHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
-public interface IProfile extends INBTSerializable<NBTTagCompound> {
+public interface IProfile extends INBTSerializable<NBTTagCompound>, IGuiHandler {
+
+	@Nullable
+	@Override
+	default Container getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+		return null;
+	}
+
+	@SideOnly(Side.CLIENT)
+	@Nullable
+	@Override
+	default GuiContainer getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+		return null;
+	}
 
 	@Override
 	default NBTTagCompound serializeNBT() {

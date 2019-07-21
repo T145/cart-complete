@@ -78,9 +78,11 @@ import t145.metaltransport.entities.profiles.EnderChestProfile.ProfileFactoryEnd
 import t145.metaltransport.entities.profiles.JukeboxProfile.ProfileFactoryJukebox;
 import t145.metaltransport.entities.profiles.ShulkerBoxProfile.ProfileFactoryShulkerBox;
 import t145.metaltransport.items.ItemCart;
+import t145.metaltransport.net.UpdateEnderChestCart;
 import t145.tbone.core.ClientRegistrationHelper;
 import t145.tbone.core.RegistrationHelper;
 import t145.tbone.dispenser.BehaviorDispenseMinecart;
+import t145.tbone.net.TPacketHandler;
 
 @Mod(modid = RegistryMT.ID, name = RegistryMT.NAME, version = MetalTransport.VERSION, updateJSON = MetalTransport.UPDATE_JSON, dependencies = "required-after:tbone;after:metalchests")
 @EventBusSubscriber
@@ -88,6 +90,13 @@ public class MetalTransport implements IGuiHandler {
 
 	public static final String VERSION = "@VERSION@";
 	public static final String UPDATE_JSON = "https://raw.githubusercontent.com/T145/metaltransport/master/update.json";
+	public static final TPacketHandler NETWORK = new TPacketHandler(RegistryMT.ID) {
+
+		@Override
+		public void registerMessages() {
+			this.registerMessage(UpdateEnderChestCart.class, Side.CLIENT);
+		}
+	};
 
 	public MetalTransport() {
 		RegistrationHelper.registerMod(RegistryMT.ID, RegistryMT.NAME);
@@ -142,6 +151,7 @@ public class MetalTransport implements IGuiHandler {
 		meta.url = "https://github.com/T145/metaltransport";
 		meta.useDependencyInformation = false;
 		meta.version = VERSION;
+		NETWORK.registerMessages();
 	}
 
 	@EventHandler

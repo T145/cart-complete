@@ -139,12 +139,16 @@ public class RenderMetalCart extends Render<EntityMetalCart> {
 		this.model.render(cart, 0, 0, -0.1F, 0, 0, 0.0625F);
 		GlStateManager.popMatrix();
 
-		// behaves slightly better than the normal minecart:
-		// Normal renders air; I just don't call the code
-		if (cart.hasDisplayStack()) {
-			this.renderDisplayStack(cart.getDisplayStack());
-		} else if (cart.hasDisplayTile()) {
-			this.renderDisplayTile(cart);
+		if (!cart.getProfile().isPresent()
+				|| !(cart.getProfile().get() instanceof IUniversalProfile)
+				|| ((IUniversalProfile) cart.getProfile().get()).renderDisplayStack(cart, cart.getDisplayStack(), partialTicks)) {
+			// behaves slightly better than the normal minecart:
+			// Normal renders air; I just don't call the code
+			if (cart.hasDisplayStack()) {
+				this.renderDisplayStack(cart.getDisplayStack());
+			} else if (cart.hasDisplayTile()) {
+				this.renderDisplayTile(cart);
+			}
 		}
 
 		cart.getProfile().ifPresent(profile -> {

@@ -10,5 +10,13 @@ public interface IUniversalProfile extends IProfile {
 
 	// set through the entity data manager, and is exposed to both sides
 	@SideOnly(Side.CLIENT)
+	default boolean renderDisplayStack(EntityMinecart cart, ItemStack stack, float partialTicks) {
+		return true;
+	}
+
+	@SideOnly(Side.CLIENT)
 	default void render(Render renderer, EntityMinecart cart, ItemStack stack, float partialTicks) {}
+
+	@SideOnly(Side.CLIENT)
+	default void handleStatusUpdate(byte id) {}
 }

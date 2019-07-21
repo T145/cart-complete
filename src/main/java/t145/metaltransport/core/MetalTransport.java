@@ -4,9 +4,6 @@ import java.io.IOException;
 
 import javax.annotation.Nullable;
 
-import T145.tbone.core.ClientRegistrationHelper;
-import T145.tbone.core.RegistrationHelper;
-import T145.tbone.dispenser.BehaviorDispenseMinecart;
 import net.minecraft.block.BlockShulkerBox;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.Entity;
@@ -81,6 +78,9 @@ import t145.metaltransport.entities.profiles.EnderChestProfile.ProfileFactoryEnd
 import t145.metaltransport.entities.profiles.JukeboxProfile.ProfileFactoryJukebox;
 import t145.metaltransport.entities.profiles.ShulkerBoxProfile.ProfileFactoryShulkerBox;
 import t145.metaltransport.items.ItemCart;
+import t145.tbone.core.ClientRegistrationHelper;
+import t145.tbone.core.RegistrationHelper;
+import t145.tbone.dispenser.BehaviorDispenseMinecart;
 
 @Mod(modid = RegistryMT.ID, name = RegistryMT.NAME, version = MetalTransport.VERSION, updateJSON = MetalTransport.UPDATE_JSON, dependencies = "required-after:tbone;after:metalchests")
 @EventBusSubscriber

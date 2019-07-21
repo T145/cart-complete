@@ -15,6 +15,7 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerShulkerBox;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.StatList;
 import net.minecraft.tileentity.TileEntityShulkerBox;
 import net.minecraft.util.EnumHand;
@@ -103,6 +104,18 @@ public class ShulkerBoxProfile implements IUniversalProfile {
 	@Override
 	public GuiContainer getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
 		return new GuiShulkerBox(player.inventory, box);
+	}
+
+	@Override
+	public NBTTagCompound serializeNBT() {
+		NBTTagCompound tag = new NBTTagCompound();
+		this.box.saveToNbt(tag);
+		return tag;
+	}
+
+	@Override
+	public void deserializeNBT(NBTTagCompound tag) {
+		this.box.loadFromNbt(tag);
 	}
 
 	@Override

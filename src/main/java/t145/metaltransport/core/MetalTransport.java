@@ -163,7 +163,11 @@ public class MetalTransport implements IGuiHandler {
 
 	@EventHandler
 	public void metaltransport$postInit(final FMLPostInitializationEvent event) {
+		CapabilityCartType.WHITELIST.add(EntityMetalCart.class);
+		CapabilityCartType.WHITELIST.add(EntityFurnaceCart.class);
+
 		BehaviorDispenseMinecart.register(ItemsMT.METAL_MINECART, ItemCart.DISPENSER_BEHAVIOR);
+
 		ProfileRegistry.register(Blocks.ENDER_CHEST, new ProfileFactoryEnderChest());
 		ProfileRegistry.register(Blocks.ENCHANTING_TABLE, new ProfileFactoryEnchantingTable());
 		ProfileRegistry.register(Blocks.CRAFTING_TABLE, new ProfileFactoryCraftingTable());

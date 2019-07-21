@@ -79,6 +79,7 @@ import t145.metaltransport.entities.profiles.JukeboxProfile.ProfileFactoryJukebo
 import t145.metaltransport.entities.profiles.ShulkerBoxProfile.ProfileFactoryShulkerBox;
 import t145.metaltransport.items.ItemCart;
 import t145.metaltransport.net.UpdateEnderChestCart;
+import t145.metaltransport.net.UpdateShulkerBoxCart;
 import t145.tbone.core.ClientRegistrationHelper;
 import t145.tbone.core.RegistrationHelper;
 import t145.tbone.dispenser.BehaviorDispenseMinecart;
@@ -95,6 +96,7 @@ public class MetalTransport implements IGuiHandler {
 		@Override
 		public void registerMessages() {
 			this.registerMessage(UpdateEnderChestCart.class, Side.CLIENT);
+			this.registerMessage(UpdateShulkerBoxCart.class, Side.CLIENT);
 		}
 	};
 

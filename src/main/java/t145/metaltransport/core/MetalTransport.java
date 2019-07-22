@@ -55,6 +55,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.DataSerializerEntry;
 import net.minecraftforge.registries.IForgeRegistry;
+import t145.metalchests.api.config.ConfigMC;
+import t145.metalchests.api.objs.BlocksMC;
 import t145.metaltransport.api.caps.CapabilityCartType;
 import t145.metaltransport.api.consts.CartType;
 import t145.metaltransport.api.consts.ItemCartType;
@@ -76,9 +78,11 @@ import t145.metaltransport.entities.profiles.DropperProfile.ProfileFactoryDroppe
 import t145.metaltransport.entities.profiles.EnchantingTableProfile.ProfileFactoryEnchantingTable;
 import t145.metaltransport.entities.profiles.EnderChestProfile.ProfileFactoryEnderChest;
 import t145.metaltransport.entities.profiles.JukeboxProfile.ProfileFactoryJukebox;
+import t145.metaltransport.entities.profiles.MetalChestProfile.ProfileFactoryMetalChest;
 import t145.metaltransport.entities.profiles.ShulkerBoxProfile.ProfileFactoryShulkerBox;
 import t145.metaltransport.items.ItemCart;
 import t145.metaltransport.net.UpdateEnderChestCart;
+import t145.metaltransport.net.UpdateMetalChestCart;
 import t145.metaltransport.net.UpdateShulkerBoxCart;
 import t145.tbone.core.ClientRegistrationHelper;
 import t145.tbone.core.RegistrationHelper;
@@ -96,6 +100,7 @@ public class MetalTransport implements IGuiHandler {
 		public void registerMessages() {
 			this.registerMessage(UpdateEnderChestCart.class, Side.CLIENT);
 			this.registerMessage(UpdateShulkerBoxCart.class, Side.CLIENT);
+			this.registerMessage(UpdateMetalChestCart.class, Side.CLIENT);
 		}
 	};
 
@@ -190,6 +195,22 @@ public class MetalTransport implements IGuiHandler {
 		ProfileRegistry.register(Blocks.DISPENSER, new ProfileFactoryDispenser());
 		ProfileRegistry.register(Blocks.DROPPER, new ProfileFactoryDropper());
 		ProfileRegistry.register(Blocks.ANVIL, new ProfileFactoryAnvil());
+
+		if (Loader.isModLoaded("metalchests")) {
+			ProfileRegistry.register(BlocksMC.METAL_CHEST, new ProfileFactoryMetalChest());
+
+			if (ConfigMC.hasRefinedRelocation()) {
+				ProfileRegistry.register(BlocksMC.METAL_SORTING_CHEST, new ProfileFactoryMetalChest());
+			}
+
+			if (ConfigMC.hasThaumcraft()) {
+				ProfileRegistry.register(BlocksMC.METAL_HUNGRY_CHEST, new ProfileFactoryMetalChest());
+
+				if (ConfigMC.hasRefinedRelocation()) {
+					ProfileRegistry.register(BlocksMC.METAL_SORTING_HUNGRY_CHEST, new ProfileFactoryMetalChest());
+				}
+			}
+		}
 	}
 
 	@SubscribeEvent

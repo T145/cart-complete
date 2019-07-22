@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityHopper;
@@ -108,8 +109,10 @@ public class MetalChestProfile implements IUniversalProfile {
 			List<EntityItem> list = world.getEntitiesWithinAABB(EntityItem.class, cart.getEntityBoundingBox(), EntitySelectors.IS_ALIVE);
 
 			if (!list.isEmpty()) {
-				TileEntityHopper.putDropInInventoryAllSlots(null, chest, list.get(0));
+				EntityItem item = list.get(0);
+				item.playSound(SoundEvents.ENTITY_GENERIC_EAT, 0.25F, (world.rand.nextFloat() - world.rand.nextFloat()) * 0.2F + 1.0F);
 				MetalTransport.NETWORK.sendToAllAround(new UpdateMetalChestCart(pos, ChestAnimator.EVENT_CHEST_NOM, 2), world, pos);
+				TileEntityHopper.putDropInInventoryAllSlots(null, chest, item);
 			}
 		}
 	}

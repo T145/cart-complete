@@ -57,12 +57,12 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 	public static final Object2ObjectOpenHashMap<Item, Function<EntityMinecart, EntityMinecart>> CARTS = new Object2ObjectOpenHashMap<>();
 
 	static {
-		CARTS.put(Item.getItemFromBlock(Blocks.CHEST), (EntityMinecart e) -> getMinecart(new ResourceLocation("minecraft", "chest_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
-		CARTS.put(Item.getItemFromBlock(Blocks.TNT), (EntityMinecart e) -> getMinecart(new ResourceLocation("minecraft", "tnt_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
-		CARTS.put(Item.getItemFromBlock(Blocks.FURNACE), (EntityMinecart e) -> getMinecart(new ResourceLocation("minecraft", "furnace_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
-		CARTS.put(Item.getItemFromBlock(Blocks.HOPPER), (EntityMinecart e) -> getMinecart(new ResourceLocation("minecraft", "hopper_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
-		CARTS.put(Item.getItemFromBlock(Blocks.COMMAND_BLOCK), (EntityMinecart e) -> getMinecart(new ResourceLocation("minecraft", "commandblock_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
-		CARTS.put(Item.getItemFromBlock(Blocks.MOB_SPAWNER), (EntityMinecart e) -> getMinecart(new ResourceLocation("minecraft", "spawner_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
+		CARTS.put(Item.getItemFromBlock(Blocks.CHEST), (EntityMinecart e) -> getMinecart(new ResourceLocation("chest_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
+		CARTS.put(Item.getItemFromBlock(Blocks.TNT), (EntityMinecart e) -> getMinecart(new ResourceLocation("tnt_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
+		CARTS.put(Item.getItemFromBlock(Blocks.FURNACE), (EntityMinecart e) -> getMinecart(new ResourceLocation("furnace_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
+		CARTS.put(Item.getItemFromBlock(Blocks.HOPPER), (EntityMinecart e) -> getMinecart(new ResourceLocation("hopper_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
+		CARTS.put(Item.getItemFromBlock(Blocks.COMMAND_BLOCK), (EntityMinecart e) -> getMinecart(new ResourceLocation("commandblock_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
+		CARTS.put(Item.getItemFromBlock(Blocks.MOB_SPAWNER), (EntityMinecart e) -> getMinecart(new ResourceLocation("spawner_minecart"), e.getEntityWorld(), e.posX, e.posY, e.posZ));
 	}
 
 	public EntityMetalCart(World world) {
@@ -275,14 +275,6 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 
 			if (ProfileRegistry.contains(key)) {
 				this.profile = Optional.of(ProfileRegistry.get(key).create(this));
-
-				//				IProfile update = ProfileRegistry.get(key).create(this);
-				//
-				//				if (update instanceof IServerProfile && !world.isRemote) {
-				//					this.profile = Optional.of(update);
-				//				} else if (!(update instanceof IServerProfile && world.isRemote)) {
-				//					this.profile = Optional.of(update);
-				//				}
 			} else {
 				this.profile = Optional.empty();
 			}

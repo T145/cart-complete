@@ -82,7 +82,6 @@ import t145.metaltransport.net.UpdateEnderChestCart;
 import t145.metaltransport.net.UpdateShulkerBoxCart;
 import t145.tbone.core.ClientRegistrationHelper;
 import t145.tbone.core.RegistrationHelper;
-import t145.tbone.dispenser.BehaviorDispenseMinecart;
 import t145.tbone.net.TPacketHandler;
 
 @Mod(modid = RegistryMT.ID, name = RegistryMT.NAME, version = MetalTransport.VERSION, updateJSON = MetalTransport.UPDATE_JSON, dependencies = "required-after:tbone;after:metalchests")
@@ -177,8 +176,6 @@ public class MetalTransport implements IGuiHandler {
 	public void metaltransport$postInit(final FMLPostInitializationEvent event) {
 		CapabilityCartType.WHITELIST.add(EntityMetalCart.class);
 		CapabilityCartType.WHITELIST.add(EntityFurnaceCart.class);
-
-		BehaviorDispenseMinecart.register(ItemsMT.METAL_MINECART, ItemCart.DISPENSER_BEHAVIOR);
 
 		ProfileRegistry.register(Blocks.ENDER_CHEST, new ProfileFactoryEnderChest());
 		ProfileRegistry.register(Blocks.ENCHANTING_TABLE, new ProfileFactoryEnchantingTable());

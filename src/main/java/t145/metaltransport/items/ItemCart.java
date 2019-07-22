@@ -45,6 +45,7 @@ public class ItemCart extends TItem {
 	public ItemCart() {
 		super(ItemCartType.values(), RegistryMT.RESOURCE_METAL_MINECART, CreativeTabs.TRANSPORTATION);
 		this.setMaxStackSize(new ItemStack(Items.MINECART).getMaxStackSize());
+		BehaviorDispenseMinecart.register(this, DISPENSER_BEHAVIOR);
 	}
 
 	@Override

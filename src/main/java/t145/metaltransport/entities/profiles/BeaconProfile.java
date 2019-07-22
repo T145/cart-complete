@@ -69,18 +69,12 @@ public class BeaconProfile implements IUniversalProfile {
 
 	@Override
 	public NBTTagCompound serializeNBT() {
-		NBTTagCompound tag = new NBTTagCompound();
-		tag.setInteger("Primary", beacon.getField(1));
-		tag.setInteger("Secondary", beacon.getField(2));
-		tag.setInteger("Levels", beacon.getField(0));
-		return tag;
+		return beacon.writeToNBT(new NBTTagCompound());
 	}
 
 	@Override
 	public void deserializeNBT(NBTTagCompound tag) {
-		beacon.setField(0, tag.getInteger("Levels"));
-		beacon.setField(1, tag.getInteger("Primary"));
-		beacon.setField(2, tag.getInteger("Secondary"));
+		beacon.readFromNBT(tag);
 	}
 
 	@Override

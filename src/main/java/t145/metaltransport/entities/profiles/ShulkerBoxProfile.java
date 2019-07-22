@@ -106,14 +106,12 @@ public class ShulkerBoxProfile implements IUniversalProfile {
 
 	@Override
 	public NBTTagCompound serializeNBT() {
-		NBTTagCompound tag = new NBTTagCompound();
-		this.box.saveToNbt(tag);
-		return tag;
+		return this.box.writeToNBT(new NBTTagCompound());
 	}
 
 	@Override
 	public void deserializeNBT(NBTTagCompound tag) {
-		this.box.loadFromNbt(tag);
+		this.box.readFromNBT(tag);
 	}
 
 	@Override

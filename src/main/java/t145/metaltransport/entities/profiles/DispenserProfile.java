@@ -15,13 +15,11 @@ import net.minecraft.init.Blocks;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerDispenser;
 import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.StatList;
 import net.minecraft.tileentity.TileEntityDispenser;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -74,26 +72,12 @@ public class DispenserProfile implements IServerProfile {
 
 	@Override
 	public NBTTagCompound serializeNBT() {
-		NBTTagCompound tag = new NBTTagCompound();
-
-		ItemStackHelper.saveAllItems(tag, dispenser.stacks);
-
-		if (dispenser.hasCustomName()) {
-			tag.setString("CustomName", dispenser.getName());
-		}
-
-		return tag;
+		return this.dispenser.writeToNBT(new NBTTagCompound());
 	}
 
 	@Override
 	public void deserializeNBT(NBTTagCompound tag) {
-		dispenser.stacks = NonNullList.withSize(dispenser.getSizeInventory(), ItemStack.EMPTY);
-
-		ItemStackHelper.loadAllItems(tag, dispenser.stacks);
-
-		if (tag.hasKey("CustomName", 8)) {
-			dispenser.setCustomName(tag.getString("CustomName"));
-		}
+		this.dispenser.readFromNBT(tag);
 	}
 
 	@Override

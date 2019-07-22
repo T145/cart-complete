@@ -48,8 +48,12 @@ public class ShulkerBoxProfile implements IUniversalProfile {
 		Block block = cart.getDisplayBlock();
 		World world = cart.world;
 
-		//this.box = (TileEntityShulkerBox) block.createTileEntity(world, block.getDefaultState());
 		this.box = new TileEntityShulkerBox(BlockShulkerBox.getColorFromBlock(block)) {
+
+			@Override
+			public boolean isUsableByPlayer(EntityPlayer player) {
+				return cart.isEntityAlive() && player.getDistanceSq(cart) <= 64.0D;
+			}
 
 			@Override
 			public void openInventory(EntityPlayer player) {
@@ -90,13 +94,7 @@ public class ShulkerBoxProfile implements IUniversalProfile {
 	@Nonnull
 	@Override
 	public Container getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-		return new ContainerShulkerBox(player.inventory, box, player) {
-
-			@Override
-			public boolean canInteractWith(EntityPlayer player) {
-				return cart.isEntityAlive() && player.getDistanceSq(cart) <= 64.0D;
-			}
-		};
+		return new ContainerShulkerBox(player.inventory, box, player);
 	}
 
 	@SideOnly(Side.CLIENT)

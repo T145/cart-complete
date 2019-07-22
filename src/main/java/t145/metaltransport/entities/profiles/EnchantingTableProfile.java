@@ -8,16 +8,15 @@ import javax.annotation.Nonnull;
 import net.minecraft.block.Block;
 import net.minecraft.client.gui.GuiEnchantment;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerEnchantment;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityEnchantmentTable;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
@@ -32,7 +31,7 @@ import t145.metaltransport.api.profiles.IUniversalProfile;
 import t145.metaltransport.core.MetalTransport;
 import t145.metaltransport.entities.EntityMetalCart;
 
-public class EnchantingTableProfile extends TileEntityEnchantmentTable implements IUniversalProfile {
+public class EnchantingTableProfile implements IUniversalProfile {
 
 	public static class ProfileFactoryEnchantingTable implements IProfileFactory {
 
@@ -42,19 +41,17 @@ public class EnchantingTableProfile extends TileEntityEnchantmentTable implement
 		}
 	}
 
+	public final TileEntityEnchantmentTable table;
 	private final EntityMinecart cart;
 
 	public EnchantingTableProfile(EntityMinecart cart) {
-		this.cart = cart;
-		this.world = cart.world;
-	}
+		Block block = Blocks.ENCHANTING_TABLE;
+		World world = cart.world;
 
-	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound tag) {
-		tag.setInteger("x", pos.getX());
-		tag.setInteger("y", pos.getY());
-		tag.setInteger("z", pos.getZ());
-		return tag;
+		this.table = (TileEntityEnchantmentTable) block.createTileEntity(world, block.getDefaultState());
+		this.table.setWorld(world);
+		this.table.setPos(cart.getPosition());
+		this.cart = cart;
 	}
 
 	@Nonnull
@@ -79,13 +76,13 @@ public class EnchantingTableProfile extends TileEntityEnchantmentTable implement
 	@Nonnull
 	@Override
 	public GuiContainer getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-		return new GuiEnchantment(player.inventory, world, this);
+		return new GuiEnchantment(player.inventory, world, table);
 	}
 
 	@Override
 	public void tick(World world, BlockPos pos) {
-		this.pos = cart.getPosition();
-		this.update();
+		table.setPos(pos);
+		table.update();
 
 		if (world.isRemote && world.getTotalWorldTime() % 5L == 0L) {
 			Random rand = world.rand;
@@ -126,7 +123,7 @@ public class EnchantingTableProfile extends TileEntityEnchantmentTable implement
 
 	@Override
 	public void activate(EntityPlayer player, EnumHand hand) {
-		if (!world.isRemote) {
+		if (!player.world.isRemote) {
 			MetalTransport.openGui(player, cart);
 		}
 	}
@@ -134,7 +131,7 @@ public class EnchantingTableProfile extends TileEntityEnchantmentTable implement
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void render(Render renderer, EntityMinecart cart, ItemStack stack, float partialTicks) {
-		GlStateManager.rotate(90F, 0, 1, 0);
-		TileEntityRendererDispatcher.instance.render(this, -0.5, -0.12, -0.5, partialTicks);
+		// TODO: Render this independent of the cart, so it doesn't get rotated along w/ it
+		TileEntityRendererDispatcher.instance.render(table, -0.5, -0.12, -0.5, partialTicks);
 	}
 }

@@ -2,12 +2,14 @@ package t145.metaltransport.entities.profiles;
 
 import javax.annotation.Nonnull;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.gui.inventory.GuiBeacon;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerBeacon;
 import net.minecraft.item.ItemStack;
@@ -23,7 +25,7 @@ import t145.metaltransport.api.profiles.IProfileFactory;
 import t145.metaltransport.api.profiles.IUniversalProfile;
 import t145.metaltransport.core.MetalTransport;
 
-public class BeaconProfile extends TileEntityBeacon implements IUniversalProfile {
+public class BeaconProfile implements IUniversalProfile {
 
 	public static class ProfileFactoryBeacon implements IProfileFactory {
 
@@ -33,51 +35,63 @@ public class BeaconProfile extends TileEntityBeacon implements IUniversalProfile
 		}
 	}
 
+	public final TileEntityBeacon beacon;
 	private final EntityMinecart cart;
 
 	public BeaconProfile(EntityMinecart cart) {
+		Block block = Blocks.BEACON;
+		World world = cart.world;
+
+		this.beacon = (TileEntityBeacon) block.createTileEntity(world, block.getDefaultState());
+		this.beacon.setWorld(world);
+		this.beacon.setPos(cart.getPosition());
 		this.cart = cart;
-		this.world = cart.world;
 	}
 
 	@Nonnull
 	@Override
 	public Container getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-		return new ContainerBeacon(player.inventory, this);
+		return new ContainerBeacon(player.inventory, beacon) {
+
+			@Override
+			public boolean canInteractWith(EntityPlayer player) {
+				return cart.isEntityAlive() && player.getDistanceSq(cart) <= 64.0D;
+			}
+		};
 	}
 
 	@SideOnly(Side.CLIENT)
 	@Nonnull
 	@Override
 	public GuiContainer getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-		return new GuiBeacon(player.inventory, this);
+		return new GuiBeacon(player.inventory, beacon);
 	}
 
 	@Override
-	public boolean isUsableByPlayer(EntityPlayer player) {
-		return cart.isEntityAlive() && player.getDistanceSq(cart.posX + 0.5D, cart.posY + 0.5D, cart.posZ + 0.5D) <= 64.0D;
-	}
-
-	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound tag) {
-		tag.setInteger("x", pos.getX());
-		tag.setInteger("y", pos.getY());
-		tag.setInteger("z", pos.getZ());
-		tag.setInteger("Primary", this.getField(1));
-		tag.setInteger("Secondary", this.getField(2));
-		tag.setInteger("Levels", this.getField(0));
+	public NBTTagCompound serializeNBT() {
+		NBTTagCompound tag = new NBTTagCompound();
+		tag.setInteger("Primary", beacon.getField(1));
+		tag.setInteger("Secondary", beacon.getField(2));
+		tag.setInteger("Levels", beacon.getField(0));
 		return tag;
 	}
 
 	@Override
+	public void deserializeNBT(NBTTagCompound tag) {
+		beacon.setField(0, tag.getInteger("Levels"));
+		beacon.setField(1, tag.getInteger("Primary"));
+		beacon.setField(2, tag.getInteger("Secondary"));
+	}
+
+	@Override
 	public void tick(World world, BlockPos pos) {
-		this.pos = cart.getPosition();
-		this.update();
+		this.beacon.setPos(pos);
+		this.beacon.update();
 	}
 
 	@Override
 	public void activate(EntityPlayer player, EnumHand hand) {
-		if (!world.isRemote) {
+		if (!player.world.isRemote) {
 			MetalTransport.openGui(player, cart);
 			player.addStat(StatList.BEACON_INTERACTION);
 		}
@@ -86,6 +100,6 @@ public class BeaconProfile extends TileEntityBeacon implements IUniversalProfile
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void render(Render renderer, EntityMinecart cart, ItemStack stack, float partialTicks) {
-		TileEntityRendererDispatcher.instance.render(this, -0.5, 0, -0.5, partialTicks);
+		TileEntityRendererDispatcher.instance.render(beacon, -0.5, 0, -0.5, partialTicks);
 	}
 }

@@ -84,8 +84,8 @@ import t145.metaltransport.items.ItemCart;
 import t145.metaltransport.net.UpdateEnderChestCart;
 import t145.metaltransport.net.UpdateMetalChestCart;
 import t145.metaltransport.net.UpdateShulkerBoxCart;
-import t145.tbone.core.ClientRegistrationHelper;
-import t145.tbone.core.RegistrationHelper;
+import t145.tbone.core.TClient;
+import t145.tbone.core.TServer;
 import t145.tbone.net.TPacketHandler;
 
 @Mod(modid = RegistryMT.ID, name = RegistryMT.NAME, version = MetalTransport.VERSION, updateJSON = MetalTransport.UPDATE_JSON, dependencies = "required-after:tbone;after:metalchests")
@@ -105,7 +105,7 @@ public class MetalTransport implements IGuiHandler {
 	};
 
 	public MetalTransport() {
-		RegistrationHelper.registerMod(RegistryMT.ID, RegistryMT.NAME);
+		TServer.registerMod(RegistryMT.ID, RegistryMT.NAME);
 	}
 
 	public static boolean isDeobfuscated() {
@@ -248,7 +248,7 @@ public class MetalTransport implements IGuiHandler {
 	@SubscribeEvent
 	public static void metaltransport$registerModels(final ModelRegistryEvent event) {
 		for (ItemCartType type : ItemCartType.values()) {
-			ClientRegistrationHelper.registerModel(RegistryMT.ID, ItemsMT.METAL_MINECART, "item_minecart", type.ordinal(), String.format("item=%s", type.getName()));
+			TClient.registerModel(RegistryMT.ID, ItemsMT.METAL_MINECART, "item_minecart", type.ordinal(), String.format("item=%s", type.getName()));
 		}
 
 		// TODO: Find a better way to register custom renders

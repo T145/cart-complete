@@ -58,8 +58,8 @@ import net.minecraftforge.registries.IForgeRegistry;
 import t145.metalchests.api.config.ConfigMC;
 import t145.metalchests.api.objs.BlocksMC;
 import t145.metaltransport.api.caps.CapabilityCartType;
+import t145.metaltransport.api.consts.CartTier;
 import t145.metaltransport.api.consts.CartType;
-import t145.metaltransport.api.consts.ItemCartType;
 import t145.metaltransport.api.consts.RegistryMT;
 import t145.metaltransport.api.objs.ItemsMT;
 import t145.metaltransport.api.objs.SerializersMT;
@@ -247,7 +247,7 @@ public class MetalTransport implements IGuiHandler {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public static void metaltransport$registerModels(final ModelRegistryEvent event) {
-		for (ItemCartType type : ItemCartType.values()) {
+		for (CartType type : CartType.values()) {
 			TClient.registerModel(RegistryMT.ID, ItemsMT.METAL_MINECART, "item_minecart", type.ordinal(), String.format("item=%s", type.getName()));
 		}
 
@@ -266,7 +266,7 @@ public class MetalTransport implements IGuiHandler {
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void metalchests$registerRecipes(RegistryEvent.Register<IRecipe> event) {
-		ItemCartType.registerRecipes();
+		CartType.registerRecipes();
 	}
 
 	@SubscribeEvent
@@ -274,25 +274,25 @@ public class MetalTransport implements IGuiHandler {
 		final IForgeRegistry<DataSerializerEntry> registry = event.getRegistry();
 
 		registry.register(SerializersMT.ENTRY_CART_TYPE = new DataSerializerEntry(
-				SerializersMT.CART_TYPE = new DataSerializer<CartType>() {
+				SerializersMT.CART_TYPE = new DataSerializer<CartTier>() {
 
 					@Override
-					public void write(PacketBuffer buf, CartType value) {
+					public void write(PacketBuffer buf, CartTier value) {
 						buf.writeEnumValue(value);
 					}
 
 					@Override
-					public CartType read(PacketBuffer buf) throws IOException {
-						return buf.readEnumValue(CartType.class);
+					public CartTier read(PacketBuffer buf) throws IOException {
+						return buf.readEnumValue(CartTier.class);
 					}
 
 					@Override
-					public DataParameter<CartType> createKey(int id) {
-						return new DataParameter<CartType>(id, this);
+					public DataParameter<CartTier> createKey(int id) {
+						return new DataParameter<CartTier>(id, this);
 					}
 
 					@Override
-					public CartType copyValue(CartType value) {
+					public CartTier copyValue(CartTier value) {
 						return value;
 					}
 
@@ -327,10 +327,10 @@ public class MetalTransport implements IGuiHandler {
 			World world = cart.world;
 
 			if (!world.isRemote && !cart.getIsInvulnerable() && cart.hasCapability(CapabilityCartType.instance, null)) {
-				CartType type = cart.getCapability(CapabilityCartType.instance, null).getType();
+				CartTier type = cart.getCapability(CapabilityCartType.instance, null).getType();
 
 				if (type.getDurability().contains(cart.getDamage()) && world.getGameRules().getBoolean("doEntityDrops")) {
-					ItemStack cartStack = new ItemStack(ItemsMT.METAL_MINECART, 1, ItemCartType.getEmptyType(type).ordinal());
+					ItemStack cartStack = new ItemStack(ItemsMT.METAL_MINECART, 1, CartType.getEmptyType(type).ordinal());
 
 					if (cart.hasCustomName()) {
 						cartStack.setStackDisplayName(cart.getCustomNameTag());
@@ -373,7 +373,7 @@ public class MetalTransport implements IGuiHandler {
 
 						if (minecart != null) {
 							// TODO: The cart is assumed to be registered; fix this to not do so
-							CartType type = cart.getCapability(CapabilityCartType.instance, null).getType();
+							CartTier type = cart.getCapability(CapabilityCartType.instance, null).getType();
 							minecart.getCapability(CapabilityCartType.instance, null).setType(type);
 
 							cart.setDead();

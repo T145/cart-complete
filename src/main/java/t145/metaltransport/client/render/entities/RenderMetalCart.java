@@ -18,7 +18,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import t145.metaltransport.api.caps.CapabilityCartType;
-import t145.metaltransport.api.consts.CartType;
+import t145.metaltransport.api.consts.CartTier;
 import t145.metaltransport.api.profiles.IUniversalProfile;
 import t145.metaltransport.entities.EntityMetalCart;
 
@@ -175,6 +175,6 @@ public class RenderMetalCart extends Render<EntityMetalCart> {
 		if (cart.hasCapability(CapabilityCartType.instance, null)) {
 			return cart.getCapability(CapabilityCartType.instance, null).getType().getModel();
 		}
-		return CartType.IRON.getModel();
+		return CartTier.IRON.getModel();
 	}
 }

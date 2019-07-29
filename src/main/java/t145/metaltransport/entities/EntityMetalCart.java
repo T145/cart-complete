@@ -38,8 +38,8 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.oredict.OreDictionary;
 import t145.metaltransport.api.caps.CapabilityCartType;
 import t145.metaltransport.api.carts.IMetalCart;
+import t145.metaltransport.api.consts.CartTier;
 import t145.metaltransport.api.consts.CartType;
-import t145.metaltransport.api.consts.ItemCartType;
 import t145.metaltransport.api.consts.RegistryMT;
 import t145.metaltransport.api.objs.ItemsMT;
 import t145.metaltransport.api.profiles.IProfile;
@@ -77,7 +77,7 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 		this(cart.world, cart.posX, cart.posY, cart.posZ);
 
 		if (cart.hasCapability(CapabilityCartType.instance, null)) {
-			CartType type = cart.getCapability(CapabilityCartType.instance, null).getType();
+			CartTier type = cart.getCapability(CapabilityCartType.instance, null).getType();
 			this.getCapability(CapabilityCartType.instance, null).setType(type);
 		}
 
@@ -275,13 +275,11 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 
 			if (ProfileRegistry.contains(key)) {
 				this.profile = Optional.of(ProfileRegistry.get(key).create(this));
-			} else {
-				this.profile = Optional.empty();
+				return this;
 			}
-		} else {
-			this.profile = Optional.empty();
 		}
 
+		this.profile = Optional.empty();
 		return this;
 	}
 
@@ -298,13 +296,13 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 		}
 	}
 
-	protected CartType getCartType() {
+	protected CartTier getCartType() {
 		return this.getCapability(CapabilityCartType.instance, null).getType();
 	}
 
 	@Override
 	public ItemStack getCartItem() {
-		return new ItemStack(ItemsMT.METAL_MINECART, 1, ItemCartType.getEmptyType(getCartType()).ordinal());
+		return new ItemStack(ItemsMT.METAL_MINECART, 1, CartType.getEmptyType(getCartType()).ordinal());
 	}
 
 	@Override
@@ -543,7 +541,7 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 
 			this.entityDropItem(cart, 0);
 
-			if (!world.isRemote && (!source.isExplosion() || this.getCartType() == CartType.OBSIDIAN) && !drop.isEmpty()) {
+			if (!world.isRemote && (!source.isExplosion() || this.getCartType() == CartTier.OBSIDIAN) && !drop.isEmpty()) {
 				this.entityDropItem(drop, 0);
 			}
 		}

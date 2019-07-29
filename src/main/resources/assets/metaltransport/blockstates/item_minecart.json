@@ -6,7 +6,7 @@
     },
     "variants": {
         "item": {
-            "copper": {
+            "copper_empty": {
                 "textures": {
                     "layer0": "metaltransport:items/minecarts/empty_copper"
                 }
@@ -47,7 +47,7 @@
                     "layer1": "metaltransport:items/minecarts/top_command_block"
                 }
             },
-            "iron": {
+            "iron_empty": {
                 "textures": {
                     "layer0": "minecraft:items/minecart_normal"
                 }
@@ -83,7 +83,7 @@
                     "layer0": "minecraft:items/minecart_command_block"
                 }
             },
-            "silver": {
+            "silver_empty": {
                 "textures": {
                     "layer0": "metaltransport:items/minecarts/empty_silver"
                 }
@@ -124,7 +124,7 @@
                     "layer1": "metaltransport:items/minecarts/top_command_block"
                 }
             },
-            "gold": {
+            "gold_empty": {
                 "textures": {
                     "layer0": "metaltransport:items/minecarts/empty_gold"
                 }
@@ -165,7 +165,7 @@
                     "layer1": "metaltransport:items/minecarts/top_command_block"
                 }
             },
-            "diamond": {
+            "diamond_empty": {
                 "textures": {
                     "layer0": "metaltransport:items/minecarts/empty_diamond"
                 }
@@ -206,7 +206,7 @@
                     "layer1": "metaltransport:items/minecarts/top_command_block"
                 }
             },
-            "emerald": {
+            "emerald_empty": {
                 "textures": {
                     "layer0": "metaltransport:items/minecarts/empty_emerald"
                 }
@@ -247,7 +247,7 @@
                     "layer1": "metaltransport:items/minecarts/top_command_block"
                 }
             },
-            "obsidian": {
+            "obsidian_empty": {
                 "textures": {
                     "layer0": "metaltransport:items/minecarts/empty_obsidian"
                 }

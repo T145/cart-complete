@@ -24,7 +24,7 @@ import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import t145.metaltransport.api.config.ConfigMT;
-import t145.metaltransport.api.consts.CartType;
+import t145.metaltransport.api.consts.CartTier;
 import t145.metaltransport.api.consts.RegistryMT;
 import t145.metaltransport.api.objs.SerializersMT;
 
@@ -48,8 +48,8 @@ public class CapabilityCartType implements INBTSerializable<NBTTagCompound> {
 	@CapabilityInject(CapabilityCartType.class)
 	public static Capability<CapabilityCartType> instance;
 
-	public static final DataParameter<CartType> CART_TYPE = createKey(EntityMinecart.class);
-	public static final Object2ObjectOpenHashMap<Class<? extends EntityMinecart>, DataParameter<CartType>> PARAMS = new Object2ObjectOpenHashMap();
+	public static final DataParameter<CartTier> CART_TYPE = createKey(EntityMinecart.class);
+	public static final Object2ObjectOpenHashMap<Class<? extends EntityMinecart>, DataParameter<CartTier>> PARAMS = new Object2ObjectOpenHashMap();
 
 	private final EntityMinecart cart;
 
@@ -71,7 +71,7 @@ public class CapabilityCartType implements INBTSerializable<NBTTagCompound> {
 		return WHITELIST.contains(cartClass) && !BLACKLIST.contains(cartClass);
 	}
 
-	private static DataParameter<CartType> createKey(final Class<? extends EntityMinecart> cartClass) {
+	private static DataParameter<CartTier> createKey(final Class<? extends EntityMinecart> cartClass) {
 		return EntityDataManager.createKey(cartClass, SerializersMT.CART_TYPE);
 	}
 
@@ -84,9 +84,9 @@ public class CapabilityCartType implements INBTSerializable<NBTTagCompound> {
 				PARAMS.put(cartClass, createKey(cartClass));
 			}
 
-			data.register(PARAMS.get(cartClass), CartType.IRON);
+			data.register(PARAMS.get(cartClass), CartTier.IRON);
 		} else if (ConfigMT.handleEmptyMinecarts && data.getAll().size() == 13) {
-			data.register(CART_TYPE, CartType.IRON);
+			data.register(CART_TYPE, CartTier.IRON);
 		}
 	}
 
@@ -126,12 +126,12 @@ public class CapabilityCartType implements INBTSerializable<NBTTagCompound> {
 		}
 	}
 
-	public CartType getType() {
+	public CartTier getType() {
 		Class<? extends EntityMinecart> cartClass = cart.getClass();
 		return cart.getDataManager().get(PARAMS.containsKey(cartClass) ? PARAMS.get(cartClass) : CART_TYPE);
 	}
 
-	public CapabilityCartType setType(final CartType type) {
+	public CapabilityCartType setType(final CartTier type) {
 		Class<? extends EntityMinecart> cartClass = cart.getClass();
 		cart.getDataManager().set(PARAMS.containsKey(cartClass) ? PARAMS.get(cartClass) : CART_TYPE, type);
 		return this;
@@ -146,6 +146,6 @@ public class CapabilityCartType implements INBTSerializable<NBTTagCompound> {
 
 	@Override
 	public void deserializeNBT(NBTTagCompound tag) {
-		setType(CartType.valueOf(tag.getString("CartType")));
+		setType(CartTier.valueOf(tag.getString("CartType")));
 	}
 }

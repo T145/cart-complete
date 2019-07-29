@@ -11,7 +11,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import t145.metaltransport.api.caps.CapabilityCartType;
-import t145.metaltransport.api.consts.ItemCartType;
+import t145.metaltransport.api.consts.CartType;
 import t145.metaltransport.api.consts.RegistryMT;
 import t145.metaltransport.entities.EntityFurnaceCart;
 import t145.metaltransport.entities.EntityMetalCart;
@@ -35,7 +35,7 @@ public class ItemCart extends TItem {
 
 		@Override
 		public EntityMinecart getMinecartEntity(World world, double x, double y, double z, ItemStack stack) {
-			ItemCartType itemType = ItemCartType.values()[stack.getItemDamage()];
+			CartType itemType = CartType.values()[stack.getItemDamage()];
 			EntityMinecart cart = getCartInstance(world, x, y, z, itemType.getCartType());
 			cart.getCapability(CapabilityCartType.instance, null).setType(itemType.getType());
 			return cart;
@@ -43,7 +43,7 @@ public class ItemCart extends TItem {
 	};
 
 	public ItemCart() {
-		super(ItemCartType.values(), RegistryMT.RESOURCE_METAL_MINECART, CreativeTabs.TRANSPORTATION);
+		super(CartType.values(), RegistryMT.RESOURCE_METAL_MINECART, CreativeTabs.TRANSPORTATION);
 		this.setMaxStackSize(new ItemStack(Items.MINECART).getMaxStackSize());
 		BehaviorDispenseMinecart.register(this, DISPENSER_BEHAVIOR);
 	}

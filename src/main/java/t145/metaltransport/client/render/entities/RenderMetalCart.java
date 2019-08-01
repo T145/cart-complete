@@ -167,6 +167,16 @@ public class RenderMetalCart extends Render<EntityMetalCart> {
 
 		GlStateManager.popMatrix();
 
+		cart.getProfile().ifPresent(profile -> {
+			if (profile instanceof IUniversalProfile) {
+				GlStateManager.pushMatrix();
+				GlStateManager.translate(x, y + 0.375F, z);
+				GlStateManager.scale(0.75F, 0.75F, 0.75F);
+				((IUniversalProfile) profile).renderIndependently(this, cart, cart.getDisplayStack(), partialTicks);
+				GlStateManager.popMatrix();
+			}
+		});
+
 		super.doRender(cart, x, y, z, entityYaw, partialTicks);
 	}
 

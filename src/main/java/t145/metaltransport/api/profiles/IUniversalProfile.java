@@ -18,5 +18,5 @@ public interface IUniversalProfile extends IProfile {
 	default void render(Render renderer, EntityMinecart cart, ItemStack stack, float partialTicks) {}
 
 	@SideOnly(Side.CLIENT)
-	default void handleStatusUpdate(byte id) {}
+	default void renderIndependently(Render renderer, EntityMinecart cart, ItemStack stack, float partialTicks) {}
 }

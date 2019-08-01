@@ -130,8 +130,7 @@ public class EnchantingTableProfile implements IUniversalProfile {
 
 	@SideOnly(Side.CLIENT)
 	@Override
-	public void render(Render renderer, EntityMinecart cart, ItemStack stack, float partialTicks) {
-		// TODO: Render this independent of the cart, so it doesn't get rotated along w/ it
+	public void renderIndependently(Render renderer, EntityMinecart cart, ItemStack stack, float partialTicks) {
 		TileEntityRendererDispatcher.instance.render(table, -0.5, -0.12, -0.5, partialTicks);
 	}
 }

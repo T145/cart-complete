@@ -67,7 +67,7 @@ public class EnchantingTableProfile implements IUniversalProfile {
 
 			@Override
 			public boolean canInteractWith(EntityPlayer player) {
-				return cart.isEntityAlive() && player.getDistanceSq(cart.posX - 0.5D, cart.posY + 0.5D, cart.posZ - 0.5D) <= 64.0D;
+				return cart.isEntityAlive() && player.getDistanceSq(cart) <= 64.0D;
 			}
 		};
 	}

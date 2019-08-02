@@ -91,7 +91,8 @@ import t145.tbone.core.TClient;
 import t145.tbone.core.TServer;
 import t145.tbone.net.TPacketHandler;
 
-@Mod(modid = RegistryMT.ID, name = RegistryMT.NAME, version = MetalTransport.VERSION, updateJSON = MetalTransport.UPDATE_JSON, dependencies = "required-after:tbone;after:metalchests")
+@Mod(modid = RegistryMT.ID, name = RegistryMT.NAME, version = MetalTransport.VERSION, updateJSON = MetalTransport.UPDATE_JSON,
+dependencies = "required-after:tbone;required-after:metalchests;required-after:fastbench;after:fastfurnace")
 @EventBusSubscriber
 public class MetalTransport implements IGuiHandler {
 
@@ -182,8 +183,21 @@ public class MetalTransport implements IGuiHandler {
 
 	@EventHandler
 	public void metaltransport$postInit(final FMLPostInitializationEvent event) {
-		CapabilityCartType.WHITELIST.add(EntityMetalCart.class);
-		CapabilityCartType.WHITELIST.add(EntityFurnaceCart.class);
+		CapabilityCartType.COMPATIBLE_CARTS.add(EntityFurnaceCart.class);
+
+		ProfileRegistry.register(BlocksMC.METAL_CHEST, new ProfileFactoryMetalChest());
+
+		if (ConfigMC.hasRefinedRelocation()) {
+			ProfileRegistry.register(BlocksMC.METAL_SORTING_CHEST, new ProfileFactoryMetalChest());
+		}
+
+		if (ConfigMC.hasThaumcraft()) {
+			ProfileRegistry.register(BlocksMC.METAL_HUNGRY_CHEST, new ProfileFactoryMetalChest());
+
+			if (ConfigMC.hasRefinedRelocation()) {
+				ProfileRegistry.register(BlocksMC.METAL_SORTING_HUNGRY_CHEST, new ProfileFactoryMetalChest());
+			}
+		}
 
 		ProfileRegistry.register(Blocks.ENDER_CHEST, new ProfileFactoryEnderChest());
 		ProfileRegistry.register(Blocks.ENCHANTING_TABLE, new ProfileFactoryEnchantingTable());
@@ -198,22 +212,6 @@ public class MetalTransport implements IGuiHandler {
 		ProfileRegistry.register(Blocks.DISPENSER, new ProfileFactoryDispenser());
 		ProfileRegistry.register(Blocks.DROPPER, new ProfileFactoryDropper());
 		ProfileRegistry.register(Blocks.ANVIL, new ProfileFactoryAnvil());
-
-		if (Loader.isModLoaded("metalchests")) {
-			ProfileRegistry.register(BlocksMC.METAL_CHEST, new ProfileFactoryMetalChest());
-
-			if (ConfigMC.hasRefinedRelocation()) {
-				ProfileRegistry.register(BlocksMC.METAL_SORTING_CHEST, new ProfileFactoryMetalChest());
-			}
-
-			if (ConfigMC.hasThaumcraft()) {
-				ProfileRegistry.register(BlocksMC.METAL_HUNGRY_CHEST, new ProfileFactoryMetalChest());
-
-				if (ConfigMC.hasRefinedRelocation()) {
-					ProfileRegistry.register(BlocksMC.METAL_SORTING_HUNGRY_CHEST, new ProfileFactoryMetalChest());
-				}
-			}
-		}
 	}
 
 	@SubscribeEvent

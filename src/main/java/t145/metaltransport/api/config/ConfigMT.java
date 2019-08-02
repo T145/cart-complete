@@ -12,14 +12,6 @@ public class ConfigMT {
 	@Config.RequiresMcRestart
 	public static boolean handleEmptyMinecarts = true;
 
-	@Config.Comment("Cart classes which should be modified by the MetalTransport system. NOTE: Vanilla handled internally.")
-	@Config.RequiresMcRestart
-	public static String[] whitelist = new String[] {};
-
-	@Config.Comment("Cart classes which should ignored by the MetalTransport system.")
-	@Config.RequiresMcRestart
-	public static String[] blacklist = new String[] {};
-
 	private ConfigMT() {}
 
 	public static boolean hasRailcraft() {

@@ -23,6 +23,7 @@ import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import t145.metaltransport.api.carts.IMetalCart;
 import t145.metaltransport.api.config.ConfigMT;
 import t145.metaltransport.api.consts.CartTier;
 import t145.metaltransport.api.consts.RegistryMT;
@@ -30,19 +31,16 @@ import t145.metaltransport.api.objs.SerializersMT;
 
 public class CapabilityCartType implements INBTSerializable<NBTTagCompound> {
 
-	public static final ObjectOpenHashSet<Class<? extends EntityMinecart>> WHITELIST = new ObjectOpenHashSet<>();
-	public static final ObjectOpenHashSet<Class<? extends EntityMinecart>> BLACKLIST = new ObjectOpenHashSet<>();
+	public static final ObjectOpenHashSet<Class<? extends EntityMinecart>> COMPATIBLE_CARTS = new ObjectOpenHashSet<>();
 
 	static {
-		WHITELIST.add(EntityMinecartEmpty.class);
-		WHITELIST.add(EntityMinecartChest.class);
-		WHITELIST.add(EntityMinecartFurnace.class);
-		WHITELIST.add(EntityMinecartCommandBlock.class);
-		WHITELIST.add(EntityMinecartHopper.class);
-		WHITELIST.add(EntityMinecartTNT.class);
-		WHITELIST.add(EntityMinecartMobSpawner.class);
-		loadFromConfig(ConfigMT.whitelist, WHITELIST);
-		loadFromConfig(ConfigMT.blacklist, BLACKLIST);
+		COMPATIBLE_CARTS.add(EntityMinecartChest.class);
+		COMPATIBLE_CARTS.add(EntityMinecartCommandBlock.class);
+		COMPATIBLE_CARTS.add(EntityMinecartEmpty.class);
+		COMPATIBLE_CARTS.add(EntityMinecartFurnace.class);
+		COMPATIBLE_CARTS.add(EntityMinecartHopper.class);
+		COMPATIBLE_CARTS.add(EntityMinecartMobSpawner.class);
+		COMPATIBLE_CARTS.add(EntityMinecartTNT.class);
 	}
 
 	@CapabilityInject(CapabilityCartType.class)
@@ -67,8 +65,8 @@ public class CapabilityCartType implements INBTSerializable<NBTTagCompound> {
 		}
 	}
 
-	private static boolean canAttach(final Class<? extends EntityMinecart> cartClass) {
-		return WHITELIST.contains(cartClass) && !BLACKLIST.contains(cartClass);
+	private static boolean canAttach(final EntityMinecart cart) {
+		return cart instanceof IMetalCart || COMPATIBLE_CARTS.contains(cart.getClass());
 	}
 
 	private static DataParameter<CartTier> createKey(final Class<? extends EntityMinecart> cartClass) {
@@ -79,7 +77,7 @@ public class CapabilityCartType implements INBTSerializable<NBTTagCompound> {
 		EntityDataManager data = cart.getDataManager();
 		Class<? extends EntityMinecart> cartClass = cart.getClass();
 
-		if (canAttach(cartClass)) {
+		if (canAttach(cart)) {
 			if (!PARAMS.containsKey(cartClass)) {
 				PARAMS.put(cartClass, createKey(cartClass));
 			}
@@ -91,7 +89,7 @@ public class CapabilityCartType implements INBTSerializable<NBTTagCompound> {
 	}
 
 	public static void attach(final EntityMinecart cart, final AttachCapabilitiesEvent<Entity> event) {
-		if (canAttach(cart.getClass())) {
+		if (canAttach(cart)) {
 			event.addCapability(RegistryMT.getResource(RegistryMT.KEY_CART_TYPE), new ICapabilitySerializable<NBTTagCompound>() {
 
 				final CapabilityCartType type = new CapabilityCartType(cart);

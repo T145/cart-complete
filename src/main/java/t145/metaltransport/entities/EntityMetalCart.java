@@ -283,7 +283,15 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 		return this;
 	}
 
-	public boolean canRun(IProfile profile) {
+	public boolean isExecutable() {
+		Optional<IProfile> opt = this.getProfile();
+
+		if (!opt.isPresent()) {
+			return false;
+		}
+
+		IProfile profile = opt.get();
+
 		return (profile instanceof IServerProfile && !world.isRemote) || !(profile instanceof IServerProfile && world.isRemote);
 	}
 
@@ -334,56 +342,48 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 	public void onUpdate() {
 		super.onUpdate();
 
-		this.profile.ifPresent(profile -> {
-			if (canRun(profile)) {
-				profile.tick(world, getPosition());
-			}
-		});
+		if (this.isExecutable()) {
+			this.profile.get().tick(world, getPosition());
+		}
 	}
 
 	@Override
 	protected void moveAlongTrack(BlockPos pos, IBlockState rail) {
 		super.moveAlongTrack(pos, rail);
 
-		this.profile.ifPresent(profile -> {
-			if (canRun(profile)) {
-				profile.moveAlongTrack(pos, rail);
-			}
-		});
+		if (this.isExecutable()) {
+			this.profile.get().moveAlongTrack(pos, rail);
+		}
 	}
 
 	@Override
 	protected void applyDrag() {
-		this.profile.ifPresent(profile -> {
-			if (canRun(profile)) {
-				profile.applyDrag();
-			}
-		});
+		if (this.isExecutable()) {
+			this.profile.get().applyDrag();
+		}
 
 		super.applyDrag();
 	}
 
 	@Override
 	public void fall(float distance, float damageMultiplier) {
-		this.profile.ifPresent(profile -> {
-			if (canRun(profile)) {
-				profile.fall(distance, damageMultiplier);
-			}
-		});
+		if (this.isExecutable()) {
+			this.profile.get().fall(distance, damageMultiplier);
+		}
 
 		super.fall(distance, damageMultiplier);
 	}
 
 	public void removeDisplayBlock(boolean dying) {
-		this.profile.ifPresent(profile -> {
-			if (canRun(profile)) {
-				profile.onProfileDeletion();
+		if (this.isExecutable()) {
+			IProfile profile = this.profile.get();
 
-				if (dying) {
-					profile.onCartDeath();
-				}
+			profile.onProfileDeletion();
+
+			if (dying) {
+				profile.onCartDeath();
 			}
-		});
+		}
 
 		this.setDisplayStack(ItemStack.EMPTY);
 		this.setHasDisplayTile(false);
@@ -473,11 +473,9 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 				return true;
 			}
 
-			this.profile.ifPresent(profile -> {
-				if (canRun(profile)) {
-					profile.activate(player, hand);
-				}
-			});
+			if (this.isExecutable()) {
+				this.profile.get().activate(player, hand);
+			}
 		}
 
 		return true;
@@ -485,12 +483,8 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 
 	@Override
 	public void onActivatorRailPass(int x, int y, int z, boolean receivingPower) {
-		if (this.hasDisplayBlock()) {
-			this.profile.ifPresent(profile -> {
-				if (canRun(profile)) {
-					profile.onActivatorRailPass(x, y, z, receivingPower);
-				}
-			});
+		if (this.hasDisplayBlock() && this.isExecutable()) {
+			this.profile.get().onActivatorRailPass(x, y, z, receivingPower);
 		} else if (receivingPower) {
 			if (this.isBeingRidden()) {
 				this.removePassengers();
@@ -524,11 +518,9 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 		boolean dropItems = this.world.getGameRules().getBoolean("doEntityDrops");
 		ItemStack drop = this.getDropStack();
 
-		this.profile.ifPresent(profile -> {
-			if (canRun(profile)) {
-				profile.killCart(source, dropItems);
-			}
-		});
+		if (this.isExecutable()) {
+			this.profile.get().killCart(source, dropItems);
+		}
 
 		this.setDead();
 

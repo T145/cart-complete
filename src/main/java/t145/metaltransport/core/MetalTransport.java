@@ -8,7 +8,11 @@ import net.minecraft.block.BlockShulkerBox;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
+import net.minecraft.entity.item.EntityMinecartChest;
+import net.minecraft.entity.item.EntityMinecartCommandBlock;
 import net.minecraft.entity.item.EntityMinecartEmpty;
+import net.minecraft.entity.item.EntityMinecartFurnace;
+import net.minecraft.entity.item.EntityMinecartHopper;
 import net.minecraft.entity.item.EntityMinecartMobSpawner;
 import net.minecraft.entity.item.EntityMinecartTNT;
 import net.minecraft.entity.player.EntityPlayer;
@@ -64,7 +68,6 @@ import t145.metaltransport.api.consts.RegistryMT;
 import t145.metaltransport.api.objs.ItemsMT;
 import t145.metaltransport.api.objs.SerializersMT;
 import t145.metaltransport.api.profiles.ProfileRegistry;
-import t145.metaltransport.client.render.entities.RenderCart;
 import t145.metaltransport.client.render.entities.RenderMetalCart;
 import t145.metaltransport.client.render.entities.RenderSpawnerCart;
 import t145.metaltransport.client.render.entities.RenderTntCart;
@@ -251,17 +254,16 @@ public class MetalTransport implements IGuiHandler {
 			TClient.registerModel(RegistryMT.ID, ItemsMT.METAL_MINECART, "item_minecart", type.ordinal(), String.format("item=%s", type.getName()));
 		}
 
-		// TODO: Find a better way to register custom renders
-		// - iterate over difference of whitelist and blacklist
-		for (Class c : CapabilityCartType.WHITELIST) {
-			if (c != EntityMinecartTNT.class && c != EntityMinecartMobSpawner.class) {
-				RenderingRegistry.registerEntityRenderingHandler(c, manager -> new RenderCart(manager));
-			}
-		}
-
-		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartTNT.class, manager -> new RenderTntCart(manager));
+		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartChest.class, manager -> new RenderMetalCart(manager));
+		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartCommandBlock.class, manager -> new RenderMetalCart(manager));
+		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartEmpty.class, manager -> new RenderMetalCart(manager));
+		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartFurnace.class, manager -> new RenderMetalCart(manager));
+		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartHopper.class, manager -> new RenderMetalCart(manager));
 		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartMobSpawner.class, manager -> new RenderSpawnerCart(manager));
+		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartTNT.class, manager -> new RenderTntCart(manager));
+
 		RenderingRegistry.registerEntityRenderingHandler(EntityMetalCart.class, manager -> new RenderMetalCart(manager));
+		RenderingRegistry.registerEntityRenderingHandler(EntityFurnaceCart.class, manager -> new RenderMetalCart(manager));
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)

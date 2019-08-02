@@ -19,11 +19,12 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import t145.metaltransport.api.caps.CapabilityCartType;
 import t145.metaltransport.api.consts.CartTier;
+import t145.metaltransport.api.profiles.IProfile;
 import t145.metaltransport.api.profiles.IUniversalProfile;
 import t145.metaltransport.entities.EntityMetalCart;
 
 @SideOnly(Side.CLIENT)
-public class RenderMetalCart extends Render<EntityMetalCart> {
+public class RenderMetalCart extends Render<EntityMinecart> {
 
 	private final Minecraft mc = Minecraft.getMinecraft();
 	private final ModelBase model = new ModelMinecart();
@@ -33,7 +34,7 @@ public class RenderMetalCart extends Render<EntityMetalCart> {
 		this.shadowSize = 0.5F;
 	}
 
-	public void computeTranslationAndRotation(EntityMetalCart cart, double x, double y, double z, float entityYaw, float partialTicks) {
+	public void computeTranslationAndRotation(EntityMinecart cart, double x, double y, double z, float entityYaw, float partialTicks) {
 		long i = cart.getEntityId() * 493286711L;
 
 		i = i * i * 4392167121L + i * 98761L;
@@ -102,7 +103,7 @@ public class RenderMetalCart extends Render<EntityMetalCart> {
 		GlStateManager.popMatrix();
 	}
 
-	public void renderDisplayTile(EntityMinecart cart) {
+	public void renderDisplayTile(EntityMinecart cart, float partialTicks) {
 		IBlockState state = cart.getDisplayTile();
 
 		if (state.getRenderType() != EnumBlockRenderType.INVISIBLE) {
@@ -121,7 +122,7 @@ public class RenderMetalCart extends Render<EntityMetalCart> {
 	}
 
 	@Override
-	public void doRender(EntityMetalCart cart, double x, double y, double z, float entityYaw, float partialTicks) {
+	public void doRender(EntityMinecart cart, double x, double y, double z, float entityYaw, float partialTicks) {
 		GlStateManager.pushMatrix();
 		this.bindEntityTexture(cart);
 
@@ -139,49 +140,70 @@ public class RenderMetalCart extends Render<EntityMetalCart> {
 		this.model.render(cart, 0, 0, -0.1F, 0, 0, 0.0625F);
 		GlStateManager.popMatrix();
 
-		if (!cart.getProfile().isPresent()
-				|| !(cart.getProfile().get() instanceof IUniversalProfile)
-				|| ((IUniversalProfile) cart.getProfile().get()).renderDisplayStack(cart, cart.getDisplayStack(), partialTicks)) {
-			// behaves slightly better than the normal minecart:
-			// Normal renders air; I just don't call the code
-			if (cart.hasDisplayStack()) {
-				this.renderDisplayStack(cart.getDisplayStack());
-			} else if (cart.hasDisplayTile()) {
-				this.renderDisplayTile(cart);
+		if (cart instanceof EntityMetalCart) {
+			EntityMetalCart minecart = (EntityMetalCart) cart;
+			boolean exec = minecart.isExecutable();
+
+			if (!minecart.getProfile().isPresent()
+					|| !(minecart.getProfile().get() instanceof IUniversalProfile)
+					|| ((IUniversalProfile) minecart.getProfile().get()).renderDisplayStack(minecart, minecart.getDisplayStack(), partialTicks)) {
+				// behaves slightly better than the normal minecart:
+				// Normal renders air; I just don't call the code
+				if (minecart.hasDisplayStack()) {
+					this.renderDisplayStack(minecart.getDisplayStack());
+				} else if (cart.hasDisplayTile()) {
+					this.renderDisplayTile(minecart, partialTicks);
+				}
 			}
+
+			if (exec) {
+				IProfile profile = minecart.getProfile().get();
+
+				if (profile instanceof IUniversalProfile) {
+					IUniversalProfile universal = (IUniversalProfile) profile;
+					GlStateManager.pushMatrix();
+					GlStateManager.scale(0.75F, 0.75F, 0.75F);
+					universal.render(this, minecart, minecart.getDisplayStack(), partialTicks);
+					GlStateManager.popMatrix();
+				}
+			}
+
+			if (this.renderOutlines) {
+				GlStateManager.disableOutlineMode();
+				GlStateManager.disableColorMaterial();
+			}
+
+			GlStateManager.popMatrix();
+
+			if (exec) {
+				IProfile profile = minecart.getProfile().get();
+
+				if (profile instanceof IUniversalProfile) {
+					IUniversalProfile universal = (IUniversalProfile) profile;
+
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(x, y + 0.375F, z);
+					GlStateManager.scale(0.75F, 0.75F, 0.75F);
+					universal.renderIndependently(this, minecart, minecart.getDisplayStack(), partialTicks);
+					GlStateManager.popMatrix();
+				}
+			}
+		} else {
+			this.renderDisplayTile(cart, partialTicks);
+
+			if (this.renderOutlines) {
+				GlStateManager.disableOutlineMode();
+				GlStateManager.disableColorMaterial();
+			}
+
+			GlStateManager.popMatrix();
 		}
-
-		cart.getProfile().ifPresent(profile -> {
-			if (profile instanceof IUniversalProfile) {
-				GlStateManager.pushMatrix();
-				GlStateManager.scale(0.75F, 0.75F, 0.75F);
-				((IUniversalProfile) profile).render(this, cart, cart.getDisplayStack(), partialTicks);
-				GlStateManager.popMatrix();
-			}
-		});
-
-		if (this.renderOutlines) {
-			GlStateManager.disableOutlineMode();
-			GlStateManager.disableColorMaterial();
-		}
-
-		GlStateManager.popMatrix();
-
-		cart.getProfile().ifPresent(profile -> {
-			if (profile instanceof IUniversalProfile) {
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(x, y + 0.375F, z);
-				GlStateManager.scale(0.75F, 0.75F, 0.75F);
-				((IUniversalProfile) profile).renderIndependently(this, cart, cart.getDisplayStack(), partialTicks);
-				GlStateManager.popMatrix();
-			}
-		});
 
 		super.doRender(cart, x, y, z, entityYaw, partialTicks);
 	}
 
 	@Override
-	protected ResourceLocation getEntityTexture(EntityMetalCart cart) {
+	protected ResourceLocation getEntityTexture(EntityMinecart cart) {
 		if (cart.hasCapability(CapabilityCartType.instance, null)) {
 			return cart.getCapability(CapabilityCartType.instance, null).getType().getModel();
 		}

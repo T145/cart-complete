@@ -79,7 +79,10 @@ public class BeaconProfile implements IUniversalProfile {
 
 	@Override
 	public void tick(World world, BlockPos pos) {
-		this.beacon.setPos(pos);
+		if (!pos.equals(beacon.getPos())) {
+			this.beacon.setPos(pos);
+		}
+
 		this.beacon.update();
 	}
 

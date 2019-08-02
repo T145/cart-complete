@@ -153,10 +153,8 @@ public class DispenserProfile implements IServerProfile {
 
 		int slot = this.dispenser.getDispenseSlot();
 
-		this.dispenser.setPos(cart.getPosition());
-
 		if (slot < 0) {
-			world.playEvent(1001, this.dispenser.getPos(), 0);
+			world.playEvent(1001, cart.getPosition(), 0);
 		} else {
 			this.dispenseStack(slot, dispenser.getStackInSlot(slot));
 		}

@@ -116,7 +116,10 @@ public class ShulkerBoxProfile implements IUniversalProfile {
 
 	@Override
 	public void tick(World world, BlockPos pos) {
-		this.box.setPos(pos);
+		if (!pos.equals(box.getPos())) {
+			this.box.setPos(pos);
+		}
+
 		this.box.update();
 	}
 

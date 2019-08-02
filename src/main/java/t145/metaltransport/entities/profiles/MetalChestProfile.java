@@ -102,7 +102,10 @@ public class MetalChestProfile implements IUniversalProfile {
 
 	@Override
 	public void tick(World world, BlockPos pos) {
-		chest.setPos(pos);
+		if (!pos.equals(chest.getPos())) {
+			this.chest.setPos(pos);
+		}
+
 		chest.update();
 
 		if (!world.isRemote && cart.isEntityAlive() && (chest instanceof TileMetalHungryChest || chest instanceof TileMetalSortingHungryChest)) {

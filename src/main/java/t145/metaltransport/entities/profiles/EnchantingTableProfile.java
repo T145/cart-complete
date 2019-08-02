@@ -81,7 +81,10 @@ public class EnchantingTableProfile implements IUniversalProfile {
 
 	@Override
 	public void tick(World world, BlockPos pos) {
-		table.setPos(pos);
+		if (!pos.equals(table.getPos())) {
+			this.table.setPos(pos);
+		}
+
 		table.update();
 
 		if (world.isRemote && world.getTotalWorldTime() % 5L == 0L) {

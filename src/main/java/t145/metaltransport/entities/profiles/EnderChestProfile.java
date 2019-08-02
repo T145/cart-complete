@@ -63,7 +63,10 @@ public class EnderChestProfile implements IUniversalProfile {
 
 	@Override
 	public void tick(World world, BlockPos pos) {
-		chest.setPos(pos);
+		if (!pos.equals(chest.getPos())) {
+			this.chest.setPos(pos);
+		}
+
 		chest.update();
 
 		if (world.isRemote && world.getTotalWorldTime() % 5L == 0L) {

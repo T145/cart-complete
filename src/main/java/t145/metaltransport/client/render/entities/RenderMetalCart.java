@@ -34,7 +34,7 @@ public class RenderMetalCart extends Render<EntityMinecart> {
 		this.shadowSize = 0.5F;
 	}
 
-	public void computeTranslationAndRotation(EntityMinecart cart, double x, double y, double z, float entityYaw, float partialTicks) {
+	private void initialTranslation(EntityMinecart cart) {
 		long i = cart.getEntityId() * 493286711L;
 
 		i = i * i * 4392167121L + i * 98761L;
@@ -44,12 +44,34 @@ public class RenderMetalCart extends Render<EntityMinecart> {
 		float f2 = (((i >> 24 & 7L) + 0.5F) / 8.0F - 0.5F) * 0.004F;
 
 		GlStateManager.translate(f, f1, f2);
+	}
 
-		double d0 = cart.lastTickPosX + (cart.posX - cart.lastTickPosX) * (double) partialTicks;
-		double d1 = cart.lastTickPosY + (cart.posY - cart.lastTickPosY) * (double) partialTicks;
-		double d2 = cart.lastTickPosZ + (cart.posZ - cart.lastTickPosZ) * (double) partialTicks;
+	private void translateIncline(EntityMinecart cart, float partialTicks) {
+		float incline = cart.getRollingAmplitude() - partialTicks;
+
+		if (incline > 0.0F) {
+			// behaves slightly better than the normal minecart:
+			// f6 is always computed alongside f5, so I just do it when we do something w/ f5
+			float f6 = cart.getDamage() - partialTicks;
+
+			if (f6 < 0.0F) {
+				f6 = 0.0F;
+			}
+
+			GlStateManager.rotate(MathHelper.sin(incline) * incline * f6 / 10.0F * cart.getRollingDirection(), 1.0F, 0.0F, 0.0F);
+		}
+	}
+
+	protected void baseTranslate(EntityMinecart cart, double x, double y, double z, float entityYaw, float partialTicks) {
+		double d0 = cart.lastTickPosX + (cart.posX - cart.lastTickPosX) * partialTicks;
+		double d1 = cart.lastTickPosY + (cart.posY - cart.lastTickPosY) * partialTicks;
+		double d2 = cart.lastTickPosZ + (cart.posZ - cart.lastTickPosZ) * partialTicks;
 		Vec3d vec3d = cart.getPos(d0, d1, d2);
 		float f3 = cart.prevRotationPitch + (cart.rotationPitch - cart.prevRotationPitch) * partialTicks;
+		double sx = x;
+		double sy = y;
+		double sz = z;
+		float yaw = entityYaw;
 
 		if (vec3d != null) {
 			Vec3d vec3d1 = cart.getPosOffset(d0, d1, d2, 0.3D);
@@ -63,34 +85,28 @@ public class RenderMetalCart extends Render<EntityMinecart> {
 				vec3d2 = vec3d;
 			}
 
-			x += vec3d.x - d0;
-			y += (vec3d1.y + vec3d2.y) / 2.0D - d1;
-			z += vec3d.z - d2;
+			sx += vec3d.x - d0;
+			sy += (vec3d1.y + vec3d2.y) / 2.0D - d1;
+			sz += vec3d.z - d2;
+
 			Vec3d vec3d3 = vec3d2.add(-vec3d1.x, -vec3d1.y, -vec3d1.z);
 
 			if (vec3d3.length() != 0.0D) {
 				vec3d3 = vec3d3.normalize();
-				entityYaw = (float) (Math.atan2(vec3d3.z, vec3d3.x) * 180.0D / Math.PI);
+				yaw = (float) (Math.atan2(vec3d3.z, vec3d3.x) * 180.0D / Math.PI);
 				f3 = (float) (Math.atan(vec3d3.y) * 73.0D);
 			}
 		}
 
-		GlStateManager.translate(x, y + 0.375F, z);
-		GlStateManager.rotate(180.0F - entityYaw, 0.0F, 1.0F, 0.0F);
+		GlStateManager.translate(sx, sy + 0.375F, sz);
+		GlStateManager.rotate(180.0F - yaw, 0.0F, 1.0F, 0.0F);
 		GlStateManager.rotate(-f3, 0.0F, 0.0F, 1.0F);
-		float f5 = cart.getRollingAmplitude() - partialTicks;
+	}
 
-		if (f5 > 0.0F) {
-			// behaves slightly better than the normal minecart:
-			// f6 is always computed alongside f5, so I just do it when we do something w/ f5
-			float f6 = cart.getDamage() - partialTicks;
-
-			if (f6 < 0.0F) {
-				f6 = 0.0F;
-			}
-
-			GlStateManager.rotate(MathHelper.sin(f5) * f5 * f6 / 10.0F * cart.getRollingDirection(), 1.0F, 0.0F, 0.0F);
-		}
+	public void translateCart(EntityMinecart cart, double x, double y, double z, float entityYaw, float partialTicks) {
+		this.initialTranslation(cart);
+		this.baseTranslate(cart, x, y, z, entityYaw, partialTicks);
+		this.translateIncline(cart, partialTicks);
 	}
 
 	public void renderDisplayStack(ItemStack stack) {
@@ -125,8 +141,7 @@ public class RenderMetalCart extends Render<EntityMinecart> {
 	public void doRender(EntityMinecart cart, double x, double y, double z, float entityYaw, float partialTicks) {
 		GlStateManager.pushMatrix();
 		this.bindEntityTexture(cart);
-
-		computeTranslationAndRotation(cart, x, y, z, entityYaw, partialTicks);
+		this.translateCart(cart, x, y, z, entityYaw, partialTicks);
 
 		if (this.renderOutlines) {
 			GlStateManager.enableColorMaterial();
@@ -168,13 +183,6 @@ public class RenderMetalCart extends Render<EntityMinecart> {
 				}
 			}
 
-			if (this.renderOutlines) {
-				GlStateManager.disableOutlineMode();
-				GlStateManager.disableColorMaterial();
-			}
-
-			GlStateManager.popMatrix();
-
 			if (exec) {
 				IProfile profile = minecart.getProfile().get();
 
@@ -190,14 +198,14 @@ public class RenderMetalCart extends Render<EntityMinecart> {
 			}
 		} else {
 			this.renderDisplayTile(cart, partialTicks);
-
-			if (this.renderOutlines) {
-				GlStateManager.disableOutlineMode();
-				GlStateManager.disableColorMaterial();
-			}
-
-			GlStateManager.popMatrix();
 		}
+
+		if (this.renderOutlines) {
+			GlStateManager.disableOutlineMode();
+			GlStateManager.disableColorMaterial();
+		}
+
+		GlStateManager.popMatrix();
 
 		super.doRender(cart, x, y, z, entityYaw, partialTicks);
 	}

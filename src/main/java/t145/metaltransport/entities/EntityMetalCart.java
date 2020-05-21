@@ -13,7 +13,6 @@ import net.minecraft.block.BlockHopper;
 import net.minecraft.block.BlockMobSpawner;
 import net.minecraft.block.BlockTNT;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.player.EntityPlayer;
@@ -30,6 +29,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.minecart.MinecartInteractEvent;
@@ -323,7 +323,7 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 		if (hasCustomName()) {
 			return getCustomNameTag();
 		} else {
-			return I18n.format(String.format("item.metaltransport:metal_minecart.%s.name", getCartType().getName()));
+			return I18n.translateToLocal(String.format("item.metaltransport:metal_minecart.%s.name", getCartType().getName()));
 		}
 	}
 
@@ -332,7 +332,7 @@ public class EntityMetalCart extends EntityMinecart implements IMetalCart {
 		TextComponentString name = (TextComponentString) super.getDisplayName();
 
 		if (this.hasDisplayBlock()) {
-			return name.appendText(I18n.format("%s", "com.metaltransport.info.with")).appendText(this.getDisplayStack().getDisplayName());
+			return name.appendText(I18n.translateToLocalFormatted("%s", "com.metaltransport.info.with")).appendText(this.getDisplayStack().getDisplayName());
 		}
 
 		return name;
